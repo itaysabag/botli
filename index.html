@@ -1143,6 +1143,52 @@
             z-index: 20000; /* מעל הכל */
         }
 
+        /* --- עיצוב מתג מצבים (עורך / שיעורים) --- */
+        .mode-toggle-container {
+            display: flex;
+            background-color: transparent; /* רקע שקוף */
+            border: 1px solid #444746;
+            border-radius: 18px; /* רדיוס חיצוני */
+            padding: 2px; /* רווח קטן בין המסגרת לכפתורים */
+            height: 36px; /* גובה קבוע זהה לשאר הכפתורים */
+            box-sizing: border-box;
+            align-items: center;
+        }
+
+        .mode-btn {
+            border: none;
+            background: transparent;
+            color: #8e918f;
+            padding: 0 15px;
+            height: 100%; /* תופס את כל הגובה הפנימי */
+            border-radius: 16px; /* רדיוס פנימי קטן ב-2px מהחיצוני */
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .mode-btn:hover {
+                color: #e3e3e3;
+            }
+
+            /* המצב הפעיל */
+            .mode-btn.active {
+                background-color: #a8c7fa; /* כחול בהיר */
+                color: #000000; /* טקסט שחור */
+                font-weight: 700;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+
+            /* ביטול מצב פעיל כשהכפתור מושבת (במבחן) */
+            .mode-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
             /* במצב מסך מלא - הסתר את תפריט הצד */
             #lesson-panel.lesson-fullscreen #lesson-sidebar {
                 display: none !important;
@@ -1233,7 +1279,7 @@
         </div>
 
         <div class="collapsed-tools">
-            <button id="side-book-btn" class="side-icon-btn" title="ספר תרגילים">
+            <button id="side-book-btn" class="side-icon-btn" title="ספר תרגילים" onclick="openExerciseModal()">
                 <i class="fa-solid fa-book"></i>
             </button>
         </div>
@@ -1271,18 +1317,34 @@
                 <div id="exam-tools" style="display: flex; align-items: center; gap: 10px;">
                     <button id="submitBtn" title="הגשת עבודה"><i class="fa-solid fa-paper-plane"></i> הגשה</button>
                     <button id="examBtn" title="מצב מבחן"><i class="fa-solid fa-lock"></i> מצב מבחן</button>
-                    <button id="fs-global-btn" onclick="toggleGlobalFullScreen()" title="מסך מלא (F11)" style="border: 1px solid #444746; padding: 5px 15px; margin-right: 10px;">
-                        <i class="fa-solid fa-expand"></i>
-                    </button>
                     <div class="exam-indicator" id="examIndicator"><div class="exam-dot"></div>מצב מבחן</div>
                 </div>
 
             </div>
 
-            <div id="right-header-group">
-                <button id="learningBtn" title="מצב למידה" style="border: 1px solid #444746;">
-                    <i class="fa-solid fa-graduation-cap"></i> שיעורים
+            <div id="right-header-group" style="display: flex; align-items: center; position: relative;">
+
+                <div id="msg-bubble" style="display: none; position: absolute; top: 50px; right: 0; width: 300px; background: #1e1f20; border: 1px solid #a8c7fa; padding: 15px; border-radius: 8px; z-index: 30000; text-align: right; direction: rtl; box-shadow: 0 5px 20px rgba(0,0,0,0.5); color: #e3e3e3; font-size: 14px; line-height: 1.5;">
+                    <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 5px;">הודעה מהמורה:</div>
+                    <div id="msg-bubble-content"></div>
+                </div>
+
+                <button id="msg-btn" onclick="toggleMessageBubble()" title="הודעות מהמורה" style="border: 1px solid #444746; margin-right: 10px; width: 36px !important; height: 36px !important; padding: 0 !important; border-radius: 50%; justify-content: center;">
+                    <i class="fa-solid fa-envelope"></i>
                 </button>
+
+                <button id="fs-global-btn" onclick="toggleGlobalFullScreen()" title="מסך מלא (F11)" style="border: 1px solid #444746; margin-right: 10px;">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
+
+                <div class="mode-toggle-container">
+                    <button id="mode-editor-btn" class="mode-btn active" onclick="switchViewMode('editor')">
+                        <i class="fa-solid fa-code"></i> עורך
+                    </button>
+                    <button id="mode-lesson-btn" class="mode-btn" onclick="switchViewMode('lesson')">
+                        <i class="fa-solid fa-graduation-cap"></i> שיעורים
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -1436,7 +1498,7 @@
                 }, 100);
             }
 
-            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1gItwv13rC_RCnAuOyw-LV_Wwh0cDOzL5VwsA_8w2cgXIjeLXBa3X9g9zo9iwA98hqQ/exec";
+            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzP34qx8nBqCuCXKjr6TKthKWZAAgYHk032T7wNrvud6sU5CN8gRI4RXNL8mTeeStSyKQ/exec";
             const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
             const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
             const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfkV1E_rCAlRt6qcvIwI4Nmb5QRqN0S6vo7-mPx_shgknVzQ/formResponse";
@@ -1447,6 +1509,7 @@
             let currentActiveExercise = null;
             let globalStudentName = "";
             let isSystemInteraction = false;
+            let lastSystemMessage = "";
 
             let isSystemLocked = false;
             let isWatchdogActive = true;
@@ -1673,7 +1736,7 @@
                 document.getElementById('btn-load').onclick = loadProject;
                 document.getElementById('submitBtn').onclick = openSubmitModal;
                 document.getElementById('examBtn').onclick = toggleExamMode;
-                document.getElementById('learningBtn').onclick = toggleLearningMode;
+                
                 document.getElementById('add-tab-btn').onclick = openNewFileModal;
                 document.getElementById('zoom-in-btn').onclick = () => changeFontSize(1);
                 document.getElementById('zoom-out-btn').onclick = () => changeFontSize(-1);
@@ -1709,22 +1772,43 @@
 
             async function checkRemoteLock() {
                 try {
+                    // הוספנו פרמטר t כדי למנוע שמירה בזיכרון (Cache) ולקבל מידע עדכני
                     const response = await fetch(CONTROL_SCRIPT_URL + "?t=" + new Date().getTime());
                     if (!response.ok) return;
+
                     const data = await response.json();
+
+                    // עדכון סיסמה ונעילה
                     if (data.password) remotePassword = String(data.password);
                     isSystemLocked = (data.status === "BLOCK");
-                    // --- עדכון מנגנון ה-Watchdog וקיוסק ---
+
+                    // --- חדש: טיפול בהודעת מערכת (תא A4) ---
+                    // --- חדש: טיפול בהודעת מערכת (תא A4) ---
+                    if (data.message && data.message.trim() !== "") {
+                        // שמירה גלובלית כדי שהכפתור יכיר את ההודעה
+                        window.lastSystemMessage = data.message;
+
+                        if (data.message !== lastSystemMessage) {
+                            lastSystemMessage = data.message;
+
+                            if (globalStudentName) {
+                                await Sys.alert("📢 הודעת כיתה:\n\n" + lastSystemMessage);
+                            }
+                        }
+                    } else {
+                        // אם מחקת את ההודעה בגיליון - ננקה גם בכפתור
+                        window.lastSystemMessage = "";
+                    }
+
+                    // --- לוגיקת Watchdog וקיוסק (ללא שינוי) ---
                     if (data.watchdog === "off") {
                         isWatchdogActive = false;
-                        document.body.classList.remove('kiosk-mode'); // ביטול מצב קיוסק
-                    } else { // מצב ON (או רגיל)
+                        document.body.classList.remove('kiosk-mode');
+                    } else {
                         isWatchdogActive = true;
-
-                        // אם זה ON ממש (ולא סתם ריק), נפעיל מצב קיוסק נוקשה
                         if (data.watchdog === "on") {
                             document.body.classList.add('kiosk-mode');
-                            enforceKioskMode(); // בדיקה שאנחנו במסך מלא
+                            enforceKioskMode();
                         } else {
                             document.body.classList.remove('kiosk-mode');
                         }
@@ -1852,7 +1936,10 @@
                 });
             }
 
-            function openExerciseModal() { document.getElementById('exercise-overlay').style.display = 'flex'; }
+            function openExerciseModal() {
+                document.getElementById('exercise-overlay').style.display = 'flex';
+            }
+            window.openExerciseModal = openExerciseModal; // <--- הוספנו את זה
             function closeExerciseModal() { document.getElementById('exercise-overlay').style.display = 'none'; }
             function selectExercise(ex) {
                 currentActiveExercise = ex;
@@ -1925,23 +2012,55 @@
             }
 
             function enableExamMode() {
-                isExamMode = true; examStrikes = 0;
-                document.getElementById('examBtn').classList.add('active'); document.getElementById('examIndicator').style.display = 'flex';
+                isExamMode = true;
+                examStrikes = 0;
+
+                // כפייה של מצב עורך (כדי שלא יישארו בשיעור)
+                switchViewMode('editor');
+
+                document.getElementById('examBtn').classList.add('active');
+                document.getElementById('examIndicator').style.display = 'flex';
                 document.getElementById('ai-panel').classList.add('disabled-mode');
-                document.getElementById('ai-input').disabled = true; document.getElementById('send-ai-btn').disabled = true;
-                document.getElementById('runBtn').disabled = true; document.getElementById('btn-save').disabled = true; document.getElementById('btn-load').disabled = true; document.getElementById('stdin-input').disabled = true;
-                document.getElementById('learningBtn').disabled = true;
-                document.addEventListener('copy', preventCopyPaste, true); document.addEventListener('cut', preventCopyPaste, true); document.addEventListener('paste', preventCopyPaste, true);
+
+                // נטרול כפתורים
+                document.getElementById('ai-input').disabled = true;
+                document.getElementById('send-ai-btn').disabled = true;
+                document.getElementById('runBtn').disabled = true;
+                document.getElementById('btn-save').disabled = true;
+                document.getElementById('btn-load').disabled = true;
+                document.getElementById('stdin-input').disabled = true;
+
+                // --- השינוי: נטרול כפתור המעבר לשיעורים החדש ---
+                document.getElementById('mode-lesson-btn').disabled = true;
+
+                // מניעת העתקה והדבקה
+                document.addEventListener('copy', preventCopyPaste, true);
+                document.addEventListener('cut', preventCopyPaste, true);
+                document.addEventListener('paste', preventCopyPaste, true);
             }
 
             function disableExamMode() {
                 isExamMode = false;
-                document.getElementById('examBtn').classList.remove('active'); document.getElementById('examIndicator').style.display = 'none';
+
+                document.getElementById('examBtn').classList.remove('active');
+                document.getElementById('examIndicator').style.display = 'none';
                 document.getElementById('ai-panel').classList.remove('disabled-mode');
-                document.getElementById('ai-input').disabled = false; document.getElementById('send-ai-btn').disabled = false;
-                document.getElementById('runBtn').disabled = false; document.getElementById('btn-save').disabled = false; document.getElementById('btn-load').disabled = false; document.getElementById('stdin-input').disabled = false;
-                document.getElementById('learningBtn').disabled = false;
-                document.removeEventListener('copy', preventCopyPaste, true); document.removeEventListener('cut', preventCopyPaste, true); document.removeEventListener('paste', preventCopyPaste, true);
+
+                // שחרור כפתורים
+                document.getElementById('ai-input').disabled = false;
+                document.getElementById('send-ai-btn').disabled = false;
+                document.getElementById('runBtn').disabled = false;
+                document.getElementById('btn-save').disabled = false;
+                document.getElementById('btn-load').disabled = false;
+                document.getElementById('stdin-input').disabled = false;
+
+                // --- השינוי: שחרור כפתור המעבר לשיעורים החדש ---
+                document.getElementById('mode-lesson-btn').disabled = false;
+
+                // שחרור העתקה והדבקה
+                document.removeEventListener('copy', preventCopyPaste, true);
+                document.removeEventListener('cut', preventCopyPaste, true);
+                document.removeEventListener('paste', preventCopyPaste, true);
             }
             function preventCopyPaste(e) { if (isExamMode) { e.preventDefault(); e.stopPropagation(); } }
             function lockdownExam() {
@@ -2109,31 +2228,52 @@
 
             function changeFontSize(d) { currentFontSize = Math.max(10, Math.min(30, currentFontSize + d)); if (editorInstance) editorInstance.updateOptions({ fontSize: currentFontSize }); document.getElementById('output-container').style.fontSize = currentFontSize + 'px'; document.getElementById('stdin-input').style.fontSize = currentFontSize + 'px'; }
 
-            function toggleLearningMode() {
-                if (isExamMode) { Sys.alert("לא ניתן לפתוח שיעורים במצב מבחן"); return; }
-                isLearningMode = !isLearningMode;
+            function switchViewMode(mode) {
+                // בדיקות מקדימות
+                if (isExamMode && mode === 'lesson') {
+                    Sys.alert("לא ניתן לעבור לשיעורים בזמן מבחן");
+                    return;
+                }
 
-                const btn = document.getElementById('learningBtn');
+                // עדכון משתנה המצב הגלובלי
+                isLearningMode = (mode === 'lesson');
+
+                const btnEditor = document.getElementById('mode-editor-btn');
+                const btnLesson = document.getElementById('mode-lesson-btn');
+
                 const ideBody = document.querySelector('.ide-body');
                 const lessonPanel = document.getElementById('lesson-panel');
                 const leftGroup = document.getElementById('left-header-group');
 
-                if (isLearningMode) {
-                    btn.innerHTML = '<i class="fa-solid fa-code"></i> עורך הקוד';
-                    btn.classList.add('active-mode');
-                    leftGroup.style.display = 'none';
-                    ideBody.style.display = 'none';
-                    lessonPanel.style.display = 'flex';
+                if (mode === 'lesson') {
+                    // --- כניסה למצב שיעור ---
+                    btnLesson.classList.add('active');
+                    btnEditor.classList.remove('active');
+
+                    // שינוי קריטי: שומר על המקום הריק כדי שהכפתור לא יקפוץ
+                    leftGroup.style.visibility = 'hidden';
+
+                    ideBody.style.display = 'none';   // הסתרת העורך
+                    lessonPanel.style.display = 'flex'; // הצגת השיעור
+
+                    // טעינת שיעורים אם טרם נטענו
                     if (Object.keys(lessonsData).length === 0) fetchLessons();
+
                 } else {
-                    btn.innerHTML = '<i class="fa-solid fa-graduation-cap"></i> שיעורים';
-                    btn.classList.remove('active-mode');
-                    leftGroup.style.display = 'flex';
-                    ideBody.style.display = 'flex';
-                    lessonPanel.style.display = 'none';
+                    // --- כניסה למצב עורך ---
+                    btnEditor.classList.add('active');
+                    btnLesson.classList.remove('active');
+
+                    leftGroup.style.visibility = 'visible'; // החזרה למצב נראה
+
+                    ideBody.style.display = 'flex';   // הצגת העורך
+                    lessonPanel.style.display = 'none'; // הסתרת השיעור
+
+                    // רענון העורך (חשוב כשחוזרים ממצב מוסתר)
                     if (editorInstance) editorInstance.layout();
                 }
             }
+            window.switchViewMode = switchViewMode;
 
             async function fetchLessons() {
                 const menuContainer = document.getElementById('lesson-menu-container');
@@ -2653,6 +2793,39 @@
             }
         }
 
+        function toggleMessageBubble() {
+            const bubble = document.getElementById('msg-bubble');
+            const content = document.getElementById('msg-bubble-content');
+
+            // אם הבועה כבר פתוחה - נסגור אותה
+            if (bubble.style.display === 'block') {
+                bubble.style.display = 'none';
+                return;
+            }
+
+            // נבדוק מה ההודעה
+            let msgToShow = "📭 אין הודעות חדשות.";
+            if (window.lastSystemMessage && window.lastSystemMessage.trim() !== "") {
+                msgToShow = window.lastSystemMessage;
+            }
+
+            // נעדכן את התוכן ונפתח
+            content.innerText = msgToShow;
+            bubble.style.display = 'block';
+
+            // סגירה אוטומטית בלחיצה מחוץ לבועה (אופציונלי אך נוח)
+            setTimeout(() => {
+                document.addEventListener('click', function closeOnClickOutside(e) {
+                    if (!bubble.contains(e.target) && e.target.id !== 'msg-btn') {
+                        bubble.style.display = 'none';
+                        document.removeEventListener('click', closeOnClickOutside);
+                    }
+                });
+            }, 100);
+        }
+        lastSystemMessage = data.message;
+        window.lastSystemMessage = lastSystemMessage; //
+
     </script>
 
 
@@ -2662,5 +2835,4 @@
         <button onclick="toggleGlobalFullScreen()" style="padding: 15px 30px; font-size: 20px; background: #a8c7fa; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">חזור למסך מלא מייד</button>
     </div>
 </body>
-
 </html>
