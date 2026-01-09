@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>BotLi</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <style>
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #444746 #131314;
+            box-sizing: border-box;
+        }
+
+        /* כשאנחנו במצב קיוסק (on) - הסתרת כפתור מסך מלא */
+        body.kiosk-mode #fs-global-btn {
+            display: none !important;
+        }
+
+        /* הסתרת כפתור הסגירה של הדפדפן (לא תמיד עובד בכל הדפדפנים, אבל ננסה) */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        /* במצב קיוסק לפעמים רוצים להסתיר גלילה */
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #131314;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #e3e3e3;
+            display: flex;
+            flex-direction: row;
+            user-select: none;
+        }
+
+        #ai-panel {
+            width: 350px;
+            min-width: 360px;
+            height: 100%;
+            background-color: #131314;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            flex-shrink: 0;
+            transition: opacity 0.3s;
+        }
+
+            #ai-panel.disabled-mode {
+                opacity: 0.3;
+                pointer-events: none;
+                filter: grayscale(100%);
+            }
+
+        .resizer-vertical {
+            width: 6px;
+            height: 100%;
+            background: #131314;
+            cursor: col-resize;
+            border-left: 1px solid #2d2e30;
+            border-right: 1px solid #2d2e30;
+        }
+
+        #ide-panel {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #131314;
+            min-width: 300px;
+        }
+
+        header, .ai-header {
+            height: 50px;
+            background-color: #131314;
+            border-bottom: 1px solid #2d2e30;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            flex-shrink: 0;
+        }
+
+        header {
+            justify-content: space-between;
+            direction: ltr;
+        }
+
+        .ai-header {
+            color: #e3e3e3;
+            font-size: 16px;
+            font-weight: 500;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .exam-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #ff4d4d;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-right: 20px;
+        }
+
+        .exam-dot {
+            width: 12px;
+            height: 12px;
+            background-color: red;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-family: inherit;
+            color: #c4c7c5;
+            background: none;
+        }
+
+            button:hover {
+                background-color: #333537;
+                color: white;
+            }
+
+        #runBtn {
+            background-color: #2da042;
+            color: white;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+            #runBtn:disabled {
+                background-color: #2d2e30;
+                color: #555;
+                cursor: not-allowed;
+            }
+
+        #examBtn {
+            border: 1px solid #444746;
+            padding: 5px 15px;
+        }
+
+            #examBtn.active {
+                background-color: rgba(255, 0, 0, 0.2);
+                color: #ff8080;
+                border-color: #ff4d4d;
+            }
+
+        #submitBtn {
+            border: 1px solid #444746;
+            color: #c4c7c5;
+            padding: 5px 15px;
+            margin-right: 10px;
+        }
+
+        #learningBtn {
+            border: 1px solid #444746;
+            padding: 5px 15px;
+            margin-left: 10px;
+        }
+
+            #learningBtn.active-mode {
+                background-color: #a8c7fa;
+                color: #000;
+                border-color: #a8c7fa;
+            }
+
+        .lesson-category {
+            background: #131314;
+            padding: 12px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 1px solid #2d2e30;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            direction: rtl;
+            text-align: right;
+        }
+
+            .lesson-category:hover {
+                background: #2d2e30;
+            }
+
+        .lesson-items {
+            display: none;
+            background: #1e1f20;
+            direction: rtl;
+        }
+
+            .lesson-items.open {
+                display: block;
+            }
+
+        .lesson-item {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #c4c7c5;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            transition: 0.2s;
+            text-align: right;
+        }
+
+            .lesson-item:hover {
+                background: #2d2e30;
+                color: white;
+            }
+
+            .lesson-item.active-lesson {
+                background: #26292b;
+                color: #a8c7fa;
+                border-right: 3px solid #a8c7fa;
+            }
+
+        .ide-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #tabs-container {
+            height: 40px;
+            background-color: #131314;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #2d2e30;
+            overflow-x: auto;
+            overflow-y: hidden;
+            direction: ltr;
+            padding-left: 10px;
+            gap: 5px;
+        }
+
+        .tab {
+            padding: 0 15px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #c4c7c5;
+            background-color: transparent;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            user-select: none;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+            .tab:hover {
+                background-color: #2d2e30;
+            }
+
+            .tab.active {
+                background-color: #1e1f20;
+                color: #a8c7fa;
+                border-bottom: 2px solid #a8c7fa;
+            }
+
+        #editor-wrapper {
+            height: 60%;
+            min-height: 100px;
+            position: relative;
+            direction: ltr;
+            text-align: left;
+            background-color: #1e1f20;
+        }
+
+        #editor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .editor-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            z-index: 20;
+            display: flex;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            background: #2d2e30;
+            border: 1px solid #444746;
+            color: #e3e3e3;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .resizer-horizontal {
+            height: 6px;
+            width: 100%;
+            background: #131314;
+            cursor: row-resize;
+            border-top: 1px solid #2d2e30;
+            border-bottom: 1px solid #2d2e30;
+        }
+
+        #bottom-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            background-color: #131314;
+            min-height: 50px;
+            overflow: hidden;
+        }
+
+        #input-container {
+            width: 30%;
+            min-width: 100px;
+            background-color: #131314;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #output-wrapper {
+            flex: 1;
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            height: 30px;
+            background: #131314;
+            color: #8e918f;
+            padding: 0 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            direction: ltr;
+            border-bottom: 1px solid #2d2e30;
+        }
+
+        #stdin-input {
+            flex: 1;
+            background-color: #131314;
+            color: #e3e3e3;
+            border: none;
+            padding: 10px 15px;
+            resize: none;
+            font-family: 'Consolas', monospace;
+            outline: none;
+            font-size: 14px;
+            direction: ltr;
+            text-align: left;
+            user-select: text;
+        }
+
+        #output-container {
+            flex: 1;
+            background-color: #131314;
+            padding: 10px 15px;
+            direction: ltr;
+            overflow: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            color: #e3e3e3;
+            white-space: pre-wrap;
+            user-select: text;
+        }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #131314;
+            user-select: text;
+        }
+
+        .chat-msg {
+            max-width: 90%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .msg-user {
+            align-self: flex-start;
+            background-color: #282a2c;
+            color: #e3e3e3;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-ai {
+            background-color: transparent;
+            border-left: 2px solid #2d2e30;
+            padding-left: 12px;
+        }
+
+        .msg-system {
+            align-self: center;
+            background-color: transparent;
+            color: #8e918f;
+            font-size: 12px;
+            border-radius: 4px;
+            padding: 5px 15px;
+            text-align: center;
+            width: 90%;
+            border: 1px dashed #444746;
+        }
+
+        .clickable-link {
+            color: #a8c7fa;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .clickable-link:hover {
+                text-decoration: underline;
+            }
+
+        .code-block {
+            position: relative;
+            direction: ltr !important;
+            text-align: left !important;
+            background: #2b2b2b;
+            padding: 15px;
+            padding-top: 35px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 1px solid #444;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            color: #a8c7fa;
+            display: block;
+            font-size: 13px;
+            unicode-bidi: isolate;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #444;
+            border: 1px solid #555;
+            color: #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 4px 10px;
+            font-family: sans-serif;
+            transition: 0.2s;
+            z-index: 10;
+        }
+
+            .copy-btn:hover {
+                background: #555;
+                color: white;
+            }
+
+        .chat-input-area {
+            padding: 15px;
+            background: #131314;
+            border-top: 1px solid #2d2e30;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #ai-input {
+            flex: 1;
+            background: #1e1f20;
+            border: 1px solid #444746;
+            color: #e3e3e3;
+            padding: 12px 15px;
+            border-radius: 24px;
+            outline: none;
+            text-align: right;
+            direction: rtl;
+            transition: 0.2s;
+            user-select: text;
+        }
+
+            #ai-input:focus {
+                border-color: #a8c7fa;
+            }
+
+        #send-ai-btn, #exercises-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            justify-content: center;
+        }
+
+        #send-ai-btn {
+            background: #a8c7fa;
+            color: #000;
+        }
+
+        #exercises-btn {
+            background: #2d2e30;
+            color: #c4c7c5;
+        }
+
+            #exercises-btn:hover {
+                background: #444746;
+                color: white;
+            }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 20px;
+            background: transparent;
+            color: #a8c7fa;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: right;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #1e1e1e;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-text {
+            color: #f2b8b5;
+        }
+
+        .output-text {
+            color: #e3e3e3;
+        }
+
+        .success-msg {
+            color: #6dd58c;
+        }
+
+        #context-menu {
+            display: none;
+            position: absolute;
+            z-index: 2000;
+            background: #252526;
+            border: 1px solid #454545;
+            width: 150px;
+            border-radius: 8px;
+            padding: 5px 0;
+            direction: ltr;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .ctx-item {
+            padding: 8px 15px;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .ctx-item:hover {
+                background-color: #004a77;
+                color: white;
+            }
+
+        #modal-overlay, #rename-overlay, #exercise-overlay, #submit-overlay, #login-overlay, #universal-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 21000;
+            justify-content: center;
+            align-items: center;
+            direction: ltr;
+            backdrop-filter: blur(4px);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            direction: ltr;
+        }
+
+        .btn-create-small {
+            background: #a8c7fa;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 13px;
+            height: 42px;
+        }
+
+            .btn-create-small:hover {
+                opacity: 0.9;
+            }
+
+        .btn-login-centered {
+            width: 150px;
+            margin: 20px auto 0 auto;
+            display: block;
+        }
+
+        .modal-box {
+            background: #1e1f20;
+            padding: 25px;
+            border-radius: 12px;
+            width: 320px;
+            border: 1px solid #444746;
+            color: #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: right;
+            direction: rtl;
+            position: relative;
+            overflow: visible !important;
+            margin-top: 40px;
+        }
+
+            .modal-box h3 {
+                margin-top: 0;
+                color: #fff;
+                font-weight: 500;
+                text-align: center;
+            }
+
+        .modal-input, .modal-select {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            background: #131314;
+            border: 1px solid #444746;
+            color: white;
+            box-sizing: border-box;
+            border-radius: 6px;
+            outline: none;
+            text-align: right;
+            direction: rtl;
+        }
+
+            .modal-input:focus, .modal-select:focus {
+                border-color: #a8c7fa;
+            }
+
+            .modal-input:disabled {
+                background: #2d2e30;
+                color: #8e918f;
+                border-color: #444;
+                cursor: not-allowed;
+            }
+
+        .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .modal-btn-ok {
+            background: #a8c7fa;
+            color: #000;
+            border-radius: 18px;
+            padding: 8px 24px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-btn-cancel {
+            background: transparent;
+            color: #a8c7fa;
+            border-radius: 18px;
+            padding: 8px 24px;
+            border: 1px solid #444746;
+            cursor: pointer;
+        }
+
+        #login-overlay {
+            display: flex;
+            z-index: 22000;
+        }
+
+        #exam-lockdown-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 19000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: red;
+            text-align: center;
+        }
+
+            #exam-lockdown-overlay h1 {
+                font-size: 40px;
+                margin-bottom: 20px;
+            }
+
+            #exam-lockdown-overlay p {
+                font-size: 20px;
+                color: #ccc;
+            }
+
+        #remote-lock-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 20000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .exercise-list-box {
+            background: #1e1f20;
+            border-radius: 12px;
+            width: 500px;
+            max-height: 80%;
+            border: 1px solid #444746;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            direction: rtl;
+            text-align: right;
+        }
+
+        .ex-header {
+            padding: 20px;
+            background: #131314;
+            color: white;
+            font-weight: bold;
+            border-bottom: 1px solid #2d2e30;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ex-content {
+            overflow-y: auto;
+            padding: 10px;
+            flex: 1;
+        }
+
+        details {
+            margin-bottom: 10px;
+            border: 1px solid #2d2e30;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #131314;
+        }
+
+        summary {
+            background: #1e1f20;
+            color: #e3e3e3;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+            outline: none;
+        }
+
+            summary:hover {
+                background: #2d2e30;
+            }
+
+        .ex-item {
+            background: #131314;
+            padding: 12px 15px;
+            border-bottom: 1px solid #2d2e30;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .ex-item:last-child {
+                border-bottom: none;
+            }
+
+            .ex-item:hover {
+                background: #1e1f20;
+                border-right: 3px solid #a8c7fa;
+                border-left: none;
+            }
+
+        .ex-title {
+            font-size: 14px;
+            color: #e3e3e3;
+            font-weight: 500;
+        }
+
+        .ex-desc {
+            font-size: 12px;
+            color: #8e918f;
+        }
+
+        .ai-tools {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-list-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #444746;
+            background: #131314;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        .project-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #2d2e30;
+            cursor: pointer;
+            color: #e3e3e3;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s;
+        }
+
+            .project-item:hover {
+                background-color: #2d2e30;
+                color: #a8c7fa;
+            }
+
+            .project-item i {
+                margin-left: 10px;
+                color: #a8c7fa;
+            }
+
+        .status-loading {
+            color: #a8c7fa;
+        }
+
+        .status-success {
+            color: #6dd58c;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #f2b8b5;
+        }
+
+        .delete-btn {
+            color: #ff4d4d;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+            .delete-btn:hover {
+                background: rgba(255, 77, 77, 0.2);
+            }
+
+        #universal-modal {
+            z-index: 99999 !important;
+        }
+
+        header button:disabled {
+            color: #444746 !important;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+            header button:disabled:hover {
+                background-color: transparent !important;
+                color: #444746 !important;
+            }
+
+        #stdin-input:disabled {
+            background-color: #0b0b0c;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .list-busy {
+            pointer-events: none;
+            opacity: 0.4;
+            filter: grayscale(1);
+            transition: 0.3s;
+        }
+
+        .lib-link {
+            color: #8ab4f8;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+            .lib-link:hover {
+                text-decoration: underline;
+                color: #aecbfa;
+            }
+
+        #lesson-body {
+            line-height: 1.6;
+            font-size: 16px;
+            color: #e0e0e0;
+            max-width: 900px;
+            white-space: normal;
+        }
+
+            #lesson-body h1 {
+                color: #a8c7fa;
+                font-size: 2.2em;
+                margin: 0 0 10px 0;
+                line-height: 1.2;
+                font-weight: 700;
+            }
+
+            #lesson-body h3 {
+                font-size: 1.3em;
+                color: #e3e3e3;
+                border-bottom: 1px solid #2d2e30;
+                padding-bottom: 5px;
+                margin-top: 15px;
+                margin-bottom: 5px;
+                font-weight: 600;
+            }
+
+            #lesson-body hr {
+                border: 0;
+                border-top: 1px solid #444;
+                margin: 15px 0;
+            }
+
+            #lesson-body p {
+                margin: 5px 0;
+            }
+
+            #lesson-body strong {
+                color: #fff;
+                font-weight: 700;
+            }
+
+            #lesson-body ul {
+                padding-right: 25px;
+                margin: 10px 0;
+            }
+
+            #lesson-body li {
+                margin-bottom: 6px;
+            }
+
+            #lesson-body code {
+                display: inline;
+                vertical-align: baseline;
+                background-color: rgba(168, 199, 250, 0.1);
+                border: 1px solid rgba(168, 199, 250, 0.2);
+                color: #a8c7fa;
+                padding: 0 4px;
+                border-radius: 4px;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 0.95em;
+                direction: ltr;
+                unicode-bidi: isolate;
+            }
+
+            /* עיצוב עבור iframe של גוגל דוקס עם מצב לילה */
+            .doc-frame {
+                width: 100%;
+                height: 800px;
+                min-height: 60vh;
+                border: none;
+                border-radius: 8px;
+                /* הטריק: הופך צבעים (אינוורסיה) ושומר על גוונים הגיוניים */
+                filter: invert(1) hue-rotate(180deg);
+                /* מונע הבהוב לבן בטעינה */
+                background: #fff;
+            }
+        /* --- עיצוב למצב מכווץ של הבוט --- */
+        #ai-panel.collapsed {
+            width: 60px !important; /* רוחב הפס הצר */
+            min-width: 60px !important;
+            transition: width 0.3s ease;
+        }
+
+            /* הסתרת התוכן הרגיל כשהפאנל מכווץ */
+            #ai-panel.collapsed .ai-header .ai-tools,
+            #ai-panel.collapsed .ai-header span, /* מסתיר את המילה בוטלי */
+            #ai-panel.collapsed #chat-window,
+            #ai-panel.collapsed .chat-input-area,
+            #ai-panel.collapsed .typing-indicator {
+                display: none !important;
+            }
+
+            /* התאמת ההדר במצב מכווץ */
+            #ai-panel.collapsed .ai-header {
+                justify-content: center;
+                padding: 0;
+            }
+
+                #ai-panel.collapsed .ai-header i {
+                    font-size: 24px;
+                    cursor: pointer;
+                    padding: 10px;
+                }
+
+        /* תפריט הצד המכווץ (הספר) */
+        .collapsed-tools {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        #ai-panel.collapsed .collapsed-tools {
+            display: flex;
+        }
+
+        .side-icon-btn {
+            background: none;
+            border: none;
+            color: #c4c7c5;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+            .side-icon-btn:hover {
+                background: #2d2e30;
+                color: #a8c7fa;
+            }
+        /* --- תיקון סימטריה לכפתורי הדר --- */
+
+        /* הגדרה משותפת לכל הכפתורים בהדר לקבלת גובה אחיד */
+        #submitBtn, #examBtn, #fs-global-btn {
+            height: 36px !important; /* גובה קבוע וזהה לכולם */
+            min-height: 36px; /* מניעת כיווץ */
+            display: inline-flex; /* שימוש בפלקס ליישור התוכן */
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #444746;
+            background-color: transparent;
+            color: #c4c7c5;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            margin: 0 5px; /* רווח אחיד ביניהם */
+        }
+
+        /* עיצוב לכפתורים עם טקסט (הגשה, מצב מבחן) - צורת "גלולה" */
+        #submitBtn, #examBtn {
+            border-radius: 18px; /* פינות עגולות (חצי מהגובה) */
+            padding: 0 16px !important; /* ריפוד אחיד בצדדים */
+            gap: 8px; /* רווח קבוע בין האייקון לטקסט */
+        }
+
+        /* עיצוב לכפתור האייקון (מסך מלא) - צורת עיגול מושלם */
+        #fs-global-btn {
+            width: 36px !important; /* רוחב שווה לגובה */
+            padding: 0 !important; /* ביטול ריפוד כדי למרכז */
+            border-radius: 50%; /* עיגול מלא */
+        }
+
+            /* אפקט מעבר עכבר אחיד */
+            #submitBtn:hover, #examBtn:hover, #fs-global-btn:hover {
+                background-color: #333537;
+                color: white;
+                border-color: #888;
+            }
+
+        /* סימון כפתור מבחן פעיל */
+        #examBtn.active {
+            background-color: rgba(255, 77, 77, 0.15);
+            color: #ff8080;
+            border-color: #ff4d4d;
+        }
+
+        /* מחלקה למצב מסך מלא של השיעור בלבד */
+        #lesson-panel.lesson-fullscreen {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 20000; /* מעל הכל */
+        }
+
+            /* במצב מסך מלא - הסתר את תפריט הצד */
+            #lesson-panel.lesson-fullscreen #lesson-sidebar {
+                display: none !important;
+            }
+
+            /* במצב מסך מלא - הרקע של התוכן */
+            #lesson-panel.lesson-fullscreen #lesson-content {
+                background-color: #131314;
+            }
+    </style>
+</head>
+<body>
+
+    <div id="universal-modal">
+        <div class="modal-box" style="text-align: center;">
+            <div style="margin-top: -50px; margin-bottom: 10px;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                     style="width: 70px; height: 70px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+            </div>
+
+            <h3 id="u-modal-title" style="margin-top: 5px; color: #ff4d4d;">בוטלי אומר:</h3>
+            <p id="u-modal-text" style="font-size:15px; color:#e0e0e0; white-space:pre-wrap; text-align:center; direction:rtl; margin-bottom: 20px;"></p>
+
+            <input type="text" id="u-modal-input" class="modal-input" style="display:none;">
+
+            <div class="modal-btns">
+                <button id="u-modal-cancel" class="modal-btn-cancel" style="display:none;">לא תודה</button>
+                <button id="u-modal-ok" class="modal-btn-ok">הבנתי / אישור</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="remote-lock-overlay">
+        <div style="text-align: center;">
+            <i class="fa-solid fa-cloud-lock" style="font-size: 60px; color: #ff4d4d; margin-bottom: 20px;"></i>
+            <h1 style="color: white; margin: 0 0 10px 0;">המערכת בהשהיה</h1>
+            <p style="color: #aaa; font-size: 18px;">המורה נעל את הגישה למערכת כרגע.<br>המסך ייפתח אוטומטית כשהנעילה תוסר.</p>
+            <div style="margin-top: 20px; color: #a8c7fa; font-size: 12px;">
+                <i class="fa-solid fa-sync fa-spin"></i> ממתין לשחרור...
+            </div>
+        </div>
+    </div>
+
+    <div id="login-overlay">
+        <div class="modal-box">
+            <h3><i class="fa-solid fa-user-lock"></i> כניסה למערכת</h3>
+            <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">שם משתמש:</label>
+            <input type="text" id="login-user" class="modal-input" placeholder="שם משתמש" style="margin-top:5px;">
+            <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">סיסמה:</label>
+            <input type="password" id="login-pass" class="modal-input" placeholder="סיסמה" style="margin-top:5px;">
+            <div id="login-msg" style="color: #ff4d4d; font-size: 13px; min-height: 20px; margin-bottom: 5px;"></div>
+            <button id="login-btn" class="modal-btn-ok btn-login-centered">התחבר</button>
+        </div>
+    </div>
+
+    <div id="exam-lockdown-overlay">
+        <h1><i class="fa-solid fa-lock"></i> המבחן ננעל</h1>
+        <p>זוהתה יציאה מהחלון יותר מ-3 פעמים.<br>אנא קרא למורה לשחרור הנעילה.</p>
+        <button id="unlock-btn" style="margin-top:20px; border:1px solid #555; padding:10px 20px; background:transparent; color:#ccc; cursor:pointer;">שחרור נעילה (מורה)</button>
+    </div>
+
+    <div id="submit-overlay">
+        <div class="modal-box" style="text-align: center;">
+            <h3 style="margin-top: 5px; color: #ff4d4d;">בוטלי:</h3>
+
+            <p id="modal-title-submit" style="font-size: 18px; color: #e0e0e0; margin-top: 0; margin-bottom: 25px; font-weight: 500;"></p>
+
+            <div id="submit-status" style="font-size:14px; margin-bottom:20px; min-height:20px;"></div>
+
+            <input type="hidden" id="submit-student-name">
+
+            <div class="modal-btns" style="justify-content: center; gap: 15px;">
+                <button id="submit-cancel-btn" class="modal-btn-cancel" style="width: 100px; justify-content: center;">ביטול</button>
+                <button id="submit-confirm-btn" class="modal-btn-ok" style="width: 120px; justify-content: center;">הגש עכשיו</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-panel">
+        <div class="ai-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-robot" style="color: #ff4d4d; cursor: pointer;" onclick="toggleAiCollapse()" title="כווץ/הרחב"></i>
+                <span>בּוֹט·לִי</span>
+            </div>
+            <div class="ai-tools">
+                <button id="clear-chat-btn" title="נקה שיחה"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </div>
+
+        <div class="collapsed-tools">
+            <button id="side-book-btn" class="side-icon-btn" title="ספר תרגילים">
+                <i class="fa-solid fa-book"></i>
+            </button>
+        </div>
+
+        <div id="chat-window">
+            <div class="chat-msg msg-ai">
+                שלום! אני בּוֹט·לִי. 👋<br>
+                אפשר לבחור תרגיל <span id="open-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
+                טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.
+            </div>
+        </div>
+        <div class="typing-indicator" id="ai-loading">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> חושב...
+        </div>
+        <div class="chat-input-area">
+            <button id="exercises-btn" title="בחר תרגיל"><i class="fa-solid fa-book"></i></button>
+            <input type="text" id="ai-input" placeholder="כתוב כאן...">
+            <button id="send-ai-btn"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="resizer-vertical" id="resizer-v"></div>
+
+    <div id="ide-panel">
+        <header>
+            <div id="left-header-group" style="display: flex; align-items: center; gap: 20px;">
+                <div id="editor-tools" style="display: flex; gap: 8px; align-items: center;">
+                    <button id="runBtn" title="הרצה"><i id="btnIcon" class="fa-solid fa-play"></i></button>
+                    <button id="btn-save" title="שמור פרויקט"><i class="fa-solid fa-floppy-disk"></i></button>
+                    <button id="btn-load" title="טען פרויקט"><i class="fa-solid fa-folder-open"></i></button>
+                </div>
+
+                <div style="width: 1px; height: 18px; background: #2d2e30;"></div>
+
+                <div id="exam-tools" style="display: flex; align-items: center; gap: 10px;">
+                    <button id="submitBtn" title="הגשת עבודה"><i class="fa-solid fa-paper-plane"></i> הגשה</button>
+                    <button id="examBtn" title="מצב מבחן"><i class="fa-solid fa-lock"></i> מצב מבחן</button>
+                    <button id="fs-global-btn" onclick="toggleGlobalFullScreen()" title="מסך מלא (F11)" style="border: 1px solid #444746; padding: 5px 15px; margin-right: 10px;">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                    <div class="exam-indicator" id="examIndicator"><div class="exam-dot"></div>מצב מבחן</div>
+                </div>
+
+            </div>
+
+            <div id="right-header-group">
+                <button id="learningBtn" title="מצב למידה" style="border: 1px solid #444746;">
+                    <i class="fa-solid fa-graduation-cap"></i> שיעורים
+                </button>
+            </div>
+        </header>
+
+        <div id="lesson-panel" style="display: none; flex: 1; overflow: hidden; background-color: #131314; flex-direction: row-reverse; position: relative;">
+
+            <div id="lesson-sidebar" style="width: 250px; background: #1e1f20; border-left: 1px solid #2d2e30; display: flex; flex-direction: column;">
+                <div style="padding: 15px; font-weight: bold; border-bottom: 1px solid #2d2e30; text-align: right;">תוכן עניינים</div>
+                <div id="lesson-menu-container" style="flex: 1; overflow-y: auto;">
+                    <div style="padding: 20px; text-align: center; color: #888;">טוען קורסים...</div>
+                </div>
+            </div>
+
+            <div id="lesson-content" style="flex: 1; padding: 0; overflow: hidden; position: relative; text-align: right; direction: rtl;">
+                <div style="padding: 30px; color: #e3e3e3; font-size: 16px;">
+                    בחר שיעור מהתפריט בצד ימין כדי להתחיל.
+                </div>
+            </div>
+
+            <div class="lesson-zoom-controls" style="position: absolute; bottom: 20px; right: 30px; z-index: 20001; display: flex; gap: 8px;">
+
+                <button class="zoom-btn" onclick="toggleLessonFullScreen()" title="מסך מלא"><i id="fs-lesson-icon" class="fa-solid fa-expand"></i></button>
+
+                <button class="zoom-btn" onclick="toggleLessonContrast()" title="היפוך צבעים (יום/לילה)"><i class="fa-solid fa-circle-half-stroke"></i></button>
+
+                <button class="zoom-btn" onclick="zoomLesson(-0.1)" title="הקטן תצוגה"><i class="fa-solid fa-minus"></i></button>
+                <button class="zoom-btn" onclick="zoomLesson(0.1)" title="הגדל תצוגה"><i class="fa-solid fa-plus"></i></button>
+            </div>
+
+        </div>
+
+        <div class="ide-body">
+            <div id="tabs-container">
+                <button id="add-tab-btn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+
+            <div id="editor-wrapper">
+                <div id="editor"></div>
+                <div class="editor-controls">
+                    <button class="zoom-btn" id="zoom-in-btn" title="הגדל טקסט"><i class="fa-solid fa-plus"></i></button>
+                    <button class="zoom-btn" id="zoom-out-btn" title="הקטן טקסט"><i class="fa-solid fa-minus"></i></button>
+                </div>
+            </div>
+
+            <div class="resizer-horizontal" id="resizer-h"></div>
+
+            <div id="bottom-panel">
+                <div id="input-container">
+                    <div class="panel-header">INPUT</div>
+                    <textarea id="stdin-input" placeholder="Enter input here..."></textarea>
+                </div>
+
+                <div class="resizer-vertical" id="resizer-io"></div>
+
+                <div id="output-wrapper">
+                    <div class="panel-header" style="border-left:none;">OUTPUT</div>
+                    <div id="output-container"><span style="color:#666;">// Output here...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="context-menu"><div class="ctx-item" id="ctx-rename"><i class="fa-solid fa-pen"></i> Rename</div><div class="ctx-item" id="ctx-delete"><i class="fa-solid fa-trash"></i> Delete</div></div>
+
+    <div id="rename-overlay"><div class="modal-box"><h3>Rename File</h3><input type="text" id="rename-filename" class="modal-input"><div class="modal-btns"><button id="rename-cancel" class="modal-btn-cancel">Cancel</button><button id="rename-confirm" class="modal-btn-ok">Rename</button></div></div></div>
+
+    <div id="exercise-overlay">
+        <div class="exercise-list-box">
+            <div class="ex-header">
+                <span>ספריית תרגילים</span>
+                <button id="close-ex-modal" style="font-size:16px; padding:0;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ex-content" id="exercise-list"></div>
+        </div>
+    </div>
+
+    <div id="save-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box">
+            <h3>שמירת פרויקט</h3>
+
+            <input type="text" id="save-input-name" class="modal-input" placeholder="שם הפרויקט">
+            <div id="save-status-msg" style="min-height: 25px; font-size: 13px; margin-top: 5px;"></div>
+            <div class="modal-btns">
+                <button id="save-cancel" class="modal-btn-cancel">ביטול</button>
+                <button id="save-confirm" class="modal-btn-ok">שמור</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="load-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="height: 450px; display: flex; flex-direction: column;">
+            <h3>הפרויקטים שלי</h3>
+            <div id="load-status-msg" style="min-height: 25px; font-size: 13px; margin-bottom: 5px;"></div>
+            <div id="project-list-area" class="project-list-container"></div>
+            <div class="modal-btns" style="margin-top: 15px;">
+                <button id="load-close" class="modal-btn-cancel">סגור</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-file-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 22000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 380px;">
+            <h3 style="margin-top:0; margin-bottom: 20px;">יצירת מחלקה חדשה</h3>
+            <div class="input-group">
+                <button id="create-file-btn" class="btn-create-small">צור</button>
+                <input type="text" id="new-file-name" class="modal-input" placeholder="שם מחלקה">
+            </div>
+            <div style="height: 1px; background: #2d2e30; margin: 15px 0;"></div>
+            <div style="text-align: center;">
+                <div id="open-lib-link" class="lib-link" style="margin-bottom: 10px; font-size: 13px;">
+                    <i class="fa-solid fa-book"></i> פתח מאגר מחלקות מוכנות
+                </div>
+                <div id="lib-loader" style="display:none; color:#aaa; font-size:12px; margin-bottom:10px;"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען...</div>
+                <div id="lib-container" class="project-list-container" style="display:none; height: 180px; margin-bottom: 5px;"></div>
+            </div>
+            <div class="modal-btns" style="margin-top: 20px;">
+                <button id="new-file-close" class="modal-btn-cancel" style="font-size: 13px; padding: 6px 20px;">סגור</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script>
+        (function () {
+            const SECURE_MODE = true;
+
+            if (SECURE_MODE) {
+                document.addEventListener('contextmenu', event => event.preventDefault());
+                document.addEventListener('keydown', function (e) {
+                    if (
+                        e.key === 'F12' ||
+                        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                        (e.ctrlKey && e.key === 'U')
+                    ) {
+                        e.preventDefault();
+                    }
+                });
+
+                let hasSentDebuggerAlert = false;
+                setInterval(() => {
+                    const start = new Date().getTime();
+                    debugger;
+                    const end = new Date().getTime();
+
+                    if (end - start > 100) {
+                        if (!hasSentDebuggerAlert && typeof globalStudentName !== 'undefined' && globalStudentName) {
+                            hasSentDebuggerAlert = true;
+                            sendlog(globalStudentName, "(Debugger Mode)");
+                        }
+                    }
+                }, 100);
+            }
+
+            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1gItwv13rC_RCnAuOyw-LV_Wwh0cDOzL5VwsA_8w2cgXIjeLXBa3X9g9zo9iwA98hqQ/exec";
+            const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
+            const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
+            const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfkV1E_rCAlRt6qcvIwI4Nmb5QRqN0S6vo7-mPx_shgknVzQ/formResponse";
+            const ENTRY_ID_NAME = "entry.1249368905";
+            const ENTRY_ID_CODE = "entry.588004609";
+
+            let EXERCISES_DB = {};
+            let currentActiveExercise = null;
+            let globalStudentName = "";
+            let isSystemInteraction = false;
+
+            let isSystemLocked = false;
+            let isWatchdogActive = true;
+            let remotePassword = "";
+            let lockInterval = null;
+
+            let isLearningMode = false;
+            let lessonsData = {};
+            let currentLessonContext = null;
+
+            const JAVA_STDLIB = {
+                "String": ["length()", "charAt(int index)", "substring(int begin, int end)", "indexOf(String s)", "equals(Object o)", "equalsIgnoreCase(String s)", "toUpperCase()", "toLowerCase()", "trim()", "contains(CharSequence s)"],
+                "Math": ["abs(int a)", "max(int a, int b)", "min(int a, int b)", "pow(double a, double b)", "sqrt(double a)", "random()", "round(double a)", "ceil(double a)", "floor(double a)", "PI", "E"],
+                "System": ["out.println()", "out.print()", "out.printf()", "in", "exit(0)", "currentTimeMillis()"],
+                "Scanner": ["nextInt()", "nextDouble()", "nextLine()", "next()", "hasNext()", "close()"],
+                "ArrayList": ["add(E e)", "get(int index)", "size()", "remove(int index)", "clear()", "isEmpty()", "contains(Object o)"],
+                "Arrays": ["toString(int[] a)", "sort(int[] a)", "binarySearch(int[] a, int key)", "copyOf(int[] original, int newLength)"],
+                "Random": ["nextInt(int bound)", "nextDouble()", "nextBoolean()"]
+            };
+            const KEYWORDS = ["public", "private", "protected", "static", "final", "void", "class", "interface", "extends", "implements", "new", "return", "if", "else", "for", "while", "do", "switch", "case", "break", "continue", "default", "try", "catch", "finally", "throw", "throws", "import", "package", "this", "super", "boolean", "int", "double", "char", "float", "long", "byte", "short", "true", "false", "null"];
+
+            const Sys = {
+                _show: (type, msg, inputType = null, placeholder = "") => {
+                    return new Promise((resolve) => {
+                        isSystemInteraction = true;
+                        const overlay = document.getElementById('universal-modal');
+                        const title = document.getElementById('u-modal-title');
+                        const text = document.getElementById('u-modal-text');
+                        const input = document.getElementById('u-modal-input');
+                        const btnOk = document.getElementById('u-modal-ok');
+                        const btnCancel = document.getElementById('u-modal-cancel');
+
+                        overlay.style.display = 'flex';
+                        input.style.display = 'none';
+                        btnCancel.style.display = 'none';
+                        input.value = '';
+                        text.innerText = msg;
+
+                        title.innerText = "בוטלי:";
+
+                        if (type === 'alert') {
+                            btnOk.innerText = 'המשך';
+                            btnOk.onclick = () => { close(); resolve(true); };
+                        } else if (type === 'confirm') {
+                            title.innerText = "בוטלי:";
+                            btnOk.innerText = 'כן';
+                            btnCancel.innerText = 'לא';
+                            btnCancel.style.display = 'inline-block';
+                            btnOk.onclick = () => { close(); resolve(true); };
+                            btnCancel.onclick = () => { close(); resolve(false); };
+                        } else if (type === 'prompt') {
+                            title.innerText = "בוטלי צריך מידע:";
+                            input.style.display = 'block';
+                            input.type = inputType || 'text';
+                            input.placeholder = placeholder;
+                            btnOk.innerText = 'אישור';
+                            btnCancel.innerText = 'ביטול';
+                            btnCancel.style.display = 'inline-block';
+                            input.focus();
+                            input.onkeydown = (e) => { if (e.key === 'Enter') btnOk.click(); };
+                            btnOk.onclick = () => { let val = input.value; close(); resolve(val); };
+                            btnCancel.onclick = () => { close(); resolve(null); };
+                        }
+                        function close() { overlay.style.display = 'none'; isSystemInteraction = false; }
+                    });
+                },
+                alert: async (msg) => { return await Sys._show('alert', msg); },
+                confirm: async (msg) => { return await Sys._show('confirm', msg); },
+                prompt: async (msg, isPassword = false) => { return await Sys._show('prompt', msg, isPassword ? 'password' : 'text'); }
+            };
+
+            const TEACHER_PROMPT = `
+אני מבקש ממך לפעול כמורה בודק ומנחה למדעי המחשב לתלמידי תיכון הלומדים לבגרות בישראל.
+
+הגדרות בסיס (מחייב)
+התלמיד: תלמיד תיכון, מתחיל.
+הידע המותר: לולאות, תנאים, מערכים, מחלקות בסיסיות, פעולות.
+
+--- התאמות לבגרות (ישראל) - חוקים קריטיים! ---
+1. טיפוסים מותרים בלבד:
+           * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
+           * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
+           * אחרים: boolean, char, String.
+           * אסור להשתמש ב-var.
+
+2. מבני בקרה (Control Flow):
+           * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
+           * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
+           * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
+
+3. איסורים כלליים:
+           * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
+           * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
+           * הערות בקוד חייבות להיות בעברית או באנגלית.
+
+זיהוי מצב והתנהגות
+1. סינון רעשים (Hello World):
+           אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
+
+2. שאלה על הבנה ("תסביר לי"):
+           אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
+
+3. בקשה ל"רמז" או "המשך":
+           תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
+
+עקרונות המענה
+1. עקרון הצעד הבודד:
+           לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
+
+2. פדגוגיה של מתחילים:
+           * העדף קוד מפורק וברור.
+           * דוגמה טובה: int x = 5; (שורה חדשה) return x;
+           * דוגמה רעה: return 5; (אם יש חישוב בדרך).
+
+--- מבנה התשובה (קריטי!) ---
+עליך להחזיר את התשובה בפורמט הבא בלבד:
+
+1. [משפט הסבר קצר או רמז לצעד הנוכחי בעברית]
+
+[רק אם הצעד דורש כתיבת קוד בפועל, הוסף את החלק הבא:]
+\`\`\`java
+// הקוד הרלוונטי לצעד זה בלבד
+\`\`\`
+`;
+
+            const LESSON_PROMPT = `
+אתה כעת עוזר לימוד אישי לתלמיד שצופה בשיעור במדעי המחשב.
+הנחיות התנהגות:
+1. ענה בצורה חופשית, מסבירה וסבלנית (אין צורך להיצמד למבנה של רשימה נוקשה).
+2. מותר ורצוי לתת דוגמאות קוד מלאות וברורות כדי להמחיש את החומר.
+3. התייחס ישירות לתוכן השיעור שהתלמיד רואה כרגע.
+4. אם התלמיד שואל על מושג, הסבר אותו בשפה פשוטה.
+`;
+
+            const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
+                    אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
+                    טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
+
+            let editorInstance;
+            let currentFontSize = 16;
+            let files = { "Main.java": `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}` };
+            let activeFileName = "Main.java";
+            let contextMenuTarget = null;
+            let isExamMode = false;
+            let examStrikes = 0;
+            const MAX_STRIKES = 3;
+
+            function scanProjectForClasses() {
+                const projectMap = {};
+                Object.keys(files).forEach(filename => {
+                    const code = (filename === activeFileName && editorInstance) ? editorInstance.getValue() : files[filename];
+                    const classNameMatch = code.match(/class\s+(\w+)/);
+                    if (classNameMatch) {
+                        const className = classNameMatch[1];
+                        const methods = [];
+                        const methodRegex = /public\s+(?:static\s+)?(?:\w+|void)\s+(\w+)\s*\(/g;
+                        let match;
+                        while ((match = methodRegex.exec(code)) !== null) methods.push(match[1] + "()");
+                        projectMap[className] = methods;
+                    }
+                });
+                return projectMap;
+            }
+
+            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                const javaFormatter = function (model) {
+                    const text = model.getValue(); const lines = text.split('\n'); const edits = []; let indentLevel = 0;
+                    for (let i = 0; i < lines.length; i++) {
+                        let line = lines[i].trim();
+                        if (line.startsWith('}')) indentLevel = Math.max(0, indentLevel - 1);
+                        const indentString = "    ".repeat(indentLevel);
+                        const newText = indentString + line;
+                        if (lines[i] !== newText) edits.push({ range: { startLineNumber: i + 1, startColumn: 1, endLineNumber: i + 1, endColumn: lines[i].length + 1 }, text: newText });
+                        if (line.endsWith('{')) indentLevel++;
+                    }
+                    return edits;
+                };
+
+                monaco.languages.registerDocumentFormattingEditProvider('java', { provideDocumentFormattingEdits: (model) => javaFormatter(model) });
+                monaco.languages.registerCompletionItemProvider('java', {
+                    triggerCharacters: ['.'],
+                    provideCompletionItems: function (model, position) {
+                        const textUntilPosition = model.getValueInRange({ startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
+                        const range = { startLineNumber: position.lineNumber, endLineNumber: position.lineNumber, startColumn: model.getWordUntilPosition(position).startColumn, endColumn: model.getWordUntilPosition(position).endColumn };
+                        const suggestions = [];
+                        const isMemberAccess = textUntilPosition.endsWith('.');
+                        if (isMemberAccess) {
+                            const segments = textUntilPosition.trim().split(/[ .]/);
+                            let objectName = segments[segments.length - 2].replace(/[^a-zA-Z0-9]/g, '');
+                            if (JAVA_STDLIB[objectName]) JAVA_STDLIB[objectName].forEach(method => suggestions.push({ label: method, kind: monaco.languages.CompletionItemKind.Method, insertText: method.replace('()', '($0)'), insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: "Java Library", range: range }));
+                            const userClasses = scanProjectForClasses();
+                            if (userClasses[objectName]) userClasses[objectName].forEach(method => suggestions.push({ label: method, kind: monaco.languages.CompletionItemKind.Method, insertText: method, detail: "User Class", range: range }));
+                        } else {
+                            KEYWORDS.forEach(kw => suggestions.push({ label: kw, kind: monaco.languages.CompletionItemKind.Keyword, insertText: kw, range: range }));
+                            Object.keys(JAVA_STDLIB).forEach(cls => suggestions.push({ label: cls, kind: monaco.languages.CompletionItemKind.Class, insertText: cls, range: range }));
+                            suggestions.push({ label: 'sysout', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'System.out.println($0);', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Print', range: range });
+                            suggestions.push({ label: 'main', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'public static void main(String[] args) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Main', range: range });
+                        }
+                        return { suggestions: suggestions };
+                    }
+                });
+
+                monaco.editor.defineTheme('java-custom', { base: 'vs-dark', inherit: true, rules: [{ token: 'keyword', foreground: '569CD6', fontStyle: 'bold' }, { token: 'type.identifier', foreground: '4EC9B0' }, { token: 'identifier', foreground: 'DCDCAA' }, { token: 'string', foreground: 'CE9178' }, { token: 'comment', foreground: '6A9955' }, { token: 'number', foreground: 'B5CEA8' }], colors: { 'editor.background': '#1e1f20' } });
+
+                editorInstance = monaco.editor.create(document.getElementById('editor'), {
+                    value: files[activeFileName], language: 'java', theme: 'java-custom', automaticLayout: true, fontSize: currentFontSize, minimap: { enabled: false }, suggestOnTriggerCharacters: true, acceptSuggestionOnEnter: "on", tabSize: 4, insertSpaces: true, formatOnType: true, formatOnPaste: true
+                });
+
+                editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => editorInstance.trigger('editor', 'editor.action.formatDocument'));
+                editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space, () => editorInstance.trigger('editor', 'editor.action.triggerSuggest'));
+                editorInstance.onDidChangeModelContent(() => { files[activeFileName] = editorInstance.getValue(); });
+
+                loadExercisesFromSheet();
+                renderTabs();
+                initResizers();
+
+                bindEvents();
+            });
+
+            function bindEvents() {
+                document.getElementById('runBtn').onclick = runCode;
+                document.getElementById('btn-save').onclick = saveProject;
+                document.getElementById('btn-load').onclick = loadProject;
+                document.getElementById('submitBtn').onclick = openSubmitModal;
+                document.getElementById('examBtn').onclick = toggleExamMode;
+                document.getElementById('learningBtn').onclick = toggleLearningMode;
+                document.getElementById('add-tab-btn').onclick = openNewFileModal;
+                document.getElementById('zoom-in-btn').onclick = () => changeFontSize(1);
+                document.getElementById('zoom-out-btn').onclick = () => changeFontSize(-1);
+                document.getElementById('ctx-rename').onclick = triggerRename;
+                document.getElementById('ctx-delete').onclick = triggerDelete;
+                document.getElementById('rename-cancel').onclick = closeRenameModal;
+                document.getElementById('rename-confirm').onclick = performRename;
+                document.getElementById('close-ex-modal').onclick = closeExerciseModal;
+                document.getElementById('save-cancel').onclick = () => document.getElementById('save-overlay').style.display = 'none';
+                document.getElementById('save-confirm').onclick = performSaveLogic;
+                document.getElementById('load-close').onclick = () => document.getElementById('load-overlay').style.display = 'none';
+                document.getElementById('create-file-btn').onclick = createCustomFile;
+                document.getElementById('open-lib-link').onclick = fetchLibraryClasses;
+                document.getElementById('new-file-close').onclick = closeNewFileModal;
+                document.getElementById('login-btn').onclick = performLogin;
+                document.getElementById('unlock-btn').onclick = unlockByPassword;
+                document.getElementById('submit-cancel-btn').onclick = closeSubmitModal;
+                document.getElementById('submit-confirm-btn').onclick = submitToGoogleForms;
+                document.getElementById('clear-chat-btn').onclick = clearChat;
+                document.getElementById('exercises-btn').onclick = openExerciseModal;
+                document.getElementById('send-ai-btn').onclick = sendToAI;
+                document.getElementById('ai-input').onkeypress = handleChatKey;
+                document.getElementById('login-user').onkeypress = handleLoginKey;
+                document.getElementById('login-pass').onkeypress = handleLoginKey;
+                document.getElementById('copy-lesson-btn').onclick = copyLessonCode;
+                document.getElementById('side-book-btn').onclick = openExerciseModal;
+
+                const wl = document.getElementById('welcome-ex-link');
+                if (wl) wl.onclick = openExerciseModal;
+                const ol = document.getElementById('open-ex-link');
+                if (ol) ol.onclick = openExerciseModal;
+            }
+
+            async function checkRemoteLock() {
+                try {
+                    const response = await fetch(CONTROL_SCRIPT_URL + "?t=" + new Date().getTime());
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    if (data.password) remotePassword = String(data.password);
+                    isSystemLocked = (data.status === "BLOCK");
+                    // --- עדכון מנגנון ה-Watchdog וקיוסק ---
+                    if (data.watchdog === "off") {
+                        isWatchdogActive = false;
+                        document.body.classList.remove('kiosk-mode'); // ביטול מצב קיוסק
+                    } else { // מצב ON (או רגיל)
+                        isWatchdogActive = true;
+
+                        // אם זה ON ממש (ולא סתם ריק), נפעיל מצב קיוסק נוקשה
+                        if (data.watchdog === "on") {
+                            document.body.classList.add('kiosk-mode');
+                            enforceKioskMode(); // בדיקה שאנחנו במסך מלא
+                        } else {
+                            document.body.classList.remove('kiosk-mode');
+                        }
+                    }
+                    updateLockUI();
+                } catch (e) { console.error(e); }
+            }
+
+            function updateLockUI() {
+                const overlay = document.getElementById('remote-lock-overlay');
+                if (isSystemLocked) overlay.style.display = 'flex'; else overlay.style.display = 'none';
+            }
+
+            // ניסיון כניסה למסך מלא מיד בלחיצה
+            document.documentElement.requestFullscreen().catch(() => { });
+
+            async function performLogin() {
+                const u = document.getElementById('login-user').value.trim();
+                const p = document.getElementById('login-pass').value.trim();
+                const msg = document.getElementById('login-msg');
+                const btn = document.getElementById('login-btn');
+
+                if (!u || !p) { msg.innerText = "נא למלא את כל השדות"; return; }
+                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> מתחבר...'; msg.innerText = "";
+                const deviceId = getUniqueDeviceId();
+
+                try {
+                    const url = CONTROL_SCRIPT_URL + "?action=login" + "&user=" + encodeURIComponent(u) + "&pass=" + encodeURIComponent(p) + "&deviceId=" + encodeURIComponent(deviceId);
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.result === "APPROVE") {
+                        globalStudentName = data.name;
+                        localStorage.setItem('studentName', globalStudentName);
+                        document.getElementById('login-overlay').style.display = 'none';
+
+                        const firstName = getFirstName(globalStudentName);
+                        const chatBox = document.querySelector('.msg-ai');
+                        if (chatBox) chatBox.innerHTML = `שלום ${firstName}! אני בּוֹט·לִי. 👋<br>אפשר לבחור תרגיל <span id="open-ex-link-2" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.`;
+                        setTimeout(() => { if (document.getElementById('open-ex-link-2')) document.getElementById('open-ex-link-2').onclick = openExerciseModal; }, 100);
+
+                        sendlog(globalStudentName, `[LOGIN] התחבר בהצלחה (מחשב: ${deviceId})`);
+                        startGlobalWatchdog();
+                        if (lockInterval) clearInterval(lockInterval);
+                        checkRemoteLock();
+                        lockInterval = setInterval(checkRemoteLock, 5000);
+                    } else {
+                        msg.innerText = data.msg || "שגיאה בפרטי ההתחברות";
+                        btn.disabled = false; btn.innerHTML = 'התחבר';
+                    }
+                } catch (e) {
+                    msg.innerText = "שגיאת תקשורת עם השרת";
+                    btn.disabled = false; btn.innerHTML = 'התחבר';
+                }
+            }
+
+            let watchdogDebounce = false;
+            function startGlobalWatchdog() {
+                // זיהוי מעבר טאב או מזעור (זה תמיד נחשב יציאה)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') handleViolation();
+                });
+
+                // זיהוי איבוד פוקוס (קליק מחוץ לחלון)
+                window.addEventListener('blur', () => {
+                    // התיקון: בדיקה האם הפוקוס עבר ל-iframe (כמו גוגל דוקס)
+                    // אם האלמנט הפעיל הוא iframe, סימן שהתלמיד עדיין באתר ופשוט עובד על המסמך
+                    if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                        return; // הכל בסדר, אל תפעיל אזעקה
+                    }
+
+                    handleViolation();
+                });
+            }
+
+            async function handleViolation() {
+                if (!isWatchdogActive) return;
+                if (isSystemInteraction || watchdogDebounce) return;
+                watchdogDebounce = true; setTimeout(() => { watchdogDebounce = false; }, 5000);
+                if (isExamMode) {
+                    examStrikes++;
+                    sendlog(globalStudentName, `⛔ חריגת מבחן (${examStrikes}/3)`);
+                    if (examStrikes >= MAX_STRIKES) lockdownExam(); else await Sys.alert(`התראת משמעת במבחן! (${examStrikes}/3)`);
+                    return;
+                }
+                sendlog(globalStudentName, `⚠️ התראת יציאה מהחלון`);
+                setTimeout(async () => { await Sys.alert("התראת יציאה מהמערכת!"); }, 100);
+            }
+
+            async function loadExercisesFromSheet() {
+                try {
+                    const timestamp = new Date().getTime();
+                    const freshGoogleUrl = ORIGINAL_SHEET_URL + "&t=" + timestamp;
+                    const finalUrl = "https://corsproxy.io/?" + encodeURIComponent(freshGoogleUrl);
+                    const response = await fetch(finalUrl);
+                    const csvText = await response.text();
+                    Papa.parse(csvText, {
+                        header: true, skipEmptyLines: true,
+                        complete: function (results) {
+                            const tempDB = {}; EXERCISES_DB = {};
+                            results.data.forEach((row, index) => {
+                                if (!row.category || !row.title) return;
+                                if (!tempDB[row.category]) tempDB[row.category] = [];
+                                tempDB[row.category].push({ id: 100 + index, title: row.title, desc: row.description || "", task: row.task || "" });
+                            });
+                            EXERCISES_DB = tempDB;
+                            renderExerciseList();
+                        }
+                    });
+                } catch (error) { console.error("CSV Load Error:", error); }
+            }
+
+            function renderExerciseList() {
+                const list = document.getElementById('exercise-list'); list.innerHTML = "";
+                if (Object.keys(EXERCISES_DB).length === 0) { list.innerHTML = "<div style='padding:10px; color:#aaa;'>טוען תרגילים...</div>"; return; }
+                Object.keys(EXERCISES_DB).forEach(category => {
+                    const details = document.createElement('details');
+                    const summary = document.createElement('summary'); summary.innerText = category; details.appendChild(summary);
+                    EXERCISES_DB[category].forEach(ex => {
+                        const div = document.createElement('div'); div.className = 'ex-item';
+                        div.innerHTML = `<div class="ex-title">${ex.title}</div><div class="ex-desc">${ex.desc}</div>`;
+                        div.onclick = () => selectExercise(ex); details.appendChild(div);
+                    });
+                    list.appendChild(details);
+                });
+            }
+
+            function openExerciseModal() { document.getElementById('exercise-overlay').style.display = 'flex'; }
+            function closeExerciseModal() { document.getElementById('exercise-overlay').style.display = 'none'; }
+            function selectExercise(ex) {
+                currentActiveExercise = ex;
+                closeExerciseModal();
+
+                // --- התיקון החדש: פתיחת הצ'אט רק עכשיו ---
+                const panel = document.getElementById('ai-panel');
+                if (panel.classList.contains('collapsed')) {
+                    // קורא לפונקציית הפתיחה שיצרנו קודם
+                    if (typeof window.toggleAiCollapse === "function") {
+                        window.toggleAiCollapse();
+                    } else {
+                        panel.classList.remove('collapsed'); // גיבוי למקרה חירום
+                    }
+                }
+                // ------------------------------------------
+
+                const cw = document.getElementById('chat-window');
+                const d = document.createElement('div');
+                d.className = `chat-msg msg-system`;
+                d.innerHTML = `נבחר תרגיל: <b>${ex.title}</b><br>${ex.task}`;
+                cw.appendChild(d);
+                cw.scrollTop = cw.scrollHeight;
+            }
+
+            async function sendlog(name, content) {
+                const formData = new FormData();
+                formData.append(ENTRY_ID_NAME, name);
+                formData.append(ENTRY_ID_CODE, content);
+                try { await fetch(GOOGLE_FORM_URL, { method: "POST", mode: "no-cors", body: formData }); return true; } catch (e) { return false; }
+            }
+
+            function openSubmitModal() {
+                const overlay = document.getElementById('submit-overlay');
+                const statusDiv = document.getElementById('submit-status');
+                const nameInput = document.getElementById('submit-student-name');
+                const firstName = getFirstName(globalStudentName);
+                document.getElementById('modal-title-submit').innerText = `${firstName}, להגיש את התרגיל?`;
+                statusDiv.innerText = "";
+                nameInput.value = globalStudentName;
+                overlay.style.display = 'flex';
+                injectBotLiToAllModals();
+            }
+            function closeSubmitModal() { document.getElementById('submit-overlay').style.display = 'none'; }
+
+            async function submitToGoogleForms() {
+                const name = globalStudentName; const statusDiv = document.getElementById('submit-status');
+                if (editorInstance) files[activeFileName] = editorInstance.getValue();
+                let fullCode = ""; if (isExamMode) fullCode += `// EXAM SUBMISSION\n`;
+                Object.keys(files).forEach(f => { fullCode += `\n// File: ${f}\n${files[f]}\n-------------------\n`; });
+                statusDiv.innerText = "שולח..."; statusDiv.style.color = "#a8c7fa";
+                await sendlog(name, fullCode);
+
+                statusDiv.innerText = "הוגש בהצלחה! ✔"; statusDiv.style.color = "#6dd58c";
+                if (isExamMode) { disableExamMode(); resetWorkspace(); setTimeout(async () => await Sys.alert("המבחן הוגש בהצלחה."), 500); }
+                setTimeout(closeSubmitModal, 2000);
+            }
+
+            async function toggleExamMode() {
+                if (!isExamMode) {
+                    if (isLearningMode) { await Sys.alert("יש לסגור את מצב הלמידה לפני תחילת מבחן"); return; }
+                    const firstName = getFirstName(globalStudentName);
+                    if (await Sys.confirm(`${firstName}, להתחיל מבחן?`)) {
+                        await sendlog(globalStudentName, `התחלת מבחן`); enableExamMode(); resetWorkspace();
+                    }
+                } else {
+                    const pwd = await Sys.prompt("הכנס סיסמת מורה לביטול מצב מבחן:", true);
+                    if (pwd === remotePassword) { disableExamMode(); await Sys.alert("מצב מבחן בוטל."); } else if (pwd !== null) await Sys.alert("סיסמה שגויה");
+                }
+            }
+
+            function enableExamMode() {
+                isExamMode = true; examStrikes = 0;
+                document.getElementById('examBtn').classList.add('active'); document.getElementById('examIndicator').style.display = 'flex';
+                document.getElementById('ai-panel').classList.add('disabled-mode');
+                document.getElementById('ai-input').disabled = true; document.getElementById('send-ai-btn').disabled = true;
+                document.getElementById('runBtn').disabled = true; document.getElementById('btn-save').disabled = true; document.getElementById('btn-load').disabled = true; document.getElementById('stdin-input').disabled = true;
+                document.getElementById('learningBtn').disabled = true;
+                document.addEventListener('copy', preventCopyPaste, true); document.addEventListener('cut', preventCopyPaste, true); document.addEventListener('paste', preventCopyPaste, true);
+            }
+
+            function disableExamMode() {
+                isExamMode = false;
+                document.getElementById('examBtn').classList.remove('active'); document.getElementById('examIndicator').style.display = 'none';
+                document.getElementById('ai-panel').classList.remove('disabled-mode');
+                document.getElementById('ai-input').disabled = false; document.getElementById('send-ai-btn').disabled = false;
+                document.getElementById('runBtn').disabled = false; document.getElementById('btn-save').disabled = false; document.getElementById('btn-load').disabled = false; document.getElementById('stdin-input').disabled = false;
+                document.getElementById('learningBtn').disabled = false;
+                document.removeEventListener('copy', preventCopyPaste, true); document.removeEventListener('cut', preventCopyPaste, true); document.removeEventListener('paste', preventCopyPaste, true);
+            }
+            function preventCopyPaste(e) { if (isExamMode) { e.preventDefault(); e.stopPropagation(); } }
+            function lockdownExam() {
+                document.getElementById('exam-lockdown-overlay').style.display = 'flex'; if (editorInstance) editorInstance.updateOptions({ readOnly: true });
+                sendlog(globalStudentName, `❌ המבחן ננעל עקב הפרת נהלים`);
+            }
+            async function unlockByPassword() {
+                const pwd = await Sys.prompt("הכנס סיסמת מורה לשחרור:", true);
+                if (pwd === remotePassword) {
+                    document.getElementById('exam-lockdown-overlay').style.display = 'none'; if (editorInstance) editorInstance.updateOptions({ readOnly: false }); examStrikes = 0; await Sys.alert("המבחן שוחרר.");
+                } else if (pwd !== null) await Sys.alert("סיסמה שגויה");
+            }
+
+            async function clearChat() {
+                if (await Sys.confirm("האם לנקות את הצ'אט?")) document.getElementById('chat-window').innerHTML = `<div class="chat-msg msg-ai">${WELCOME_MSG}</div>`;
+            }
+
+            async function sendToAI() {
+                if (isExamMode) return;
+                const inputField = document.getElementById('ai-input');
+                const userText = inputField.value.trim();
+                if (!userText) return;
+
+                const loading = document.getElementById('ai-loading');
+
+                try {
+                    addMessage(userText, 'user');
+                    inputField.value = '';
+                    loading.style.display = 'flex';
+
+                    if (editorInstance && !isLearningMode) files[activeFileName] = editorInstance.getValue();
+
+                    let fullCode = "";
+                    Object.keys(files).forEach(f => { fullCode += `\n// File: ${f}\n${files[f]}`; });
+
+                    const chatMsgs = document.querySelectorAll('.chat-msg');
+                    let recentChat = "";
+                    for (let i = Math.max(0, chatMsgs.length - 4); i < chatMsgs.length; i++) {
+                        recentChat += `${chatMsgs[i].classList.contains('msg-ai') ? "AI" : "User"}: ${chatMsgs[i].innerText}\n`;
+                    }
+
+                    let currentSystemPrompt = "";
+                    let contextInfo = "";
+
+                    if (isLearningMode && currentLessonContext) {
+                        currentSystemPrompt = LESSON_PROMPT;
+                        contextInfo = `CURRENT LESSON CONTEXT:\nTitle: ${currentLessonContext.title}\nContent: ${currentLessonContext.text}\nCode Snippet: ${currentLessonContext.code}`;
+                    } else {
+                        currentSystemPrompt = TEACHER_PROMPT;
+                        const activeTaskDescription = currentActiveExercise ? currentActiveExercise.task : "General Help";
+                        contextInfo = `EXERCISE CONTEXT:\nTask: ${activeTaskDescription}`;
+                    }
+
+                    const fullPrompt = `${currentSystemPrompt}\n\n${contextInfo}\n\nRECENT CHAT:\n${recentChat}\n\nSTUDENT CODE:\n${fullCode}\n\nSTUDENT QUESTION: ${userText}`;
+
+                    const response = await fetch('https://text.pollinations.ai/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: [{ role: 'user', content: fullPrompt }],
+                            model: 'openai',
+                            jsonMode: false
+                        })
+                    });
+
+                    let aiText = await response.text();
+                    aiText = aiText.replace(/"error"/i, "Error").replace(/(\n\s*---\s*\n[\s\S]*?(Pollinations|Support|mission|kofi)[\s\S]*$)/i, "").replace(/🌸 \*\*Ad\*\* 🌸/g, "").trim();
+
+                    addMessage(aiText, 'ai');
+                } catch (error) {
+                    console.error(error);
+                    addMessage("⚠️ שגיאת תקשורת.", 'ai');
+                }
+                finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            function addMessage(text, sender) {
+                const cw = document.getElementById('chat-window'); const d = document.createElement('div'); d.className = `chat-msg msg-${sender}`;
+                if (sender === 'ai') {
+                    const codeMap = [];
+                    const hiddenText = text.replace(/```([\s\S]*?)```/g, (match, rawCode) => {
+                        let cleanCode = rawCode.trim().replace(/^(?:java|Java|text)\s+/i, "");
+                        const safeCode = cleanCode.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        codeMap.push(safeCode);
+                        return `___CODE_BLOCK_${codeMap.length - 1}___`;
+                    });
+                    let formattedText = hiddenText.replace(/\n/g, '<br>').replace(/___CODE_BLOCK_(\d+)___/g, (m, i) => `<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>${codeMap[i]}</div>`);
+                    d.innerHTML = formattedText;
+                } else { d.innerHTML = text.replace(/\n/g, '<br>'); }
+                cw.appendChild(d); cw.scrollTop = cw.scrollHeight;
+            }
+
+            function handleChatKey(e) { if (e.key === 'Enter') sendToAI(); }
+            function renderTabs() { const c = document.getElementById('tabs-container'), b = document.getElementById('add-tab-btn'); c.innerHTML = ''; Object.keys(files).forEach(f => { const t = document.createElement('div'); t.className = `tab ${f === activeFileName ? 'active' : ''}`; t.innerHTML = `<span>${f}</span>`; t.onclick = () => switchTab(f); t.oncontextmenu = (e) => openContextMenu(e, f); c.appendChild(t); }); c.appendChild(b); }
+            function switchTab(f) { files[activeFileName] = editorInstance.getValue(); activeFileName = f; editorInstance.setValue(files[activeFileName]); renderTabs(); }
+            function openContextMenu(e, f) { e.preventDefault(); if (f === "Main.java") return; contextMenuTarget = f; const m = document.getElementById('context-menu'); m.style.display = 'block'; m.style.left = e.pageX + 'px'; m.style.top = e.pageY + 'px'; }
+            function closeContextMenu() { document.getElementById('context-menu').style.display = 'none'; }
+            async function triggerDelete() { if (!contextMenuTarget) return; if (await Sys.confirm(`Delete ${contextMenuTarget}?`)) { delete files[contextMenuTarget]; if (activeFileName === contextMenuTarget) { activeFileName = "Main.java"; editorInstance.setValue(files[activeFileName]); } renderTabs(); } }
+            function triggerRename() { if (!contextMenuTarget) return; document.getElementById('rename-overlay').style.display = 'flex'; document.getElementById('rename-filename').value = contextMenuTarget; }
+            async function performRename() { let n = document.getElementById('rename-filename').value.trim(); if (!n.endsWith('.java')) n += '.java'; if (files[n]) { await Sys.alert('Exists!'); return; } files[n] = files[contextMenuTarget]; delete files[contextMenuTarget]; if (activeFileName === contextMenuTarget) activeFileName = n; document.getElementById('rename-overlay').style.display = 'none'; renderTabs(); }
+            function closeRenameModal() { document.getElementById('rename-overlay').style.display = 'none'; }
+
+            function openNewFileModal() {
+                document.getElementById('new-file-name').value = '';
+                document.getElementById('lib-container').style.display = 'none';
+                document.getElementById('lib-container').innerHTML = '';
+                document.getElementById('new-file-overlay').style.display = 'flex';
+                document.getElementById('new-file-name').focus();
+            }
+            function closeNewFileModal() { document.getElementById('new-file-overlay').style.display = 'none'; }
+
+            async function fetchLibraryClasses() {
+                const container = document.getElementById('lib-container'); const loader = document.getElementById('lib-loader');
+                container.style.display = 'block'; if (container.children.length > 0) return; loader.style.display = 'block';
+                try {
+                    const url = `${CONTROL_SCRIPT_URL}?action=getLibraryClasses`; const res = await fetch(url); const data = await res.json();
+                    loader.style.display = 'none';
+                    if (data.classes && Object.keys(data.classes).length > 0) {
+                        Object.keys(data.classes).forEach(className => {
+                            const item = document.createElement('div'); item.className = 'project-item';
+                            item.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-code" style="color: #a8c7fa;"></i><span style="font-family: monospace; font-size: 14px;">${className}.java</span></div><i class="fa-solid fa-plus" style="color: #666; font-size: 12px;"></i>`;
+                            item.onclick = () => addLibraryFile(className, data.classes[className]);
+                            container.appendChild(item);
+                        });
+                    } else container.innerHTML = '<div style="padding:15px; text-align:center; color:#aaa; font-size:13px;">המאגר ריק</div>';
+                } catch (e) { loader.style.display = 'none'; container.innerHTML = '<div style="padding:15px; text-align:center; color:#ff4d4d; font-size:13px;">שגיאה בטעינה</div>'; }
+            }
+            async function addLibraryFile(name, code) {
+                const fileName = name + ".java";
+                if (files[fileName]) { if (!await Sys.confirm(`הקובץ ${fileName} כבר קיים. האם לדרוס?`)) return; }
+                files[fileName] = code; finalizeFileAdd(fileName);
+            }
+            async function createCustomFile() {
+                let name = document.getElementById('new-file-name').value.trim().replace(".java", ""); if (!name) return;
+                const fileName = name + ".java"; if (files[fileName]) { await Sys.alert("קיים!"); return; }
+                files[fileName] = `public class ${name} {\n    \n}`; finalizeFileAdd(fileName);
+            }
+            function finalizeFileAdd(fileName) { closeNewFileModal(); activeFileName = fileName; editorInstance.setValue(files[activeFileName]); renderTabs(); setTimeout(() => Sys.alert(`הקובץ ${fileName} נוסף`), 200); }
+
+            async function runCode() {
+                if (isExamMode) { await Sys.alert("ההרצה חסומה במצב מבחן."); return; }
+                if (!editorInstance) return; files[activeFileName] = editorInstance.getValue();
+                const btn = document.getElementById('runBtn'), icon = document.getElementById('btnIcon'), out = document.getElementById('output-container'), stdin = document.getElementById('stdin-input').value;
+                let fullCode = ""; Object.values(files).forEach(c => fullCode += c);
+                btn.disabled = true; icon.className = "fa-solid fa-circle-notch fa-spin"; out.innerHTML = '<span class="success-msg">Compiling...</span><br>';
+                let allImports = new Set(), mainContent = "", otherContent = "", importRegex = /^\s*import\s+.*;/gm;
+                if (files["Main.java"]) { let c = files["Main.java"], i = c.match(importRegex); if (i) i.forEach(x => allImports.add(x.trim())); mainContent = c.replace(importRegex, "").trim(); }
+                Object.keys(files).forEach(f => { if (f === "Main.java") return; let c = files[f], i = c.match(importRegex); if (i) i.forEach(x => allImports.add(x.trim())); let clean = c.replace(importRegex, "").trim().replace(/public\s+class/g, "class"); otherContent += "\n\n" + clean; });
+                const merged = Array.from(allImports).join("\n") + "\n\n" + mainContent + otherContent;
+                try {
+                    const res = await fetch('https://emkc.org/api/v2/piston/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: "java", version: "15.0.2", files: [{ name: "Main.java", content: merged }], stdin: stdin }) });
+                    const data = await res.json(); out.innerHTML = "";
+                    if (data.run) {
+                        if (data.run.stdout) out.appendChild(Object.assign(document.createElement('span'), { className: 'output-text', innerText: data.run.stdout }));
+                        if (data.run.stderr) out.appendChild(Object.assign(document.createElement('span'), { className: 'error-text', innerText: "\n" + data.run.stderr }));
+                    } else out.innerHTML = '<span class="error-text">Error: No response.</span>';
+                } catch (e) { out.innerHTML += `<br><span class="error-text">Net Error: ${e.message}</span>`; }
+                finally { btn.disabled = false; icon.className = "fa-solid fa-play"; }
+            }
+            function resetWorkspace() { files = { "Main.java": `public class Main {\n    public static void main(String[] args) {\n        \n    }\n}` }; activeFileName = "Main.java"; editorInstance.setValue(files[activeFileName]); renderTabs(); }
+
+            window.copyCode = function (btn) { const cb = btn.parentElement.cloneNode(true); cb.querySelector('.copy-btn').remove(); navigator.clipboard.writeText(cb.textContent.trim()).then(() => { const o = btn.innerText; btn.innerText = "Copied!"; btn.style.color = "#4EC9B0"; setTimeout(() => { btn.innerText = o; btn.style.color = "#ccc"; }, 1500); }); };
+
+            function changeFontSize(d) { currentFontSize = Math.max(10, Math.min(30, currentFontSize + d)); if (editorInstance) editorInstance.updateOptions({ fontSize: currentFontSize }); document.getElementById('output-container').style.fontSize = currentFontSize + 'px'; document.getElementById('stdin-input').style.fontSize = currentFontSize + 'px'; }
+
+            function toggleLearningMode() {
+                if (isExamMode) { Sys.alert("לא ניתן לפתוח שיעורים במצב מבחן"); return; }
+                isLearningMode = !isLearningMode;
+
+                const btn = document.getElementById('learningBtn');
+                const ideBody = document.querySelector('.ide-body');
+                const lessonPanel = document.getElementById('lesson-panel');
+                const leftGroup = document.getElementById('left-header-group');
+
+                if (isLearningMode) {
+                    btn.innerHTML = '<i class="fa-solid fa-code"></i> עורך הקוד';
+                    btn.classList.add('active-mode');
+                    leftGroup.style.display = 'none';
+                    ideBody.style.display = 'none';
+                    lessonPanel.style.display = 'flex';
+                    if (Object.keys(lessonsData).length === 0) fetchLessons();
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-graduation-cap"></i> שיעורים';
+                    btn.classList.remove('active-mode');
+                    leftGroup.style.display = 'flex';
+                    ideBody.style.display = 'flex';
+                    lessonPanel.style.display = 'none';
+                    if (editorInstance) editorInstance.layout();
+                }
+            }
+
+            async function fetchLessons() {
+                const menuContainer = document.getElementById('lesson-menu-container');
+                menuContainer.innerHTML = '<div style="padding:20px; text-align:center;"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען...</div>';
+                try {
+                    const timestamp = new Date().getTime();
+                    const url = `${CONTROL_SCRIPT_URL}?action=getLessons&t=${timestamp}`;
+
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data.lessons) {
+                        lessonsData = data.lessons;
+                        renderLessonMenu();
+                    }
+                    else {
+                        menuContainer.innerHTML = 'לא נמצאו שיעורים';
+                    }
+                } catch (e) {
+                    menuContainer.innerHTML = 'שגיאה בטעינה';
+                }
+            }
+
+            function renderLessonMenu() {
+                const container = document.getElementById('lesson-menu-container');
+                container.innerHTML = '';
+
+                // לולאה על קטגוריות ראשיות (Main Categories)
+                Object.keys(lessonsData).forEach((mainCat) => {
+                    const mainCatDiv = document.createElement('div');
+                    mainCatDiv.className = 'lesson-category';
+                    // קטגוריה ראשית - עיצוב
+                    mainCatDiv.innerHTML = `<span style="color: #a8c7fa; font-size:15px;">${mainCat}</span> <i class="fa-solid fa-chevron-down"></i>`;
+                    mainCatDiv.style.borderBottom = "1px solid #444";
+                    mainCatDiv.style.backgroundColor = "#252627";
+
+                    const mainItemsDiv = document.createElement('div');
+                    mainItemsDiv.className = 'lesson-items';
+
+                    // לחיצה על קטגוריה ראשית
+                    mainCatDiv.onclick = () => {
+                        mainItemsDiv.classList.toggle('open');
+                        const icon = mainCatDiv.querySelector('i');
+                        if (mainItemsDiv.classList.contains('open')) {
+                            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                        } else {
+                            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                        }
+                    };
+
+                    // לולאה על תתי-קטגוריות (Sub Categories)
+                    const subCategories = lessonsData[mainCat];
+                    Object.keys(subCategories).forEach(subCat => {
+
+                        // --- כאן השינוי: יצירת מיכל לתת-הקטגוריה ---
+                        const subWrapper = document.createElement('div');
+                        subWrapper.style.borderBottom = "1px solid #2d2e30";
+
+                        // 1. הכותרת של תת-הקטגוריה (עכשיו היא לחיצה)
+                        const subHeader = document.createElement('div');
+                        subHeader.style.padding = "10px 15px";
+                        subHeader.style.fontSize = "13px";
+                        subHeader.style.color = "#e3e3e3";
+                        subHeader.style.fontWeight = "bold";
+                        subHeader.style.backgroundColor = "#1e1f20";
+                        subHeader.style.cursor = "pointer";
+                        subHeader.style.display = "flex";
+                        subHeader.style.justifyContent = "space-between";
+                        subHeader.style.alignItems = "center";
+                        subHeader.style.userSelect = "none";
+
+                        // החץ בצד ימין (RTL) + הטקסט
+                        subHeader.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                <span>${subCat}</span>
+                            </div>
+                        `;
+
+                        // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
+                        const lessonsContainer = document.createElement('div');
+                        lessonsContainer.style.display = "none"; // סגור כברירת מחדל
+                        lessonsContainer.style.backgroundColor = "#131314";
+
+                        // לחיצה על תת-קטגוריה
+                        subHeader.onclick = (e) => {
+                            e.stopPropagation(); // כדי לא לסגור את הקטגוריה הראשית בטעות
+                            const isOpen = lessonsContainer.style.display === "block";
+                            const icon = subHeader.querySelector('i');
+
+                            if (isOpen) {
+                                lessonsContainer.style.display = "none";
+                                icon.style.transform = "rotate(0deg)"; // חץ שמאלה (סגור)
+                            } else {
+                                lessonsContainer.style.display = "block";
+                                icon.style.transform = "rotate(-90deg)"; // חץ למטה (פתוח)
+                            }
+                        };
+
+                        // הוספת השיעורים לתוך המיכל
+                        subCategories[subCat].forEach(lesson => {
+                            const lDiv = document.createElement('div');
+                            lDiv.className = 'lesson-item';
+                            lDiv.innerText = lesson.title;
+                            lDiv.style.paddingRight = "35px"; // הזחה פנימה
+                            lDiv.style.fontSize = "13px";
+                            lDiv.style.color = "#aaa";
+
+                            lDiv.onclick = (e) => {
+                                e.stopPropagation();
+                                loadLessonContent(lDiv, lesson);
+                            };
+                            lessonsContainer.appendChild(lDiv);
+                        });
+
+                        // הרכבת המבנה
+                        subWrapper.appendChild(subHeader);
+                        subWrapper.appendChild(lessonsContainer);
+                        mainItemsDiv.appendChild(subWrapper);
+                    });
+
+                    container.appendChild(mainCatDiv);
+                    container.appendChild(mainItemsDiv);
+                });
+            }
+
+            function loadLessonContent(element, lesson) {
+                lessonScale = 1.0;
+                isLessonDark = true;
+
+                // 1. סימון הפריט הפעיל בתפריט הצד
+                document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active-lesson'));
+                element.classList.add('active-lesson');
+
+                currentLessonContext = lesson;
+
+                // 2. תפיסת אזור התוכן וניקוי מוחלט שלו
+                const lessonContentDiv = document.getElementById('lesson-content');
+                lessonContentDiv.innerHTML = ''; // מוחק הכל: כותרות, נגנים, קוד ישן
+
+                // 3. ביטול ריפודים כדי לנצל את כל השטח (Full Screen בתוך החלון)
+                lessonContentDiv.style.padding = "0";
+                lessonContentDiv.style.overflow = "hidden"; // ביטול גלילה חיצונית (רק הפנימית תעבוד)
+
+                const content = lesson.text ? lesson.text.trim() : "";
+                let contentElement;
+
+                // --- אפשרות א': אם זה גוגל דוקס ---
+                if (content.startsWith("http") && content.includes("docs.google.com")) {
+                    let embedUrl = content;
+                    // המרה למצב תצוגה מקדימה (נקי יותר)
+                    if (embedUrl.includes("/edit")) embedUrl = embedUrl.replace(/\/edit.*/, "/preview");
+                    else if (embedUrl.includes("/view")) embedUrl = embedUrl.replace(/\/view.*/, "/preview");
+
+                    // יצירת iframe שתופס 100% מהגובה והרוחב
+                    contentElement = document.createElement('iframe');
+                    contentElement.src = embedUrl;
+                    contentElement.className = 'doc-frame'; // שימוש במחלקה הקיימת (לפילטר צבעים אם יש)
+
+                    // הגדרות עיצוב למילוי מלא
+                    contentElement.style.width = "100%";
+                    contentElement.style.height = "100%";
+                    contentElement.style.border = "none";
+                    contentElement.style.display = "block";
+
+                    // אופציונלי: שמירה על מצב לילה (הפוך צבעים). 
+                    // אם אתה רוצה דף לבן רגיל - תמחק את השורה הבאה:
+                    contentElement.style.filter = "invert(1) hue-rotate(180deg)";
+                    contentElement.style.background = "#fff"; // מונע הבהוב
+
+                } else {
+                    // --- אפשרות ב': אם זה טקסט רגיל (Markdown) ---
+                    contentElement = document.createElement('div');
+                    contentElement.id = 'lesson-body';
+
+                    // עיצוב לטקסט רגיל
+                    contentElement.style.padding = "30px"; // כאן כן צריך ריפוד שיהיה קריא
+                    contentElement.style.width = "100%";
+                    contentElement.style.height = "100%";
+                    contentElement.style.overflowY = "auto"; // גלילה פנימית לטקסט
+                    contentElement.style.boxSizing = "border-box"; // מונע חריגה מהרוחב
+
+                    contentElement.innerHTML = parseMarkdown(content);
+                }
+
+                // 4. הוספת האלמנט הסופי למסך
+                lessonContentDiv.appendChild(contentElement);
+
+                // הודעה קטנה במערכת (לא מפריעה למשתמש)
+                addMessage(`פתחת את השיעור: <b>${lesson.title}</b>.`, 'system');
+            }
+
+            async function copyLessonCode() {
+                if (!currentLessonContext || !currentLessonContext.code) return;
+                if (await Sys.confirm("האם להעתיק את הקוד לעורך?\n(שים לב: הקוד הנוכחי יידרס)")) {
+                    toggleLearningMode();
+                    editorInstance.setValue(currentLessonContext.code);
+                    files[activeFileName] = currentLessonContext.code;
+                }
+            }
+
+            function initResizers() {
+                const resizerV = document.getElementById('resizer-v'), aiPanel = document.getElementById('ai-panel'), resizerH = document.getElementById('resizer-h'), editorWrapper = document.getElementById('editor-wrapper'), resizerIO = document.getElementById('resizer-io'), inputContainer = document.getElementById('input-container'), bottomPanel = document.getElementById('bottom-panel');
+                resizerV.addEventListener('mousedown', function (e) { e.preventDefault(); document.addEventListener('mousemove', resizeX); document.addEventListener('mouseup', stopResizeX); resizerV.classList.add('active'); });
+                function resizeX(e) { aiPanel.style.width = Math.max(360, Math.min(window.innerWidth - e.clientX, window.innerWidth * 0.6)) + 'px'; if (editorInstance) editorInstance.layout(); }
+                function stopResizeX() { document.removeEventListener('mousemove', resizeX); document.removeEventListener('mouseup', stopResizeX); resizerV.classList.remove('active'); }
+                resizerH.addEventListener('mousedown', function (e) { e.preventDefault(); document.addEventListener('mousemove', resizeY); document.addEventListener('mouseup', stopResizeY); resizerH.classList.add('active'); });
+                function resizeY(e) { editorWrapper.style.height = Math.max(100, Math.min(e.clientY - document.getElementById('ide-panel').offsetTop - 90, document.getElementById('ide-panel').offsetHeight - 150)) + 'px'; if (editorInstance) editorInstance.layout(); }
+                function stopResizeY() { document.removeEventListener('mousemove', resizeY); document.removeEventListener('mouseup', stopResizeY); resizerH.classList.remove('active'); }
+                resizerIO.addEventListener('mousedown', function (e) { e.preventDefault(); document.addEventListener('mousemove', resizeIO); document.addEventListener('mouseup', stopResizeIO); resizerIO.classList.add('active'); });
+                function resizeIO(e) { inputContainer.style.width = Math.max(100, Math.min(bottomPanel.getBoundingClientRect().right - e.clientX, bottomPanel.getBoundingClientRect().width - 100)) + 'px'; }
+                function stopResizeIO() { document.removeEventListener('mousemove', resizeIO); document.removeEventListener('mouseup', stopResizeIO); resizerIO.classList.remove('active'); }
+            }
+
+            function saveProject() { document.getElementById('save-input-name').value = ''; document.getElementById('save-status-msg').innerHTML = ''; document.getElementById('save-overlay').style.display = 'flex'; document.getElementById('save-input-name').focus(); }
+            async function performSaveLogic() {
+                const nameInput = document.getElementById('save-input-name'); const statusDiv = document.getElementById('save-status-msg'); const projectName = nameInput.value.trim();
+                if (!projectName) { statusDiv.innerHTML = '<span class="status-error">שם חסר</span>'; return; }
+                statusDiv.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> שומר...'; nameInput.disabled = true;
+                try {
+                    const payload = encodeURIComponent(JSON.stringify(files));
+                    const url = `${CONTROL_SCRIPT_URL}?action=saveProject&user=${encodeURIComponent(globalStudentName)}&project=${encodeURIComponent(projectName)}&files=${payload}&t=${new Date().getTime()}`;
+                    const res = await fetch(url); const data = await res.json();
+                    if (data.result === "OK") { statusDiv.innerHTML = '<span class="status-success">נשמר!</span>'; setTimeout(() => { document.getElementById('save-overlay').style.display = 'none'; nameInput.disabled = false; }, 1500); }
+                    else if (data.result === "EXISTS") { statusDiv.innerHTML = '<span class="status-error">השם קיים</span>'; nameInput.disabled = false; }
+                    else { statusDiv.innerHTML = `<span class="status-error">${data.error}</span>`; nameInput.disabled = false; }
+                } catch (e) { statusDiv.innerHTML = '<span class="status-error">שגיאה</span>'; nameInput.disabled = false; }
+            }
+
+            async function loadProject() {
+                const overlay = document.getElementById('load-overlay');
+                const titleElement = overlay.querySelector('h3');
+                const firstName = getFirstName(globalStudentName);
+
+                titleElement.innerText = `הפרויקטים של ${firstName}`;
+
+                const listArea = document.getElementById('project-list-area');
+                const statusDiv = document.getElementById('load-status-msg');
+                listArea.classList.remove('list-busy');
+                overlay.style.display = 'flex';
+                injectBotLiToAllModals();
+
+                listArea.innerHTML = ''; statusDiv.innerHTML = 'טוען...';
+                try {
+                    const listUrl = `${CONTROL_SCRIPT_URL}?action=listProjects&user=${encodeURIComponent(globalStudentName)}&t=${new Date().getTime()}`;
+                    const listRes = await fetch(listUrl); const listData = await listRes.json(); statusDiv.innerHTML = '';
+                    if (!listData.projects || listData.projects.length === 0) { listArea.innerHTML = '<div style="padding:20px; text-align:center; color:#aaa;">אין פרויקטים</div>'; return; }
+                    listData.projects.reverse().forEach(projName => {
+                        const item = document.createElement('div'); item.className = 'project-item';
+                        item.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-folder"></i><span>${projName}</span></div><div class="delete-btn" onclick="deleteProject(event, '${projName}')"><i class="fa-solid fa-trash"></i></div>`;
+
+                        item.querySelector('.delete-btn').addEventListener('click', (e) => deleteProject(e, projName));
+                        item.addEventListener('click', (e) => { if (e.target.closest('.delete-btn')) return; loadSpecificProject(projName); });
+
+                        item.removeAttribute('onclick');
+                        item.querySelector('.delete-btn').removeAttribute('onclick');
+
+                        listArea.appendChild(item);
+                    });
+                } catch (e) { statusDiv.innerHTML = 'שגיאה בטעינה'; }
+            }
+
+            async function deleteProject(e, name) {
+                e.stopPropagation(); if (await Sys.confirm(`למחוק את "${name}"?`)) {
+                    const statusDiv = document.getElementById('load-status-msg'); const listArea = document.getElementById('project-list-area');
+                    listArea.classList.add('list-busy'); statusDiv.innerHTML = 'מוחק...';
+                    try {
+                        const url = `${CONTROL_SCRIPT_URL}?action=deleteProject&user=${encodeURIComponent(globalStudentName)}&project=${encodeURIComponent(name)}`;
+                        const res = await fetch(url); const data = await res.json();
+                        if (data.result === "OK") { loadProject(); setTimeout(() => Sys.alert("נמחק"), 200); } else { listArea.classList.remove('list-busy'); statusDiv.innerHTML = 'שגיאה'; }
+                    } catch (err) { listArea.classList.remove('list-busy'); statusDiv.innerHTML = 'שגיאה'; }
+                }
+            }
+
+            async function loadSpecificProject(name) {
+                const statusDiv = document.getElementById('load-status-msg'); const listArea = document.getElementById('project-list-area');
+                listArea.classList.add('list-busy'); statusDiv.innerHTML = `טוען את: <b>${name}</b>...`;
+                try {
+                    const loadUrl = `${CONTROL_SCRIPT_URL}?action=loadProject&user=${encodeURIComponent(globalStudentName)}&project=${encodeURIComponent(name)}&t=${new Date().getTime()}`;
+                    const res = await fetch(loadUrl); const data = await res.json();
+                    if (data.files) {
+                        files = JSON.parse(data.files); activeFileName = Object.keys(files)[0]; editorInstance.setValue(files[activeFileName]); renderTabs();
+                        statusDiv.innerHTML = `נטען!`; setTimeout(() => { document.getElementById('load-overlay').style.display = 'none'; listArea.classList.remove('list-busy'); }, 500);
+                    } else { statusDiv.innerHTML = `שגיאה`; listArea.classList.remove('list-busy'); }
+                } catch (e) { statusDiv.innerHTML = 'שגיאה'; listArea.classList.remove('list-busy'); }
+            }
+
+            function getFirstName(fullName) {
+                if (!fullName) return "תלמיד";
+                return fullName.trim().split(/\s+/)[0];
+            }
+
+            function getUniqueDeviceId() {
+                let deviceId = localStorage.getItem('school_device_id');
+                if (!deviceId) {
+                    const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase();
+                    deviceId = "DEV-" + randomPart;
+                    localStorage.setItem('school_device_id', deviceId);
+                }
+                return deviceId;
+            }
+
+            function injectBotLiToAllModals() {
+                const botliHeadHTML = `
+                    <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                        style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                    </div>
+                `;
+                document.querySelectorAll('.modal-box').forEach(box => {
+                    box.querySelectorAll('.botli-head').forEach(el => el.remove());
+                    box.querySelectorAll('img').forEach(img => {
+                        if (img.src.includes('PHN2ZyB4bWx')) {
+                            const wrapper = img.closest('div');
+                            if (wrapper && wrapper !== box) wrapper.remove();
+                            else img.remove();
+                        }
+                    });
+                    box.insertAdjacentHTML('afterbegin', botliHeadHTML);
+                    box.style.overflow = "visible";
+                    box.style.position = "relative";
+                    if (!box.style.paddingTop || parseInt(box.style.paddingTop) < 40) {
+                        box.style.paddingTop = "45px";
+                    }
+                });
+            }
+
+            document.body.addEventListener('click', closeContextMenu);
+
+            window.addEventListener('load', () => setTimeout(injectBotLiToAllModals, 500));
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('button')) {
+                    setTimeout(injectBotLiToAllModals, 50);
+                }
+            });
+            setTimeout(injectBotLiToAllModals, 500);
+
+            window.toggleAiCollapse = function () {
+                const panel = document.getElementById('ai-panel');
+                panel.classList.toggle('collapsed');
+
+                // אם יש עורך קוד, צריך לעדכן את הגודל שלו כדי שיתפוס את המקום שהתפנה
+                if (typeof editorInstance !== 'undefined') {
+                    setTimeout(() => editorInstance.layout(), 300);
+                }
+            };
+
+            function parseMarkdown(text) {
+                if (!text) return "";
+                text = text.trim();
+                const codeBlocks = [];
+                text = text.replace(/`([^`\n]+)`/g, (match, code) => {
+                    codeBlocks.push(`<code>${code}</code>`);
+                    return `___CODE_${codeBlocks.length - 1}___`;
+                });
+                text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                text = text.replace(/^\* (.*$)/gim, '<li>$1</li>');
+                text = text.replace(/((<li>.*<\/li>\s*)+)/gim, '<ul>$1</ul>');
+                text = text.replace(/^---$/gim, '<hr>');
+                text = text.replace(/___CODE_(\d+)___/g, (match, index) => codeBlocks[index]);
+                text = text.replace(/\r\n/g, '\n');
+                text = text.replace(/\n{3,}/g, '\n\n');
+                text = text.replace(/(<\/h[1-6]>)\n+/g, '$1');
+                text = text.replace(/(<\/ul>)\n+/g, '$1');
+                text = text.replace(/\n+(<ul>)/g, '$1');
+                text = text.replace(/(<hr>)\n+/g, '$1');
+                text = text.replace(/\n/g, '<br>');
+                return text;
+            }
+
+
+        })();
+
+        // פונקציה למסך מלא (F11)
+        function toggleGlobalFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // מאזין לשינויים (כדי לעדכן את האייקון גם אם לחצו F11 במקלדת)
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('fs-global-btn');
+            const icon = btn.querySelector('i');
+
+            if (document.fullscreenElement) {
+                icon.classList.replace('fa-expand', 'fa-compress');
+                btn.title = "צא ממסך מלא";
+            } else {
+                icon.classList.replace('fa-compress', 'fa-expand');
+                btn.title = "מסך מלא (F11)";
+            }
+        });
+
+        function enforceKioskMode() {
+            // אם המצב הוא לא 'on', לא עושים כלום
+            if (!document.body.classList.contains('kiosk-mode')) {
+                document.getElementById('kiosk-overlay').style.display = 'none';
+                return;
+            }
+
+            // אם אנחנו לא במסך מלא -> תפעיל את החסימה!
+            if (!document.fullscreenElement) {
+                document.getElementById('kiosk-overlay').style.display = 'flex';
+            } else {
+                document.getElementById('kiosk-overlay').style.display = 'none';
+            }
+        }
+
+        // חסימת מקשים במצב קיוסק
+        document.addEventListener('keydown', function (e) {
+            if (!document.body.classList.contains('kiosk-mode')) return;
+
+            // חסימת F11, Esc, וניסיון לחסימת Alt (לא תמיד אפשרי ב-OS)
+            if (e.key === 'F11' || e.key === 'Escape' || e.key === 'Alt') {
+                e.preventDefault();
+                e.stopPropagation();
+                // אם לחץ Esc או F11, אנחנו גם מוודאים שהוא נשאר במסך מלא
+                toggleGlobalFullScreen();
+            }
+        });
+
+        // עדכון כפתור ההתחברות כדי שייכנס למסך מלא מיד
+        const originalLogin = document.getElementById('login-btn').onclick;
+        document.getElementById('login-btn').onclick = async function () {
+            // קודם ננסה להיכנס למסך מלא אם מוגדר
+            // אנחנו מניחים שאם הוא מתחבר, אולי הוא כבר במצב on
+            // אבל זה יתעדכן סופית רק אחרי קבלת תשובה מהשרת.
+            // ליתר ביטחון, ננסה:
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch (err) { }
+
+            // הפעלת פונקציית ההתחברות המקורית (שנמצאת בתוך הקוד שלך)
+            // הערה: עדיף שתעתיק את תוכן ה-onclick של כפתור ההתחברות לכאן או תוודא שזה לא מתנגש
+            // הדרך הכי פשוטה היא להוסיף את שורת ה-FullScreen בתוך הפונקציה handleLogin עצמה.
+        };
+
+        // מאזין לשינויים במסך מלא כדי להקפיץ את החסימה מייד
+        document.addEventListener('fullscreenchange', enforceKioskMode);
+
+        // --- משתנים ולוגיקה לזום בשיעור ---
+        let lessonScale = 1.0; // זום התחלתי (100%)
+
+        function zoomLesson(change) {
+            // עדכון רמת הזום
+            lessonScale += change;
+
+            // הגבלת הזום (בין 50% ל-200%)
+            lessonScale = Math.min(Math.max(0.5, lessonScale), 2.0);
+
+            // מציאת אלמנט התוכן (הילד הישיר של lesson-content)
+            const container = document.getElementById('lesson-content');
+            if (!container || container.children.length === 0) return;
+
+            const targetElement = container.children[0]; // זה ה-iframe או ה-div של הטקסט
+
+            // החלת הזום
+            targetElement.style.transform = `scale(${lessonScale})`;
+            targetElement.style.transformOrigin = 'top right'; // התמקדות בפינה הימנית עליונה (RTL)
+
+            // תיקון לגודל הפיזי כשהזום משתנה (כדי למנוע גלילה מיותרת)
+            if (lessonScale !== 1) {
+                targetElement.style.width = `${100 / lessonScale}%`;
+                targetElement.style.height = `${100 / lessonScale}%`;
+            } else {
+                targetElement.style.width = "100%";
+                targetElement.style.height = "100%";
+            }
+        }
+
+        // --- משתנים לניהול תצוגת השיעור ---
+        let isLessonDark = true; // ברירת מחדל: מצב לילה
+
+        function toggleLessonFullScreen() {
+            const panel = document.getElementById('lesson-panel');
+            const icon = document.getElementById('fs-lesson-icon');
+
+            panel.classList.toggle('lesson-fullscreen');
+
+            // החלפת אייקון
+            if (panel.classList.contains('lesson-fullscreen')) {
+                icon.classList.replace('fa-expand', 'fa-compress');
+            } else {
+                icon.classList.replace('fa-compress', 'fa-expand');
+            }
+        }
+
+        function toggleLessonContrast() {
+            isLessonDark = !isLessonDark;
+            const container = document.getElementById('lesson-content');
+            if (!container || container.children.length === 0) return;
+
+            const content = container.children[0]; // ה-iframe או ה-div
+
+            if (content.tagName === 'IFRAME') {
+                // טיפול בגוגל דוקס
+                content.style.filter = isLessonDark ? "invert(1) hue-rotate(180deg)" : "none";
+            } else {
+                // טיפול בטקסט רגיל
+                if (isLessonDark) {
+                    content.style.backgroundColor = ""; // שקוף (חוזר לרקע הכהה של האתר)
+                    content.style.color = "#e3e3e3";
+                } else {
+                    content.style.backgroundColor = "#ffffff"; // לבן
+                    content.style.color = "#000000"; // שחור
+                }
+            }
+        }
+
+    </script>
+
+
+    <div id="kiosk-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 999999; justify-content: center; align-items: center; flex-direction: column; text-align: center;">
+        <h1 style="color: red; font-size: 30px;">⚠️ יצאת ממסך מלא!</h1>
+        <p style="color: white; font-size: 18px;">המורה הגדיר מצב נעילה. עליך לחזור למסך מלא כדי להמשיך.</p>
+        <button onclick="toggleGlobalFullScreen()" style="padding: 15px 30px; font-size: 20px; background: #a8c7fa; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">חזור למסך מלא מייד</button>
+    </div>
+</body>
+</html>
