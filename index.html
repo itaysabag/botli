@@ -1267,7 +1267,7 @@
         </div>
     </div>
 
-    <div id="ai-panel">
+    <div id="ai-panel" class="collapsed">
         <div class="ai-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <i class="fa-solid fa-robot" style="color: #ff4d4d; cursor: pointer;" onclick="toggleAiCollapse()" title="כווץ/הרחב"></i>
@@ -1728,6 +1728,9 @@
                 initResizers();
 
                 bindEvents();
+                setTimeout(function () {
+                    switchViewMode('lesson');
+                }, 500);
             });
 
             function bindEvents() {
@@ -2851,8 +2854,8 @@
                 });
             }, 100);
         }
-        lastSystemMessage = data.message;
-        window.lastSystemMessage = lastSystemMessage; //
+        //lastSystemMessage = data.message;
+        //window.lastSystemMessage = lastSystemMessage;
         function showUrlModal(url) {
             const overlay = document.getElementById('universal-modal');
             const modalBox = overlay.querySelector('.modal-box'); // <--- תופסים את הקופסה
@@ -2904,6 +2907,29 @@
                 // -----------------------------------------------------------
             };
         }
+
+        (function () {
+            var checkReady = setInterval(function () {
+                // בדיקה שהמערכת טעונה
+                if (typeof window.switchViewMode === 'function') {
+                    clearInterval(checkReady);
+
+                    // 1. כיווץ הבוט
+                    var aiPanel = document.getElementById('ai-panel');
+                    if (aiPanel && !aiPanel.classList.contains('collapsed')) {
+                        aiPanel.classList.add('collapsed');
+                        // סידור מחדש של העורך אם קיים
+                        if (window.editorInstance) window.editorInstance.layout();
+                    }
+
+                    // 2. מעבר למצב שיעורים
+                    window.switchViewMode('lesson');
+                }
+            }, 100);
+        })();
+
+
+
     </script>
 
 
@@ -2914,4 +2940,3 @@
     </div>
 </body>
 </html>
-
