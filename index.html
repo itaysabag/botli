@@ -1143,6 +1143,19 @@
             z-index: 20000; /* מעל הכל */
         }
 
+        /* מצב מסך מלא לעורך הקוד */
+        #editor-wrapper.editor-fullscreen {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 20000; /* מעל הכל */
+            background: #1e1f20; /* רקע ברירת מחדל */
+        }
+
         /* --- עיצוב מתג מצבים (עורך / שיעורים) --- */
         .mode-toggle-container {
             display: flex;
@@ -1383,8 +1396,10 @@
             <div id="editor-wrapper">
                 <div id="editor"></div>
                 <div class="editor-controls">
-                    <button class="zoom-btn" id="zoom-in-btn" title="הגדל טקסט"><i class="fa-solid fa-plus"></i></button>
+                    <button class="zoom-btn" onclick="toggleEditorFullScreen()" title="מסך מלא"><i id="fs-editor-icon" class="fa-solid fa-expand"></i></button>
+                    <button class="zoom-btn" onclick="toggleEditorTheme()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
                     <button class="zoom-btn" id="zoom-out-btn" title="הקטן טקסט"><i class="fa-solid fa-minus"></i></button>
+                    <button class="zoom-btn" id="zoom-in-btn" title="הגדל טקסט"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
 
@@ -2927,6 +2942,36 @@
                 }
             }, 100);
         })();
+
+
+        // --- לוגיקה לעורך הקוד (מסך מלא + ערכת נושא) ---
+        let isEditorDark = true;
+
+        function toggleEditorFullScreen() {
+            const wrapper = document.getElementById('editor-wrapper');
+            const icon = document.getElementById('fs-editor-icon');
+
+            wrapper.classList.toggle('editor-fullscreen');
+
+            // החלפת אייקון ועדכון גודל העורך
+            if (wrapper.classList.contains('editor-fullscreen')) {
+                icon.classList.replace('fa-expand', 'fa-compress');
+            } else {
+                icon.classList.replace('fa-compress', 'fa-expand');
+            }
+
+            if (editorInstance) editorInstance.layout();
+        }
+
+        function toggleEditorTheme() {
+            isEditorDark = !isEditorDark;
+
+            if (isEditorDark) {
+                monaco.editor.setTheme('java-custom'); // הערכה הכהה שיצרנו
+            } else {
+                monaco.editor.setTheme('vs'); // הערכה הבהירה המובנית של מונאקו
+            }
+        }
 
 
 
