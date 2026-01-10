@@ -760,7 +760,7 @@
             width: 100%;
             height: 100%;
             background: #000000;
-            z-index: 21000; /* --- שינוי: הועלה מ-20000 ל-21000 כדי לכסות את כפתורי השיעור --- */
+            z-index: 21000;
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -1211,9 +1211,56 @@
         #lesson-panel.lesson-fullscreen #lesson-content {
             background-color: #131314;
         }
+
+        /* --- עיצוב אחיד לכפתורים עגולים בהדר --- */
+        .header-circle-btn {
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            border-radius: 50% !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #444746 !important;
+            background: transparent !important;
+            color: #c4c7c5 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0 !important; /* המרווח ינוהל ע"י הקונטיינר */
+            position: relative; /* עבור תגית ההתראה */
+        }
+
+            .header-circle-btn:hover {
+                background-color: #333537 !important;
+                color: white !important;
+                border-color: #888 !important;
+            }
+
+    
+        #runBtn {
+            box-shadow: none !important;
+        }
     </style>
 </head>
 <body>
+
+    <div id="teacher-chat-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 25000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-box" style="width: 400px; height: 500px; display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+            <div style="background: #131314; padding: 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-chalkboard-user"></i> צ'אט עם המורה</span>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('teacher-chat-overlay').style.display='none'" style="cursor: pointer; color: #888;"></i>
+            </div>
+
+            <div id="t-chat-msgs" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #1e1f20;"></div>
+
+            <div style="padding: 10px; background: #131314; border-top: 1px solid #2d2e30; display: flex; gap: 10px;">
+                <input type="text" id="t-chat-input" placeholder="כתוב הודעה למורה..." style="flex: 1; background: #2d2e30; border: none; color: white; padding: 10px; border-radius: 20px; outline: none;">
+                <button onclick="sendTeacherMsg()" style="background: #a8c7fa; color: black; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fa-solid fa-paper-plane" style="margin-right: 2px;"></i></button>          
+         
+            </div>
+        </div>
+    </div>
 
     <div id="universal-modal">
         <div class="modal-box" style="text-align: center;">
@@ -1317,12 +1364,14 @@
     <div class="resizer-vertical" id="resizer-v"></div>
 
     <div id="ide-panel">
+
         <header>
             <div id="left-header-group" style="display: flex; align-items: center; gap: 20px;">
-                <div id="editor-tools" style="display: flex; gap: 8px; align-items: center;">
-                    <button id="runBtn" title="הרצה"><i id="btnIcon" class="fa-solid fa-play"></i></button>
-                    <button id="btn-save" title="שמור פרויקט"><i class="fa-solid fa-floppy-disk"></i></button>
-                    <button id="btn-load" title="טען פרויקט"><i class="fa-solid fa-folder-open"></i></button>
+
+                <div id="editor-tools" style="display: flex; gap: 10px; align-items: center;">
+                    <button id="runBtn" class="header-circle-btn" title="הרצה"><i id="btnIcon" class="fa-solid fa-play"></i></button>
+                    <button id="btn-save" class="header-circle-btn" title="שמור פרויקט"><i class="fa-solid fa-floppy-disk"></i></button>
+                    <button id="btn-load" class="header-circle-btn" title="טען פרויקט"><i class="fa-solid fa-folder-open"></i></button>
                 </div>
 
                 <div style="width: 1px; height: 18px; background: #2d2e30;"></div>
@@ -1335,22 +1384,27 @@
 
             </div>
 
-            <div id="right-header-group" style="display: flex; align-items: center; position: relative;">
+            <div id="right-header-group" style="display: flex; align-items: center; gap: 10px; position: relative;">
+
+                <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
+                    <i class="fa-solid fa-comments"></i>
+                    <span id="t-chat-badge" style="display: none; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ff4d4d; border-radius: 50%; border: 2px solid #131314;"></span>
+                </button>
 
                 <div id="msg-bubble" style="display: none; position: absolute; top: 50px; right: 0; width: 300px; background: #1e1f20; border: 1px solid #a8c7fa; padding: 15px; border-radius: 8px; z-index: 30000; text-align: right; direction: rtl; box-shadow: 0 5px 20px rgba(0,0,0,0.5); color: #e3e3e3; font-size: 14px; line-height: 1.5;">
                     <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 5px;">הודעה מהמורה:</div>
                     <div id="msg-bubble-content"></div>
                 </div>
 
-                <button id="msg-btn" onclick="toggleMessageBubble()" title="הודעות מהמורה" style="border: 1px solid #444746; margin-right: 10px; width: 36px !important; height: 36px !important; padding: 0 !important; border-radius: 50%; justify-content: center;">
+                <button id="msg-btn" class="header-circle-btn" onclick="toggleMessageBubble()" title="הודעות מהמורה">
                     <i class="fa-solid fa-envelope"></i>
                 </button>
 
-                <button id="fs-global-btn" onclick="toggleGlobalFullScreen()" title="מסך מלא (F11)" style="border: 1px solid #444746; margin-right: 10px;">
+                <button id="fs-global-btn" class="header-circle-btn" onclick="toggleGlobalFullScreen()" title="מסך מלא (F11)">
                     <i class="fa-solid fa-expand"></i>
                 </button>
 
-                <div class="mode-toggle-container">
+                <div class="mode-toggle-container" style="margin-right: 5px;">
                     <button id="mode-editor-btn" class="mode-btn active" onclick="switchViewMode('editor')">
                         <i class="fa-solid fa-code"></i> עורך
                     </button>
@@ -1360,6 +1414,8 @@
                 </div>
             </div>
         </header>
+
+
 
         <div id="lesson-panel" style="display: none; flex: 1; overflow: hidden; background-color: #131314; flex-direction: row-reverse; position: relative;">
 
@@ -1513,7 +1569,7 @@
                 }, 100);
             }
 
-            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxumfuV3J-mHCWLvFxZuuRJ0B2uAQ5YvS-jZ-2in9xSiOqCVzA2KcLEWqr7dylk6GKKDQ/exec";
+            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyqurwK5W6q9cabXLCEAbUPT4zSEbD2FgdiamSUwqr4Fbd3A1guXQcxU_cWxb29SQb3/exec";
             const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
             const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
             const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfkV1E_rCAlRt6qcvIwI4Nmb5QRqN0S6vo7-mPx_shgknVzQ/formResponse";
@@ -1605,39 +1661,39 @@
 
 --- התאמות לבגרות (ישראל) - חוקים קריטיים! ---
 1. טיפוסים מותרים בלבד:
-               * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
-               * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
-               * אחרים: boolean, char, String.
-               * אסור להשתמש ב-var.
+                   * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
+                   * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
+                   * אחרים: boolean, char, String.
+                   * אסור להשתמש ב-var.
 
 2. מבני בקרה (Control Flow):
-               * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
-               * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
-               * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
+                   * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
+                   * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
+                   * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
 
 3. איסורים כלליים:
-               * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
-               * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
-               * הערות בקוד חייבות להיות בעברית או באנגלית.
+                   * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
+                   * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
+                   * הערות בקוד חייבות להיות בעברית או באנגלית.
 
 זיהוי מצב והתנהגות
 1. סינון רעשים (Hello World):
-               אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
+                   אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
 
 2. שאלה על הבנה ("תסביר לי"):
-               אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
+                   אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
 
 3. בקשה ל"רמז" או "המשך":
-               תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
+                   תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
 
 עקרונות המענה
 1. עקרון הצעד הבודד:
-               לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
+                   לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
 
 2. פדגוגיה של מתחילים:
-               * העדף קוד מפורק וברור.
-               * דוגמה טובה: int x = 5; (שורה חדשה) return x;
-               * דוגמה רעה: return 5; (אם יש חישוב בדרך).
+                   * העדף קוד מפורק וברור.
+                   * דוגמה טובה: int x = 5; (שורה חדשה) return x;
+                   * דוגמה רעה: return 5; (אם יש חישוב בדרך).
 
 --- מבנה התשובה (קריטי!) ---
 עליך להחזיר את התשובה בפורמט הבא בלבד:
@@ -1660,8 +1716,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                        אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
-                        טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
+                            אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
+                            טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -1779,7 +1835,7 @@
                 document.getElementById('ai-input').onkeypress = handleChatKey;
                 document.getElementById('login-user').onkeypress = handleLoginKey;
                 document.getElementById('login-pass').onkeypress = handleLoginKey;
-                document.getElementById('copy-lesson-btn').onclick = copyLessonCode;
+               // document.getElementById('copy-lesson-btn').onclick = copyLessonCode;
                 document.getElementById('side-book-btn').onclick = openExerciseModal;
 
                 const wl = document.getElementById('welcome-ex-link');
@@ -1843,7 +1899,7 @@
                 if (isSystemLocked) overlay.style.display = 'flex'; else overlay.style.display = 'none';
             }
 
-            // ניסיון כניסה למסך מלא מיד בלחיצה
+   
             document.documentElement.requestFullscreen().catch(() => { });
 
             async function performLogin() {
@@ -1888,17 +1944,15 @@
 
             let watchdogDebounce = false;
             function startGlobalWatchdog() {
-                // זיהוי מעבר טאב או מזעור (זה תמיד נחשב יציאה)
+               
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'hidden') handleViolation();
                 });
 
-                // זיהוי איבוד פוקוס (קליק מחוץ לחלון)
                 window.addEventListener('blur', () => {
-                    // התיקון: בדיקה האם הפוקוס עבר ל-iframe (כמו גוגל דוקס)
-                    // אם האלמנט הפעיל הוא iframe, סימן שהתלמיד עדיין באתר ופשוט עובד על המסמך
+               
                     if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                        return; // הכל בסדר, אל תפעיל אזעקה
+                        return; 
                     }
 
                     handleViolation();
@@ -1960,16 +2014,16 @@
             function openExerciseModal() {
                 document.getElementById('exercise-overlay').style.display = 'flex';
             }
-            window.openExerciseModal = openExerciseModal; // <--- הוספנו את זה
+            window.openExerciseModal = openExerciseModal;
             function closeExerciseModal() { document.getElementById('exercise-overlay').style.display = 'none'; }
             function selectExercise(ex) {
                 currentActiveExercise = ex;
                 closeExerciseModal();
 
-                // --- התיקון החדש: פתיחת הצ'אט רק עכשיו ---
+           
                 const panel = document.getElementById('ai-panel');
                 if (panel.classList.contains('collapsed')) {
-                    // קורא לפונקציית הפתיחה שיצרנו קודם
+             
                     if (typeof window.toggleAiCollapse === "function") {
                         window.toggleAiCollapse();
                     } else {
@@ -2368,11 +2422,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                    <span>${subCat}</span>
-                                </div>
-                            `;
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                        <span>${subCat}</span>
+                                    </div>
+                                `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2461,7 +2515,6 @@
                     contentElement.style.display = "block";
 
                     // אופציונלי: שמירה על מצב לילה (הפוך צבעים).
-                    // אם אתה רוצה דף לבן רגיל - תמחק את השורה הבאה:
                     contentElement.style.filter = "invert(1) hue-rotate(180deg)";
                     contentElement.style.background = "#fff"; // מונע הבהוב
 
@@ -2471,7 +2524,7 @@
                     contentElement.id = 'lesson-body';
 
                     // עיצוב לטקסט רגיל
-                    contentElement.style.padding = "30px"; // כאן כן צריך ריפוד שיהיה קריא
+                    contentElement.style.padding = "30px"; 
                     contentElement.style.width = "100%";
                     contentElement.style.height = "100%";
                     contentElement.style.overflowY = "auto"; // גלילה פנימית לטקסט
@@ -2599,11 +2652,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                        <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                            style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                        </div>
-                    `;
+                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                            </div>
+                        `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -2668,27 +2721,312 @@
                 return text;
             }
 
+            // --- לוגיקה לצ'אט מורה (בתוך הבלוק הראשי) ---
+            let tChatInterval = null;
+
+            function openTeacherChat() {
+                if (!globalStudentName) { Sys.alert("יש להתחבר תחילה כדי לדבר עם המורה."); return; }
+                document.getElementById('t-chat-badge').style.display = 'none';
+                document.getElementById('teacher-chat-overlay').style.display = 'flex';
+                fetchTeacherChat();
+                if (tChatInterval) clearInterval(tChatInterval);
+                tChatInterval = setInterval(() => {
+                    if (document.getElementById('teacher-chat-overlay').style.display === 'none') {
+                        clearInterval(tChatInterval);
+                    } else {
+                        fetchTeacherChat();
+                    }
+                }, 5000);
+            }
+
+            async function fetchTeacherChat() {
+                try {
+                    const url = `${CONTROL_SCRIPT_URL}?action=teacherChat&user=${encodeURIComponent(globalStudentName)}&t=${new Date().getTime()}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const container = document.getElementById('t-chat-msgs');
+                    if (data.chat !== undefined) {
+                        renderTeacherChat(String(data.chat), container);
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            function renderTeacherChat(text, container) {
+                // --- תיקון: עדכון האורך שנצפה, כדי שהנקודה לא תחזור ---
+                if (text) lastChatLength = text.length;
+                document.getElementById('t-chat-badge').style.display = 'none'; // כיבוי הנקודה
+                // -----------------------------------------------------
+
+                const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+
+                container.innerHTML = "";
+                if (!text) {
+                    container.innerHTML = "<div style='text-align:center; color:#555; margin-top:20px;'>אין הודעות עדיין</div>";
+                    return;
+                }
+
+                const lines = text.split('\n');
+                lines.forEach(line => {
+                    if (!line.trim()) return;
+
+                    const div = document.createElement('div');
+                    div.style.maxWidth = "80%";
+                    div.style.padding = "8px 12px";
+                    div.style.borderRadius = "12px";
+                    div.style.fontSize = "14px";
+                    div.style.wordWrap = "break-word";
+                    div.style.lineHeight = "1.4";
+
+                    if (line.includes("[תלמיד")) {
+                        div.style.alignSelf = "flex-start";
+                        div.style.background = "#2b5c3a";
+                        div.style.color = "#e3e3e3";
+                        div.style.borderBottomRightRadius = "2px";
+                        div.innerText = line.replace(/\[.*?\]:\s*/, "");
+                    } else {
+                        div.style.alignSelf = "flex-end";
+                        div.style.background = "#3c3e40";
+                        div.style.color = "#fff";
+                        div.style.borderBottomLeftRadius = "2px";
+                        div.innerText = line.replace(/^\[מורה.*?\]:\s*/, "");
+                    }
+
+                    container.appendChild(div);
+                });
+
+                if (isAtBottom) container.scrollTop = container.scrollHeight;
+            }
+
+            async function sendTeacherMsg() {
+                const input = document.getElementById('t-chat-input');
+                const msg = input.value.trim();
+                if (!msg) return;
+
+                // 1. ניקוי השדה והוספה מידית למסך (כדי שיראה מהיר)
+                input.value = "";
+                const container = document.getElementById('t-chat-msgs');
+                const div = document.createElement('div');
+
+                // עיצוב ההודעה הזמנית
+                div.style.maxWidth = "80%";
+                div.style.padding = "8px 12px";
+                div.style.borderRadius = "12px";
+                div.style.fontSize = "14px";
+                div.style.wordWrap = "break-word";
+                div.style.lineHeight = "1.4";
+                div.style.alignSelf = "flex-start";
+                div.style.background = "#2b5c3a";
+                div.style.color = "#e3e3e3";
+                div.style.borderBottomRightRadius = "2px";
+                div.innerText = msg;
+
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+
+                // 2. עצירת הריענון האוטומטי! (כדי שלא ימחק את ההודעה לפני שהיא נשמרת)
+                if (tChatInterval) clearInterval(tChatInterval);
+
+                try {
+                    // 3. שליחה לשרת
+                    const url = `${CONTROL_SCRIPT_URL}?action=teacherChat&user=${encodeURIComponent(globalStudentName)}&msg=${encodeURIComponent(msg)}`;
+                    await fetch(url);
+
+                    // 4. המתנה  של 2.5 שניות לגוגל שיטס לפני שמחדשים את הריענון
+                    setTimeout(() => {
+                        fetchTeacherChat(); //  המידע המעודכן 
+
+                        // הפעלה מחדש של השעון האוטומטי
+                        tChatInterval = setInterval(() => {
+                            if (document.getElementById('teacher-chat-overlay').style.display === 'none') {
+                                clearInterval(tChatInterval);
+                            } else {
+                                fetchTeacherChat();
+                            }
+                        }, 5000);
+                    }, 2500);
+
+                } catch (e) {
+                    div.style.color = "#ff4d4d";
+                    div.innerText += " (שגיאה בשליחה)";
+                }
+            }
+
+            // --- בדיקה ברקע להודעות חדשות (הנקודה האדומה) ---
+            let lastChatLength = 0; // שומר את אורך הצ'אט האחרון שראינו
+
+            // בדיקה ראשונית + הפעלה מחזורית כל 15 שניות
+            setTimeout(backgroundChatCheck, 3000);
+            setInterval(backgroundChatCheck, 15000);
+
+            async function backgroundChatCheck() {
+                // אם החלון פתוח - לא עושים כלום
+                if (document.getElementById('teacher-chat-overlay').style.display !== 'none') return;
+
+                if (!globalStudentName) return;
+
+                try {
+                    const url = `${CONTROL_SCRIPT_URL}?action=teacherChat&user=${encodeURIComponent(globalStudentName)}&t=${new Date().getTime()}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data.chat) {
+                        const currentText = String(data.chat).trim();
+
+                        // האם יש משהו חדש שעדיין לא ראינו?
+                        if (currentText.length > lastChatLength) {
+
+                            const lines = currentText.split('\n');
+                            const lastLine = lines[lines.length - 1];
+
+                            // אם ההודעה האחרונה היא מהמורה -> תדליק נורה
+                            if (!lastLine.includes("[תלמיד")) {
+                                document.getElementById('t-chat-badge').style.display = 'block';
+                            } else {
+                                // אם ההודעה האחרונה היא שלי (התלמיד) -> תעדכן שראיתי אותה (כדי לא לבדוק שוב)
+                                lastChatLength = currentText.length;
+                            }
+                        }
+                    }
+                } catch (e) { }
+            }
+
+            document.getElementById('t-chat-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') sendTeacherMsg();
+            });
+
+       
+            function toggleMessageBubble() {
+                const bubble = document.getElementById('msg-bubble');
+                const content = document.getElementById('msg-bubble-content');
+                if (bubble.style.display === 'block') {
+                    bubble.style.display = 'none';
+                    return;
+                }
+                content.innerHTML = "";
+                let rawMsg = window.lastSystemMessage || "";
+                rawMsg = rawMsg.trim();
+                if (rawMsg.startsWith("http")) {
+                    bubble.style.width = "500px";
+                    let src = rawMsg;
+                    if (src.includes("docs.google.com") && !src.includes("/preview")) {
+                        src = src.replace(/\/edit.*/, "/preview").replace(/\/view.*/, "/preview");
+                    }
+                    const iframe = document.createElement('iframe');
+                    iframe.src = src;
+                    iframe.style.width = "100%";
+                    iframe.style.height = "400px";
+                    iframe.style.border = "none";
+                    iframe.style.backgroundColor = "#fff";
+                    content.appendChild(iframe);
+                } else {
+                    bubble.style.width = "300px";
+                    content.innerText = rawMsg || "📭 אין הודעות חדשות.";
+                }
+                bubble.style.display = 'block';
+                setTimeout(() => {
+                    document.addEventListener('click', function closeOnClickOutside(e) {
+                        if (!bubble.contains(e.target) && e.target.id !== 'msg-btn') {
+                            bubble.style.display = 'none';
+                            document.removeEventListener('click', closeOnClickOutside);
+                        }
+                    });
+                }, 100);
+            }
+
+            function showUrlModal(url) {
+                const overlay = document.getElementById('universal-modal');
+                const modalBox = overlay.querySelector('.modal-box');
+                const title = document.getElementById('u-modal-title');
+                const textContainer = document.getElementById('u-modal-text');
+                const btnOk = document.getElementById('u-modal-ok');
+                const btnCancel = document.getElementById('u-modal-cancel');
+                const input = document.getElementById('u-modal-input');
+                overlay.style.display = 'flex';
+                input.style.display = 'none';
+                btnCancel.style.display = 'none';
+                textContainer.innerHTML = "";
+                modalBox.style.width = "90%";
+                modalBox.style.maxWidth = "600px";
+                title.innerText = "📢 הודעת כיתה";
+                let src = url;
+                if (src.includes("docs.google.com") && !src.includes("/preview")) {
+                    src = src.replace(/\/edit.*/, "/preview").replace(/\/view.*/, "/preview");
+                }
+                // Wrapper
+                const wrapper = document.createElement('div');
+                wrapper.style.position = "relative";
+                wrapper.style.width = "100%";
+                wrapper.style.height = "60vh";
+                wrapper.style.overflow = "hidden";
+                wrapper.style.border = "1px solid #444";
+                wrapper.style.borderRadius = "8px";
+                // iframe
+                const iframe = document.createElement('iframe');
+                iframe.id = 'modal-iframe-content';
+                iframe.src = src;
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.border = "none";
+                iframe.style.background = "#fff";
+                iframe.style.transition = "transform 0.2s ease";
+                // Toolbar
+                const toolbar = document.createElement('div');
+                toolbar.className = 'lesson-zoom-controls';
+                toolbar.style.position = "absolute";
+                toolbar.style.bottom = "15px";
+                toolbar.style.left = "20px";
+                toolbar.style.right = "auto";
+                toolbar.style.zIndex = "10";
+                toolbar.style.display = "flex";
+                toolbar.style.gap = "8px";
+                toolbar.innerHTML = `
+                    <button class="zoom-btn" onclick="toggleModalContrast()" title="מצב קריאה (יום/לילה)"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                    <button class="zoom-btn" onclick="zoomModal(-0.1)" title="הקטן"><i class="fa-solid fa-minus"></i></button>
+                    <button class="zoom-btn" onclick="zoomModal(0.1)" title="הגדל"><i class="fa-solid fa-plus"></i></button>
+                `;
+                wrapper.appendChild(iframe);
+                wrapper.appendChild(toolbar);
+                textContainer.appendChild(wrapper);
+                btnOk.innerText = 'סגור';
+                btnOk.onclick = () => {
+                    overlay.style.display = 'none';
+                    textContainer.innerHTML = "";
+                    modalBox.style.width = "";
+                    modalBox.style.maxWidth = "";
+                };
+            }
+
+            window.openTeacherChat = openTeacherChat;
+            window.sendTeacherMsg = sendTeacherMsg;
+            window.toggleMessageBubble = toggleMessageBubble;
+            window.showUrlModal = showUrlModal;
+
+            // --- וידוא טעינה ראשונית תקינה ---
+            var checkReady = setInterval(function () {
+                if (typeof window.switchViewMode === 'function') {
+                    clearInterval(checkReady);
+                    var aiPanel = document.getElementById('ai-panel');
+                    if (aiPanel && !aiPanel.classList.contains('collapsed')) {
+                        aiPanel.classList.add('collapsed');
+                        if (window.editorInstance) window.editorInstance.layout();
+                    }
+                    window.switchViewMode('lesson');
+                }
+            }, 100);
 
         })();
 
-        // פונקציה למסך מלא (F11)
         function toggleGlobalFullScreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
-                });
+                document.documentElement.requestFullscreen().catch(err => { console.log(err); });
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         }
 
-        // מאזין לשינויים (כדי לעדכן את האייקון גם אם לחצו F11 במקלדת)
         document.addEventListener('fullscreenchange', () => {
             const btn = document.getElementById('fs-global-btn');
             const icon = btn.querySelector('i');
-
             if (document.fullscreenElement) {
                 icon.classList.replace('fa-expand', 'fa-compress');
                 btn.title = "צא ממסך מלא";
@@ -2699,13 +3037,10 @@
         });
 
         function enforceKioskMode() {
-            // אם המצב הוא לא 'on', לא עושים כלום
             if (!document.body.classList.contains('kiosk-mode')) {
                 document.getElementById('kiosk-overlay').style.display = 'none';
                 return;
             }
-
-            // אם אנחנו לא במסך מלא -> תפעיל את החסימה!
             if (!document.fullscreenElement) {
                 document.getElementById('kiosk-overlay').style.display = 'flex';
             } else {
@@ -2713,59 +3048,24 @@
             }
         }
 
-        // חסימת מקשים במצב קיוסק
         document.addEventListener('keydown', function (e) {
             if (!document.body.classList.contains('kiosk-mode')) return;
-
-            // חסימת F11, Esc, וניסיון לחסימת Alt (לא תמיד אפשרי ב-OS)
             if (e.key === 'F11' || e.key === 'Escape' || e.key === 'Alt') {
-                e.preventDefault();
-                e.stopPropagation();
-                // אם לחץ Esc או F11, אנחנו גם מוודאים שהוא נשאר במסך מלא
-                toggleGlobalFullScreen();
+                e.preventDefault(); e.stopPropagation(); toggleGlobalFullScreen();
             }
         });
-
-        // עדכון כפתור ההתחברות כדי שייכנס למסך מלא מיד
-        const originalLogin = document.getElementById('login-btn').onclick;
-        document.getElementById('login-btn').onclick = async function () {
-            // קודם ננסה להיכנס למסך מלא אם מוגדר
-            // אנחנו מניחים שאם הוא מתחבר, אולי הוא כבר במצב on
-            // אבל זה יתעדכן סופית רק אחרי קבלת תשובה מהשרת.
-            // ליתר ביטחון, ננסה:
-            try {
-                await document.documentElement.requestFullscreen();
-            } catch (err) { }
-
-            // הפעלת פונקציית ההתחברות המקורית (שנמצאת בתוך הקוד שלך)
-            // הערה: עדיף שתעתיק את תוכן ה-onclick של כפתור ההתחברות לכאן או תוודא שזה לא מתנגש
-            // הדרך הכי פשוטה היא להוסיף את שורת ה-FullScreen בתוך הפונקציה handleLogin עצמה.
-        };
-
-        // מאזין לשינויים במסך מלא כדי להקפיץ את החסימה מייד
         document.addEventListener('fullscreenchange', enforceKioskMode);
 
-        // --- משתנים ולוגיקה לזום בשיעור ---
-        let lessonScale = 1.0; // זום התחלתי (100%)
-
+        // --- לוגיקה לזום בשיעור ---
+        let lessonScale = 1.0;
         function zoomLesson(change) {
-            // עדכון רמת הזום
             lessonScale += change;
-
-            // הגבלת הזום (בין 50% ל-200%)
             lessonScale = Math.min(Math.max(0.5, lessonScale), 2.0);
-
-            // מציאת אלמנט התוכן (הילד הישיר של lesson-content)
             const container = document.getElementById('lesson-content');
             if (!container || container.children.length === 0) return;
-
-            const targetElement = container.children[0]; // זה ה-iframe או ה-div של הטקסט
-
-            // החלת הזום
+            const targetElement = container.children[0];
             targetElement.style.transform = `scale(${lessonScale})`;
-            targetElement.style.transformOrigin = 'top right'; // התמקדות בפינה הימנית עליונה (RTL)
-
-            // תיקון לגודל הפיזי כשהזום משתנה (כדי למנוע גלילה מיותרת)
+            targetElement.style.transformOrigin = 'top right';
             if (lessonScale !== 1) {
                 targetElement.style.width = `${100 / lessonScale}%`;
                 targetElement.style.height = `${100 / lessonScale}%`;
@@ -2775,16 +3075,11 @@
             }
         }
 
-        // --- משתנים לניהול תצוגת השיעור ---
-        let isLessonDark = true; // ברירת מחדל: מצב לילה
-
+        let isLessonDark = true;
         function toggleLessonFullScreen() {
             const panel = document.getElementById('lesson-panel');
             const icon = document.getElementById('fs-lesson-icon');
-
             panel.classList.toggle('lesson-fullscreen');
-
-            // החלפת אייקון
             if (panel.classList.contains('lesson-fullscreen')) {
                 icon.classList.replace('fa-expand', 'fa-compress');
             } else {
@@ -2796,185 +3091,69 @@
             isLessonDark = !isLessonDark;
             const container = document.getElementById('lesson-content');
             if (!container || container.children.length === 0) return;
-
-            const content = container.children[0]; // ה-iframe או ה-div
-
+            const content = container.children[0];
             if (content.tagName === 'IFRAME') {
-                // טיפול בגוגל דוקס
                 content.style.filter = isLessonDark ? "invert(1) hue-rotate(180deg)" : "none";
             } else {
-                // טיפול בטקסט רגיל
                 if (isLessonDark) {
-                    content.style.backgroundColor = ""; // שקוף (חוזר לרקע הכהה של האתר)
+                    content.style.backgroundColor = "";
                     content.style.color = "#e3e3e3";
                 } else {
-                    content.style.backgroundColor = "#ffffff"; // לבן
-                    content.style.color = "#000000"; // שחור
+                    content.style.backgroundColor = "#ffffff";
+                    content.style.color = "#000000";
                 }
             }
         }
 
-        function toggleMessageBubble() {
-            const bubble = document.getElementById('msg-bubble');
-            const content = document.getElementById('msg-bubble-content');
+        let modalScale = 1.0;
+        let isModalDark = false;
 
-            // אם הבועה כבר פתוחה - נסגור אותה
-            if (bubble.style.display === 'block') {
-                bubble.style.display = 'none';
-                return;
-            }
-
-            // ניקוי תוכן קודם
-            content.innerHTML = "";
-
-            // קריאת המידע מתא A4
-            let rawMsg = window.lastSystemMessage || "";
-            rawMsg = rawMsg.trim();
-
-            // בדיקה: האם זה קישור או טקסט?
-            if (rawMsg.startsWith("http")) {
-                // --- תצוגת מסמך (iframe) ---
-                bubble.style.width = "500px"; // הרחבת הבועה
-
-                let src = rawMsg;
-                // המרה אוטומטית למצב תצוגה מקדימה (Preview) נקי
-                if (src.includes("docs.google.com") && !src.includes("/preview")) {
-                    src = src.replace(/\/edit.*/, "/preview").replace(/\/view.*/, "/preview");
-                }
-
-                const iframe = document.createElement('iframe');
-                iframe.src = src;
-                iframe.style.width = "100%";
-                iframe.style.height = "400px";
-                iframe.style.border = "none";
-                iframe.style.backgroundColor = "#fff"; // למניעת רקע שקוף
-
-                content.appendChild(iframe);
-
+        function zoomModal(delta) {
+            modalScale += delta;
+            modalScale = Math.min(Math.max(0.5, modalScale), 2.0);
+            const iframe = document.getElementById('modal-iframe-content');
+            if (!iframe) return;
+            iframe.style.transform = `scale(${modalScale})`;
+            iframe.style.transformOrigin = "top right";
+            if (modalScale !== 1) {
+                iframe.style.width = `${100 / modalScale}%`;
+                iframe.style.height = `${100 / modalScale}%`;
             } else {
-                // --- תצוגת טקסט רגיל ---
-                bubble.style.width = "300px"; // חזרה לרוחב סטנדרטי
-                content.innerText = rawMsg || "📭 אין הודעות חדשות.";
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
             }
-
-            bubble.style.display = 'block';
-
-            // סגירה בלחיצה בחוץ
-            setTimeout(() => {
-                document.addEventListener('click', function closeOnClickOutside(e) {
-                    if (!bubble.contains(e.target) && e.target.id !== 'msg-btn') {
-                        bubble.style.display = 'none';
-                        document.removeEventListener('click', closeOnClickOutside);
-                    }
-                });
-            }, 100);
-        }
-        //lastSystemMessage = data.message;
-        //window.lastSystemMessage = lastSystemMessage;
-        function showUrlModal(url) {
-            const overlay = document.getElementById('universal-modal');
-            const modalBox = overlay.querySelector('.modal-box'); // <--- תופסים את הקופסה
-            const title = document.getElementById('u-modal-title');
-            const textContainer = document.getElementById('u-modal-text');
-            const btnOk = document.getElementById('u-modal-ok');
-            const btnCancel = document.getElementById('u-modal-cancel');
-            const input = document.getElementById('u-modal-input');
-
-            // איפוס והכנה
-            overlay.style.display = 'flex';
-            input.style.display = 'none';
-            btnCancel.style.display = 'none';
-            textContainer.innerHTML = "";
-
-            // --- הרחבת החלון ---
-            modalBox.style.width = "90%";
-            modalBox.style.maxWidth = "600px";
-            // -------------------
-
-            title.innerText = "📢 הודעת כיתה";
-
-            // טיפול בקישור (Preview)
-            let src = url;
-            if (src.includes("docs.google.com") && !src.includes("/preview")) {
-                src = src.replace(/\/edit.*/, "/preview").replace(/\/view.*/, "/preview");
-            }
-
-            // יצירת iframe
-            const iframe = document.createElement('iframe');
-            iframe.src = src;
-            iframe.style.width = "100%";
-            iframe.style.height = "60vh"; // גובה יחסי למסך (60%)
-            iframe.style.border = "none";
-            iframe.style.background = "#fff";
-            iframe.style.borderRadius = "8px";
-
-            textContainer.appendChild(iframe);
-
-            // כפתור סגירה
-            btnOk.innerText = 'סגור';
-            btnOk.onclick = () => {
-                overlay.style.display = 'none';
-                textContainer.innerHTML = "";
-
-                // --- החזרת הרוחב לברירת מחדל (כדי לא להרוס התראות רגילות) ---
-                modalBox.style.width = "";
-                modalBox.style.maxWidth = "";
-                // -----------------------------------------------------------
-            };
         }
 
-        (function () {
-            var checkReady = setInterval(function () {
-                // בדיקה שהמערכת טעונה
-                if (typeof window.switchViewMode === 'function') {
-                    clearInterval(checkReady);
+        function toggleModalContrast() {
+            isModalDark = !isModalDark;
+            const iframe = document.getElementById('modal-iframe-content');
+            if (!iframe) return;
+            iframe.style.filter = isModalDark ? "invert(1) hue-rotate(180deg)" : "none";
+        }
 
-                    // 1. כיווץ הבוט
-                    var aiPanel = document.getElementById('ai-panel');
-                    if (aiPanel && !aiPanel.classList.contains('collapsed')) {
-                        aiPanel.classList.add('collapsed');
-                        // סידור מחדש של העורך אם קיים
-                        if (window.editorInstance) window.editorInstance.layout();
-                    }
-
-                    // 2. מעבר למצב שיעורים
-                    window.switchViewMode('lesson');
-                }
-            }, 100);
-        })();
-
-
-        // --- לוגיקה לעורך הקוד (מסך מלא + ערכת נושא) ---
         let isEditorDark = true;
-
         function toggleEditorFullScreen() {
             const wrapper = document.getElementById('editor-wrapper');
             const icon = document.getElementById('fs-editor-icon');
-
             wrapper.classList.toggle('editor-fullscreen');
-
-            // החלפת אייקון ועדכון גודל העורך
             if (wrapper.classList.contains('editor-fullscreen')) {
                 icon.classList.replace('fa-expand', 'fa-compress');
             } else {
                 icon.classList.replace('fa-compress', 'fa-expand');
             }
-
-            if (editorInstance) editorInstance.layout();
+            if (window.editorInstance) window.editorInstance.layout();
         }
 
         function toggleEditorTheme() {
             isEditorDark = !isEditorDark;
-
             if (isEditorDark) {
-                monaco.editor.setTheme('java-custom'); // הערכה הכהה שיצרנו
+                monaco.editor.setTheme('java-custom');
             } else {
-                monaco.editor.setTheme('vs'); // הערכה הבהירה המובנית של מונאקו
+                monaco.editor.setTheme('vs');
             }
         }
 
-
-
+       
     </script>
 
 
