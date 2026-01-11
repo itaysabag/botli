@@ -324,7 +324,9 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-        }                               * 
+        }
+
+        *
 
         .resizer-horizontal {
             height: 6px;
@@ -1289,8 +1291,6 @@
         #runBtn {
             box-shadow: none !important;
         }
-
-
     </style>
 </head>
 <body>
@@ -1725,8 +1725,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                        אני כאן לעזור בתכנות - בלי מגבלות.<br>
-                                        שאל אותי כל דבר, אענה קצר ולעניין.`;
+                                            אני כאן לעזור בתכנות - בלי מגבלות.<br>
+                                            שאל אותי כל דבר, אענה קצר ולעניין.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -2431,11 +2431,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                                <div style="display:flex; align-items:center; gap:8px;">
-                                                    <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                                    <span>${subCat}</span>
-                                                </div>
-                                            `;
+                                                    <div style="display:flex; align-items:center; gap:8px;">
+                                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                                        <span>${subCat}</span>
+                                                    </div>
+                                                `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2563,12 +2563,12 @@
 
                 resizerV.addEventListener('mousedown', function (e) { e.preventDefault(); document.addEventListener('mousemove', resizeX); document.addEventListener('mouseup', stopResizeX); resizerV.classList.add('active'); });
 
-               
+
                 function resizeX(e) {
                     aiPanel.style.width = Math.max(360, Math.min(window.innerWidth - e.clientX, window.innerWidth * 0.4)) + 'px';
                     if (editorInstance) editorInstance.layout();
                 }
-             
+
 
                 function stopResizeX() { document.removeEventListener('mousemove', resizeX); document.removeEventListener('mouseup', stopResizeX); resizerV.classList.remove('active'); }
 
@@ -2671,11 +2671,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                        <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                            style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                        </div>
-                                    `;
+                                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                            </div>
+                                        `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -3253,8 +3253,7 @@
                 <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888;"></i>
             </div>
 
-            <textarea id="scratchpad-area" placeholder="כתוב כאן הערות חופשיות או קוד..." style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto;"></textarea>
-
+            <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד..." style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto;"></textarea>
             <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 10;">
                 <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
                 <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
