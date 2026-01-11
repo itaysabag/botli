@@ -1124,6 +1124,13 @@
                 border-color: #888;
             }
 
+        /* עיצוב כפתור הודעות פעיל */
+        #msg-btn.active {
+            background-color: #a8c7fa !important;
+            color: #000000 !important;
+            border-color: #a8c7fa !important;
+        }
+
         /* סימון כפתור מבחן פעיל */
         #examBtn.active {
             background-color: rgba(255, 77, 77, 0.15);
@@ -1238,9 +1245,52 @@
             }
 
 
+        /* יצירת המשולש החיצוני (המסגרת התכולה) */
+        #msg-bubble::before {
+            content: "";
+            position: absolute;
+            top: -11px;
+            right: 250px; /* שיניתי מ-55px ל-220px כדי להזיז שמאלה */
+            border-width: 0 11px 11px 11px;
+            border-style: solid;
+            border-color: transparent transparent #a8c7fa transparent;
+            z-index: 30001;
+        }
+
+        /* יצירת המשולש הפנימי (הרקע הכהה - לכיסוי) */
+        #msg-bubble::after {
+            content: "";
+            position: absolute;
+            top: -9px;
+            right: 250px; /* חייב להיות זהה ל-right של הלמעלה */
+            border-width: 0 11px 11px 11px;
+            border-style: solid;
+            border-color: transparent transparent #1e1f20 transparent;
+            z-index: 30002;
+        }
+
+        /* עיצוב כפתור ה-X בחלון ההודעות */
+        .msg-close-x {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            font-size: 18px;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 50; /* שיהיה מעל הכל */
+        }
+
+            .msg-close-x:hover {
+                color: #ff4d4d; /* הופך לאדום במעבר עכבר */
+            }
+
+
         #runBtn {
             box-shadow: none !important;
         }
+
+
     </style>
 </head>
 <body>
@@ -1386,12 +1436,17 @@
 
             <div id="right-header-group" style="display: flex; align-items: center; gap: 10px; position: relative;">
 
+                <button id="scratchpad-btn" class="header-circle-btn" onclick="toggleScratchpad()" title="דף טיוטה">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+
                 <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
                     <i class="fa-solid fa-comments"></i>
                     <span id="t-chat-badge" style="display: none; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ff4d4d; border-radius: 50%; border: 2px solid #131314;"></span>
                 </button>
 
                 <div id="msg-bubble" style="display: none; position: absolute; top: 50px; right: 0; width: 300px; background: #1e1f20; border: 1px solid #a8c7fa; padding: 15px; border-radius: 8px; z-index: 30000; text-align: right; direction: rtl; box-shadow: 0 5px 20px rgba(0,0,0,0.5); color: #e3e3e3; font-size: 14px; line-height: 1.5;">
+                    <i class="fa-solid fa-xmark msg-close-x" onclick="toggleMessageBubble()" title="סגור"></i>
                     <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 5px;">הודעה מהמורה:</div>
                     <div id="msg-bubble-content"></div>
                 </div>
@@ -1661,39 +1716,39 @@
 
 --- התאמות לבגרות (ישראל) - חוקים קריטיים! ---
 1. טיפוסים מותרים בלבד:
-                       * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
-                       * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
-                       * אחרים: boolean, char, String.
-                       * אסור להשתמש ב-var.
+                               * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
+                               * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
+                               * אחרים: boolean, char, String.
+                               * אסור להשתמש ב-var.
 
 2. מבני בקרה (Control Flow):
-                       * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
-                       * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
-                       * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
+                               * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
+                               * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
+                               * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
 
 3. איסורים כלליים:
-                       * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
-                       * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
-                       * הערות בקוד חייבות להיות בעברית או באנגלית.
+                               * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
+                               * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
+                               * הערות בקוד חייבות להיות בעברית או באנגלית.
 
 זיהוי מצב והתנהגות
 1. סינון רעשים (Hello World):
-                       אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
+                               אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
 
 2. שאלה על הבנה ("תסביר לי"):
-                       אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
+                               אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
 
 3. בקשה ל"רמז" או "המשך":
-                       תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
+                               תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
 
 עקרונות המענה
 1. עקרון הצעד הבודד:
-                       לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
+                               לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
 
 2. פדגוגיה של מתחילים:
-                       * העדף קוד מפורק וברור.
-                       * דוגמה טובה: int x = 5; (שורה חדשה) return x;
-                       * דוגמה רעה: return 5; (אם יש חישוב בדרך).
+                               * העדף קוד מפורק וברור.
+                               * דוגמה טובה: int x = 5; (שורה חדשה) return x;
+                               * דוגמה רעה: return 5; (אם יש חישוב בדרך).
 
 --- מבנה התשובה (קריטי!) ---
 עליך להחזיר את התשובה בפורמט הבא בלבד:
@@ -1716,8 +1771,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
-                                טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
+                                        אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
+                                        טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -2422,11 +2477,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                        <div style="display:flex; align-items:center; gap:8px;">
-                                            <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                            <span>${subCat}</span>
-                                        </div>
-                                    `;
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                                    <span>${subCat}</span>
+                                                </div>
+                                            `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2652,11 +2707,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                    style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                </div>
-                            `;
+                                        <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                            style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                        </div>
+                                    `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -2898,13 +2953,22 @@
             function toggleMessageBubble() {
                 const bubble = document.getElementById('msg-bubble');
                 const content = document.getElementById('msg-bubble-content');
+                const btn = document.getElementById('msg-btn'); // הפניה לכפתור
+
+                // בדיקה: אם פתוח -> סגור אותו ובטל צבע
                 if (bubble.style.display === 'block') {
                     bubble.style.display = 'none';
+                    btn.classList.remove('active');
                     return;
                 }
+
+                // --- מכאן: לוגיקה של פתיחה ---
+
+                // 1. טעינת התוכן (כמו שהיה במקור)
                 content.innerHTML = "";
                 let rawMsg = window.lastSystemMessage || "";
                 rawMsg = rawMsg.trim();
+
                 if (rawMsg.startsWith("http")) {
                     bubble.style.width = "500px";
                     let src = rawMsg;
@@ -2922,15 +2986,12 @@
                     bubble.style.width = "300px";
                     content.innerText = rawMsg || "📭 אין הודעות חדשות.";
                 }
+
+                // 2. הצגת הבועה וצביעת הכפתור
                 bubble.style.display = 'block';
-                setTimeout(() => {
-                    document.addEventListener('click', function closeOnClickOutside(e) {
-                        if (!bubble.contains(e.target) && e.target.id !== 'msg-btn') {
-                            bubble.style.display = 'none';
-                            document.removeEventListener('click', closeOnClickOutside);
-                        }
-                    });
-                }, 100);
+                btn.classList.add('active');
+
+                // (הוסר החלק שסוגר בלחיצה בחוץ)
             }
 
             function showUrlModal(url) {
@@ -3145,6 +3206,71 @@
             }
         }
 
+        // פונקציה לפתיחת/סגירת דף הטיוטה
+        function toggleScratchpad() {
+            const overlay = document.getElementById('scratchpad-overlay');
+            const area = document.getElementById('scratchpad-area');
+
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+                // ממקד את הסמן בתוך הטיוטה ברגע שהיא נפתחת
+                setTimeout(() => area.focus(), 100);
+            }
+        }
+
+        let scratchpadFontSize = 16;
+        let isScratchpadDark = true;
+
+        // שינוי גודל טקסט
+        function zoomScratchpad(change) {
+            scratchpadFontSize = Math.max(10, Math.min(40, scratchpadFontSize + change));
+            document.getElementById('scratchpad-area').style.fontSize = scratchpadFontSize + 'px';
+        }
+
+        // היפוך צבעים (יום/לילה)
+        function toggleScratchpadContrast() {
+            isScratchpadDark = !isScratchpadDark;
+            const area = document.getElementById('scratchpad-area');
+            if (isScratchpadDark) {
+                area.style.background = "#1e1f20";
+                area.style.color = "#e3e3e3";
+            } else {
+                area.style.background = "#ffffff";
+                area.style.color = "#000000";
+            }
+        }
+
+        // מסך מלא לחלון הטיוטה
+        function toggleScratchpadFullScreen() {
+            const box = document.getElementById('scratchpad-box');
+            const icon = document.getElementById('fs-scratch-icon');
+
+            // בדיקה אם אנחנו כבר במסך מלא לפי הרוחב
+            if (box.style.width === '100vw') {
+                // חזרה לגודל רגיל
+                box.style.width = '800px';
+                box.style.height = '600px';
+                box.style.borderRadius = '12px';
+                icon.classList.replace('fa-compress', 'fa-expand');
+            } else {
+                // מעבר למסך מלא
+                box.style.width = '100vw';
+                box.style.height = '100vh';
+                box.style.borderRadius = '0';
+                icon.classList.replace('fa-expand', 'fa-compress');
+            }
+        }
+
+        // חשיפת הפונקציות
+        window.zoomScratchpad = zoomScratchpad;
+        window.toggleScratchpadContrast = toggleScratchpadContrast;
+        window.toggleScratchpadFullScreen = toggleScratchpadFullScreen;
+
+        // חשיפת הפונקציה לחלון
+        window.toggleScratchpad = toggleScratchpad;
+
 
     </script>
 
@@ -3154,5 +3280,26 @@
         <p style="color: white; font-size: 18px;">המורה הגדיר מצב נעילה. עליך לחזור למסך מלא כדי להמשיך.</p>
         <button onclick="toggleGlobalFullScreen()" style="padding: 15px 30px; font-size: 20px; background: #a8c7fa; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">חזור למסך מלא מייד</button>
     </div>
+
+    <div id="scratchpad-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 26000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-box" id="scratchpad-box" style="width: 800px; height: 600px; display: flex; flex-direction: column; padding: 0; overflow: hidden; position: relative;">
+
+            <div style="background: #131314; padding: 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl;">
+                <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-pen-to-square"></i> דף טיוטה</span>
+                <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888;"></i>
+            </div>
+
+            <textarea id="scratchpad-area" placeholder="כתוב כאן הערות חופשיות או קוד..." style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto;"></textarea>
+
+            <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 10;">
+                <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
+                <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <button class="zoom-btn" onclick="zoomScratchpad(-1)" title="הקטן טקסט"><i class="fa-solid fa-minus"></i></button>
+                <button class="zoom-btn" onclick="zoomScratchpad(1)" title="הגדל טקסט"><i class="fa-solid fa-plus"></i></button>
+            </div>
+
+        </div>
+    </div>
+
 </body>
 </html>
