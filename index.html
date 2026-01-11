@@ -1237,7 +1237,7 @@
                 border-color: #888 !important;
             }
 
-    
+
         #runBtn {
             box-shadow: none !important;
         }
@@ -1256,8 +1256,8 @@
 
             <div style="padding: 10px; background: #131314; border-top: 1px solid #2d2e30; display: flex; gap: 10px;">
                 <input type="text" id="t-chat-input" placeholder="כתוב הודעה למורה..." style="flex: 1; background: #2d2e30; border: none; color: white; padding: 10px; border-radius: 20px; outline: none;">
-                <button onclick="sendTeacherMsg()" style="background: #a8c7fa; color: black; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fa-solid fa-paper-plane" style="margin-right: 2px;"></i></button>          
-         
+                <button onclick="sendTeacherMsg()" style="background: #a8c7fa; color: black; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fa-solid fa-paper-plane" style="margin-right: 2px;"></i></button>
+
             </div>
         </div>
     </div>
@@ -1661,39 +1661,39 @@
 
 --- התאמות לבגרות (ישראל) - חוקים קריטיים! ---
 1. טיפוסים מותרים בלבד:
-                   * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
-                   * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
-                   * אחרים: boolean, char, String.
-                   * אסור להשתמש ב-var.
+                       * מספרים שלמים: int בלבד (אסור להשתמש ב-long, short, byte).
+                       * מספרים עשרוניים: double בלבד (אסור להשתמש ב-float).
+                       * אחרים: boolean, char, String.
+                       * אסור להשתמש ב-var.
 
 2. מבני בקרה (Control Flow):
-                   * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
-                   * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
-                   * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
+                       * אסור להשתמש ב-break או continue בתוך לולאות! יש להשתמש בתנאי עצירה בוליאניים בלבד (למשל: while(i < n && !found)).
+                       * אסור להשתמש ב-Ternary Operator (הביטוי ? :), אלא רק ב-if-else מלא.
+                       * אסור להשתמש ב-foreach (לולאת for-each), אלא רק ב-for רגיל עם אינדקס (i).
 
 3. איסורים כלליים:
-                   * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
-                   * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
-                   * הערות בקוד חייבות להיות בעברית או באנגלית.
+                       * בלי מושגים מתקדמים (Streams, Lambdas, Anonymous Arrays, Collections).
+                       * בלי ספריות שלא נלמדות בתיכון (כגון List, Map אלא אם הוגדר אחרת).
+                       * הערות בקוד חייבות להיות בעברית או באנגלית.
 
 זיהוי מצב והתנהגות
 1. סינון רעשים (Hello World):
-                   אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
+                       אם הקוד בעורך הוא ברירת המחדל ("Hello World") והתלמיד מבקש עזרה בתרגיל חדש - **תתעלם לחלוטין מהקוד הקיים**! התחל ישר מהתרגיל החדש.
 
 2. שאלה על הבנה ("תסביר לי"):
-                   אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
+                       אם התלמיד שואל "מה זה?", "תסביר לי" או "לא הבנתי" - ענה בהסבר מילולי פשוט, בלי קוד ובלי מספור.
 
 3. בקשה ל"רמז" או "המשך":
-                   תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
+                       תן את הצעד הבא הלוגי בפתרון. אל תחזור על צעד שכבר ניתן!
 
 עקרונות המענה
 1. עקרון הצעד הבודד:
-                   לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
+                       לעולם אל תיתן את האלגוריתם המלא! תן **הנחיה אחת קצרה** לצעד הנוכחי בלבד.
 
 2. פדגוגיה של מתחילים:
-                   * העדף קוד מפורק וברור.
-                   * דוגמה טובה: int x = 5; (שורה חדשה) return x;
-                   * דוגמה רעה: return 5; (אם יש חישוב בדרך).
+                       * העדף קוד מפורק וברור.
+                       * דוגמה טובה: int x = 5; (שורה חדשה) return x;
+                       * דוגמה רעה: return 5; (אם יש חישוב בדרך).
 
 --- מבנה התשובה (קריטי!) ---
 עליך להחזיר את התשובה בפורמט הבא בלבד:
@@ -1716,8 +1716,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                            אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
-                            טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
+                                אפשר לבחור תרגיל <span id="welcome-ex-link" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.<br>
+                                טיפ: השתמש במילים <b>"רמז"</b> או <b>"הסבר"</b> כדי לקבל עזרה ממוקדת.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -1835,7 +1835,7 @@
                 document.getElementById('ai-input').onkeypress = handleChatKey;
                 document.getElementById('login-user').onkeypress = handleLoginKey;
                 document.getElementById('login-pass').onkeypress = handleLoginKey;
-               // document.getElementById('copy-lesson-btn').onclick = copyLessonCode;
+                // document.getElementById('copy-lesson-btn').onclick = copyLessonCode;
                 document.getElementById('side-book-btn').onclick = openExerciseModal;
 
                 const wl = document.getElementById('welcome-ex-link');
@@ -1899,7 +1899,7 @@
                 if (isSystemLocked) overlay.style.display = 'flex'; else overlay.style.display = 'none';
             }
 
-   
+
             document.documentElement.requestFullscreen().catch(() => { });
 
             async function performLogin() {
@@ -1944,15 +1944,15 @@
 
             let watchdogDebounce = false;
             function startGlobalWatchdog() {
-               
+
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'hidden') handleViolation();
                 });
 
                 window.addEventListener('blur', () => {
-               
+
                     if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                        return; 
+                        return;
                     }
 
                     handleViolation();
@@ -2020,10 +2020,10 @@
                 currentActiveExercise = ex;
                 closeExerciseModal();
 
-           
+
                 const panel = document.getElementById('ai-panel');
                 if (panel.classList.contains('collapsed')) {
-             
+
                     if (typeof window.toggleAiCollapse === "function") {
                         window.toggleAiCollapse();
                     } else {
@@ -2422,11 +2422,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                        <span>${subCat}</span>
-                                    </div>
-                                `;
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                            <span>${subCat}</span>
+                                        </div>
+                                    `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2524,7 +2524,7 @@
                     contentElement.id = 'lesson-body';
 
                     // עיצוב לטקסט רגיל
-                    contentElement.style.padding = "30px"; 
+                    contentElement.style.padding = "30px";
                     contentElement.style.width = "100%";
                     contentElement.style.height = "100%";
                     contentElement.style.overflowY = "auto"; // גלילה פנימית לטקסט
@@ -2652,11 +2652,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                            </div>
-                        `;
+                                <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                    style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                </div>
+                            `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -2833,7 +2833,7 @@
 
                     // 4. המתנה  של 2.5 שניות לגוגל שיטס לפני שמחדשים את הריענון
                     setTimeout(() => {
-                        fetchTeacherChat(); //  המידע המעודכן 
+                        fetchTeacherChat(); //  המידע המעודכן
 
                         // הפעלה מחדש של השעון האוטומטי
                         tChatInterval = setInterval(() => {
@@ -2894,7 +2894,7 @@
                 if (e.key === 'Enter') sendTeacherMsg();
             });
 
-       
+
             function toggleMessageBubble() {
                 const bubble = document.getElementById('msg-bubble');
                 const content = document.getElementById('msg-bubble-content');
@@ -2941,17 +2941,22 @@
                 const btnOk = document.getElementById('u-modal-ok');
                 const btnCancel = document.getElementById('u-modal-cancel');
                 const input = document.getElementById('u-modal-input');
+
                 overlay.style.display = 'flex';
                 input.style.display = 'none';
                 btnCancel.style.display = 'none';
                 textContainer.innerHTML = "";
+
                 modalBox.style.width = "90%";
                 modalBox.style.maxWidth = "600px";
+
                 title.innerText = "📢 הודעת כיתה";
+
                 let src = url;
                 if (src.includes("docs.google.com") && !src.includes("/preview")) {
                     src = src.replace(/\/edit.*/, "/preview").replace(/\/view.*/, "/preview");
                 }
+
                 // Wrapper
                 const wrapper = document.createElement('div');
                 wrapper.style.position = "relative";
@@ -2960,6 +2965,7 @@
                 wrapper.style.overflow = "hidden";
                 wrapper.style.border = "1px solid #444";
                 wrapper.style.borderRadius = "8px";
+
                 // iframe
                 const iframe = document.createElement('iframe');
                 iframe.id = 'modal-iframe-content';
@@ -2968,25 +2974,11 @@
                 iframe.style.height = "100%";
                 iframe.style.border = "none";
                 iframe.style.background = "#fff";
-                iframe.style.transition = "transform 0.2s ease";
-                // Toolbar
-                const toolbar = document.createElement('div');
-                toolbar.className = 'lesson-zoom-controls';
-                toolbar.style.position = "absolute";
-                toolbar.style.bottom = "15px";
-                toolbar.style.left = "20px";
-                toolbar.style.right = "auto";
-                toolbar.style.zIndex = "10";
-                toolbar.style.display = "flex";
-                toolbar.style.gap = "8px";
-                toolbar.innerHTML = `
-                    <button class="zoom-btn" onclick="toggleModalContrast()" title="מצב קריאה (יום/לילה)"><i class="fa-solid fa-circle-half-stroke"></i></button>
-                    <button class="zoom-btn" onclick="zoomModal(-0.1)" title="הקטן"><i class="fa-solid fa-minus"></i></button>
-                    <button class="zoom-btn" onclick="zoomModal(0.1)" title="הגדל"><i class="fa-solid fa-plus"></i></button>
-                `;
+
+                // הוספה ללא כפתורים
                 wrapper.appendChild(iframe);
-                wrapper.appendChild(toolbar);
                 textContainer.appendChild(wrapper);
+
                 btnOk.innerText = 'סגור';
                 btnOk.onclick = () => {
                     overlay.style.display = 'none';
@@ -3153,7 +3145,7 @@
             }
         }
 
-       
+
     </script>
 
 
