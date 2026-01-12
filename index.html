@@ -6,6 +6,7 @@
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src='https://meet.jit.si/external_api.js'></script>
 
     <style>
         * {
@@ -1440,6 +1441,10 @@
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
 
+                <button id="video-class-btn" class="header-circle-btn" onclick="toggleVideoClass()" title="שיעור וידאו חי">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+
                 <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
                     <i class="fa-solid fa-comments"></i>
                     <span id="t-chat-badge" style="display: none; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ff4d4d; border-radius: 50%; border: 2px solid #131314;"></span>
@@ -1725,8 +1730,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                            אני כאן לעזור בתכנות - בלי מגבלות.<br>
-                                            שאל אותי כל דבר, אענה קצר ולעניין.`;
+                                                אני כאן לעזור בתכנות - בלי מגבלות.<br>
+                                                שאל אותי כל דבר, אענה קצר ולעניין.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -2431,11 +2436,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                                    <div style="display:flex; align-items:center; gap:8px;">
-                                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                                        <span>${subCat}</span>
-                                                    </div>
-                                                `;
+                                                        <div style="display:flex; align-items:center; gap:8px;">
+                                                            <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                                            <span>${subCat}</span>
+                                                        </div>
+                                                    `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2671,11 +2676,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                            </div>
-                                        `;
+                                                <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                                    style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                                </div>
+                                            `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -3236,6 +3241,51 @@
         window.toggleScratchpad = toggleScratchpad;
 
 
+        let jitsiApi = null;
+
+        function toggleVideoClass() {
+            const overlay = document.getElementById('video-overlay');
+            const container = document.getElementById('jitsi-container');
+
+            // אם המשתמש לא מחובר - השתמש בשם "אורח"
+            const displayName = (typeof globalStudentName !== 'undefined' && globalStudentName) ? globalStudentName : "אורח";
+
+            if (overlay.style.display === 'flex') {
+                // סגירה
+                overlay.style.display = 'none';
+                if (jitsiApi) {
+                    jitsiApi.dispose(); // הורג את השיחה כדי לא להשאיר מצלמה דולקת ברקע
+                    jitsiApi = null;
+                }
+            } else {
+                // פתיחה
+                overlay.style.display = 'flex';
+
+                // הגדרות החדר
+                const domain = 'meet.jit.si';
+                const options = {
+                    roomName: 'BotLi_Classroom_Main', // השם הקבוע של החדר (אפשר לשנות למה שרוצים)
+                    width: '100%',
+                    height: '100%',
+                    parentNode: container,
+                    userInfo: {
+                        displayName: displayName
+                    },
+                    configOverwrite: {
+                        startWithAudioMuted: true,
+                        startWithVideoMuted: true
+                    },
+                    interfaceConfigOverwrite: {
+                        SHOW_JITSI_WATERMARK: false
+                    }
+                };
+
+                jitsiApi = new JitsiMeetExternalAPI(domain, options);
+            }
+        }
+
+
+
     </script>
 
 
@@ -3263,6 +3313,20 @@
 
         </div>
     </div>
+
+    <div id="video-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 28000; justify-content: center; align-items: center;">
+        <div class="modal-box" style="width: 90%; height: 90%; max-width: 1200px; display: flex; flex-direction: column; padding: 0; overflow: hidden; background: #000;">
+
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+                <span style="color: #a8c7fa; font-weight: bold;"><i class="fa-solid fa-video"></i> כיתה וירטואלית</span>
+                <i class="fa-solid fa-xmark" onclick="toggleVideoClass()" style="cursor: pointer; color: #fff; font-size: 20px;"></i>
+            </div>
+
+            <div id="jitsi-container" style="flex: 1; width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+
+
 
 </body>
 </html>
