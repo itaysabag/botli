@@ -3243,28 +3243,37 @@
 
         let jitsiApi = null;
 
+        // פונקציה למזעור החלון (הסתרת הוידאו מבלי לנתק)
+        function minimizeVideo() {
+            document.getElementById('video-overlay').style.display = 'none';
+            // שימו לב: אנחנו לא עושים dispose, השיחה ממשיכה ברקע!
+        }
+
         function toggleVideoClass() {
             const overlay = document.getElementById('video-overlay');
             const container = document.getElementById('jitsi-container');
 
-            // אם המשתמש לא מחובר - השתמש בשם "אורח"
             const displayName = (typeof globalStudentName !== 'undefined' && globalStudentName) ? globalStudentName : "אורח";
 
-            if (overlay.style.display === 'flex') {
-                // סגירה
-                overlay.style.display = 'none';
-                if (jitsiApi) {
-                    jitsiApi.dispose(); // הורג את השיחה כדי לא להשאיר מצלמה דולקת ברקע
+            // בדיקה: האם השיחה כבר פעילה?
+            if (jitsiApi) {
+                // אם השיחה פעילה, נבדוק אם החלון מוצג או מוסתר
+                if (overlay.style.display === 'none') {
+                    // מצב 1: השיחה ממוזערת -> אנחנו משחזרים אותה (Restore)
+                    overlay.style.display = 'flex';
+                } else {
+                    // מצב 2: החלון פתוח -> אנחנו סוגרים ומנתקים (כמו כפתור X)
+                    overlay.style.display = 'none';
+                    jitsiApi.dispose();
                     jitsiApi = null;
                 }
             } else {
-                // פתיחה
+                // מצב 3: אין שיחה -> מתחילים שיחה חדשה
                 overlay.style.display = 'flex';
 
-                // הגדרות החדר
                 const domain = 'meet.jit.si';
                 const options = {
-                    roomName: 'BotLi_Classroom_Main', // השם הקבוע של החדר (אפשר לשנות למה שרוצים)
+                    roomName: 'BotLi_Classroom_Main',
                     width: '100%',
                     height: '100%',
                     parentNode: container,
@@ -3319,7 +3328,11 @@
 
             <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
                 <span style="color: #a8c7fa; font-weight: bold;"><i class="fa-solid fa-video"></i> כיתה וירטואלית</span>
-                <i class="fa-solid fa-xmark" onclick="toggleVideoClass()" style="cursor: pointer; color: #fff; font-size: 20px;"></i>
+
+                <div style="display: flex; gap: 15px;">
+                    <i class="fa-solid fa-minus" onclick="minimizeVideo()" title="מזער (השיחה תמשיך ברקע)" style="cursor: pointer; color: #ccc; font-size: 20px;"></i>
+                    <i class="fa-solid fa-xmark" onclick="toggleVideoClass()" title="נתק וסגור" style="cursor: pointer; color: #fff; font-size: 20px;"></i>
+                </div>
             </div>
 
             <div id="jitsi-container" style="flex: 1; width: 100%; height: 100%;"></div>
