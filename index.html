@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    
+
     <meta charset="UTF-8">
     <title>BotLi</title>
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+" type="image/svg+xml">
@@ -1335,6 +1335,20 @@
                 color: #000 !important;
                 transform: scale(1.1);
             }
+
+
+        /* עיצוב בועות תגובה בפורום */
+        .forum-comment {
+            background: #2d2e30;
+            color: #e3e3e3;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            border-right: 3px solid #a8c7fa;
+            margin-bottom: 8px;
+            direction: rtl;
+        }
+
     </style>
 </head>
 <body>
@@ -1351,6 +1365,51 @@
             <div style="padding: 10px; background: #131314; border-top: 1px solid #2d2e30; display: flex; gap: 10px; border-radius: 0 0 12px 12px;">
                 <input type="text" id="t-chat-input" placeholder="כתוב הודעה למורה..." style="flex: 1; background: #2d2e30; border: none; color: white; padding: 10px; border-radius: 20px; outline: none;">
                 <button onclick="sendTeacherMsg()" style="background: #a8c7fa; color: black; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fa-solid fa-paper-plane" style="margin-right: 2px;"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="forum-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 27000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 90%; max-width: 800px; height: 85vh; display: flex; flex-direction: column; padding: 0; overflow: visible;">
+
+            <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; border-radius: 4px 4px 0 0;">
+                <span style="font-weight: bold; color: #a8c7fa; font-size: 16px;"><i class="fa-solid fa-users"></i> פורום כיתתי</span>
+
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button id="new-thread-btn" onclick="window.openNewThreadModal()"
+                            style="height: 32px; border: 1px solid #444746; background: transparent; color: #c4c7c5; border-radius: 16px; padding: 0 15px; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-plus" style="color: #a8c7fa;"></i> נושא חדש
+                    </button>
+
+                    <div style="width: 1px; height: 20px; background: #2d2e30; margin: 0 5px;"></div>
+
+                    <i class="fa-solid fa-xmark" onclick="closeForum()" style="cursor: pointer; color: #888; font-size: 20px; transition: 0.2s;" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#888'"></i>
+                </div>
+            </div>
+
+            <div id="forum-content" style="flex: 1; overflow-y: auto; padding: 20px; background: #1e1f20; display: flex; flex-direction: column; gap: 15px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="new-thread-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 28000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 380px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
+
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <span style="font-weight: bold; color: #a8c7fa; font-size: 16px;">פתיחת נושא חדש</span>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('new-thread-overlay').style.display='none'" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
+            </div>
+
+            <div style="padding: 25px; text-align: center;">
+                <input type="text" id="thread-title" class="modal-input" placeholder="כותרת השאלה / נושא" style="margin-top: 0;">
+                <textarea id="thread-desc" class="modal-input" placeholder="פירוט נוסף..." style="height: 120px; resize: none; font-family: inherit; margin-top: 10px;"></textarea>
+
+                <div class="modal-btns" style="justify-content: center; margin-top: 20px;">
+                    <button onclick="window.submitNewThread()"
+                            style="width: 100%; background: #a8c7fa; color: #000; border: none; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
+                        <i class="fa-solid fa-paper-plane"></i> פרסם בפורום
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1535,6 +1594,10 @@
 
                 <button id="video-class-btn" class="header-circle-btn" onclick="toggleVideoClass()" title="שיעור וידאו חי">
                     <i class="fa-solid fa-video"></i>
+                </button>
+
+                <button id="forum-btn" class="header-circle-btn" onclick="openForum()" title="פורום כיתתי">
+                    <i class="fa-solid fa-users"></i>
                 </button>
 
                 <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
@@ -1744,7 +1807,7 @@
             }
 
             const FAST_STARTUP_URL = "https://docs.google.com/document/d/10130DnIo3e9Jx5lvOxyBS-s0pPMHr2w0Ll7j-YwvvpM/preview";
-            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdDnzL7JRzQIM0FwZKiWhijQzb6sgbOjZ_2l-L71iBe1_QkqgMcDZL9oO44Ihlh4zXcA/exec";
+            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpClD3xwbMRDRFHTF31Pta1Jd3mG0I4_QLD8r5gKP8R1Ki1vmOsOl-vH2m-tUH6DwG1g/exec";
             const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
             const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
             const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfkV1E_rCAlRt6qcvIwI4Nmb5QRqN0S6vo7-mPx_shgknVzQ/formResponse";
@@ -1846,8 +1909,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                                            אני כאן לעזור בתכנות - בלי מגבלות.<br>
-                                                            שאל אותי כל דבר, אענה קצר ולעניין.`;
+                                                                    אני כאן לעזור בתכנות - בלי מגבלות.<br>
+                                                                    שאל אותי כל דבר, אענה קצר ולעניין.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -2219,11 +2282,11 @@
                 setTimeout(closeSubmitModal, 2000);
             }
 
-// פונקציה מעודכנת שפותחת את החלון המעוצב
+            // פונקציה מעודכנת שפותחת את החלון המעוצב
             async function toggleExamMode() {
                 if (!isExamMode) {
                     if (isLearningMode) { await Sys.alert("יש לסגור את מצב הלמידה לפני תחילת מבחן"); return; }
-                    
+
                     // במקום Sys.confirm - פותחים את החלון החדש
                     const firstName = getFirstName(globalStudentName);
                     document.getElementById('exam-start-title').innerText = `${firstName}, האם להתחיל את המבחן?`;
@@ -2671,11 +2734,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                                                    <div style="display:flex; align-items:center; gap:8px;">
-                                                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                                                        <span>${subCat}</span>
-                                                                    </div>
-                                                                `;
+                                                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                                                <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                                                                <span>${subCat}</span>
+                                                                            </div>
+                                                                        `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2882,11 +2945,11 @@
                 // --- שינוי: במקום טקסט "טוען" קטן, הזרקת אנימציה למרכז המסך ---
                 statusDiv.innerHTML = ''; // ניקוי שורת הסטטוס הקטנה
                 listArea.innerHTML = `
-                        <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: #a8c7fa; margin-bottom: 15px;"></i>
-                            <span style="font-size: 14px; color: #aaa;">טוען רשימת פרויקטים...</span>
-                        </div>
-                    `;
+                                <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: #a8c7fa; margin-bottom: 15px;"></i>
+                                    <span style="font-size: 14px; color: #aaa;">טוען רשימת פרויקטים...</span>
+                                </div>
+                            `;
                 // -----------------------------------------------------------
 
                 try {
@@ -2961,11 +3024,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                                            </div>
-                                                        `;
+                                                                    <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                                                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                                                        style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                                                    </div>
+                                                                `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -3044,11 +3107,11 @@
 
                 // 1. ניקוי והצגת אנימציית טעינה במרכז
                 container.innerHTML = `
-                    <div style="height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#888;">
-                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
-                        <span style="font-size:14px;">טוען הודעות...</span>
-                    </div>
-                `;
+                            <div style="height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#888;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
+                                <span style="font-size:14px;">טוען הודעות...</span>
+                            </div>
+                        `;
 
                 // 2. המתנה של 2000ms (שתי שניות) לפני הטעינה האמיתית
                 setTimeout(() => {
@@ -3347,7 +3410,202 @@
 
 
 
+            // --- מערכת פורום גלובלית ---
+            let forumRefreshInterval = null;
 
+            window.openForum = async function () {
+                if (!globalStudentName) { Sys.alert("יש להתחבר כדי להיכנס לפורום."); return; }
+                document.getElementById('forum-overlay').style.display = 'flex';
+                window.loadForumThreads();
+            };
+
+            window.closeForum = function () {
+                document.getElementById('forum-overlay').style.display = 'none';
+                if (forumRefreshInterval) clearInterval(forumRefreshInterval);
+            };
+
+            window.loadForumThreads = async function () {
+                const container = document.getElementById('forum-content');
+                container.innerHTML = '<div style="text-align:center; padding:50px; color:#888;"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען פורום...</div>';
+                try {
+                    const res = await fetch(`${CONTROL_SCRIPT_URL}?action=getForum&t=${new Date().getTime()}`);
+                    const data = await res.json();
+                    container.innerHTML = "";
+                    if (!data.threads || data.threads.length === 0) {
+                        container.innerHTML = "<div style='text-align:center; color:#555; margin-top:50px;'>הפורום ריק.</div>";
+                        return;
+                    }
+                    data.threads.reverse().forEach(thread => {
+                        const info = parseThreadContent(thread.content);
+
+                        // יצירת תקציר: לוקח את התיאור, חותך אותו ומוסיף שלוש נקודות
+                        const preview = info.desc.length > 60 ? info.desc.substring(0, 60) + "..." : info.desc;
+
+                        const card = document.createElement('div');
+                        card.style.cssText = "background:#131314; padding:15px; border-radius:10px; cursor:pointer; border:1px solid #2d2e30; transition:0.2s; margin-bottom:10px; text-align:right;";
+                        card.onmouseover = () => card.style.borderColor = "#a8c7fa";
+                        card.onmouseout = () => card.style.borderColor = "#2d2e30";
+
+                        card.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; direction:rtl;">
+                                <div style="font-weight:bold; color:#a8c7fa; font-size:16px;">${info.title}</div>
+                                <span style="background:#2d2e30; color:#aaa; font-size:11px; padding:2px 8px; border-radius:10px;">${thread.commentCount} תגובות</span>
+                            </div>
+                            <div style="color:#aaa; font-size:13px; margin-top:8px; direction:rtl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${preview}
+                            </div>
+                            <div style="color:#666; font-size:11px; margin-top:5px; direction:rtl;">${info.user} • ${info.time}</div>
+                        `;
+                        card.onclick = () => window.openThread(thread, info);
+                        container.appendChild(card);
+                    });
+                } catch (e) { container.innerHTML = "<div style='color:red; text-align:center;'>שגיאה בטעינת הפורום.</div>"; }
+            };
+
+            window.openNewThreadModal = function () {
+                document.getElementById('thread-title').value = "";
+                document.getElementById('thread-desc').value = "";
+                document.getElementById('new-thread-overlay').style.display = 'flex';
+            };
+
+            window.submitNewThread = async function () {
+                const title = document.getElementById('thread-title').value.trim();
+                const desc = document.getElementById('thread-desc').value.trim();
+                if (!title || !desc) { Sys.alert("יש למלא כותרת ותיאור"); return; }
+                document.getElementById('new-thread-overlay').style.display = 'none';
+                try {
+                    const url = `${CONTROL_SCRIPT_URL}?action=createThread&user=${encodeURIComponent(globalStudentName)}&title=${encodeURIComponent(title)}&desc=${encodeURIComponent(desc)}`;
+                    await fetch(url);
+                    window.loadForumThreads();
+                } catch (e) { Sys.alert("שגיאה בפרסום"); }
+            };
+
+            window.openThread = function (thread, info) {
+                if (forumRefreshInterval) clearInterval(forumRefreshInterval);
+
+                const container = document.getElementById('forum-content');
+                // הסרת פריטי גלילה כפולים ושיפור המרווחים
+                container.innerHTML = `
+                    <div style="text-align:right; direction:rtl; padding-bottom: 20px;">
+                        <button onclick="window.loadForumThreads()" style="color:#a8c7fa; background:none; border:none; cursor:pointer; padding:0; font-size:14px; margin-bottom: 15px;">
+                            <i class="fa-solid fa-arrow-right"></i> חזרה לפורום
+                        </button>
+                        
+                        <div style="background: #1e1f20; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                            <h2 style="color:#fff; margin:0 0 10px 0; font-size: 22px;">${info.title}</h2>
+                            <p style="color:#e3e3e3; white-space:pre-wrap; font-size:16px; line-height: 1.6; margin: 0;">${info.desc}</p>
+                            <div style="font-size:12px; color:#888; margin-top:15px; border-top: 1px solid #333; padding-top: 10px;">
+                                <i class="fa-solid fa-user-edit"></i> פורסם ע"י: <b>${info.user}</b> | <i class="fa-solid fa-clock"></i> ${info.time}
+                            </div>
+                        </div>
+
+                        <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 15px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-comments"></i> תגובות:
+                        </div>
+
+                        <div id="thread-comments-area" style="display:flex; flex-direction:column; gap:15px; margin-bottom: 30px;">
+                        </div>
+
+                        <div style="background:#131314; border: 1px solid #a8c7fa; padding:15px; border-radius:12px; direction:rtl; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);">
+                            <textarea id="new-comment-input" placeholder="הצטרפו לשיחה... (Enter לירידת שורה)" 
+                                style="width:100%; background:transparent; border:none; color:white; outline:none; text-align:right; resize:none; font-family:inherit; min-height:80px; font-size: 15px;"></textarea>
+                            <div style="display:flex; justify-content:flex-start; margin-top: 10px;">
+                                <button id="send-comment-btn" onclick="window.submitComment(${thread.row})" 
+                                    style="background:#a8c7fa; color:#000; padding:8px 25px; border-radius:20px; border:none; cursor:pointer; font-weight:bold; transition: 0.2s;">
+                                    <i class="fa-solid fa-paper-plane"></i> שלח תגובה
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const renderComments = (comments) => {
+                    const commentsDiv = document.getElementById('thread-comments-area');
+                    commentsDiv.innerHTML = "";
+                    if (comments && comments.length > 0) {
+                        comments.forEach(c => {
+                            const div = document.createElement('div');
+                            // עיצוב תגובה כ"בועה" נקייה
+                            div.style.cssText = `
+                                background: #1a1a1b;
+                                color: #d1d1d1;
+                                padding: 15px 20px;
+                                border-radius: 15px 0 15px 15px;
+                                font-size: 15px;
+                                line-height: 1.5;
+                                border-right: 4px solid #a8c7fa;
+                                direction: rtl;
+                                white-space: pre-wrap;
+                                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            `;
+                            div.innerText = c;
+                            commentsDiv.appendChild(div);
+                        });
+                    } else {
+                        commentsDiv.innerHTML = "<div style='color:#555; text-align:center; padding: 20px;'>טרם נכתבו תגובות. היה הראשון להגיב!</div>";
+                    }
+                };
+
+                renderComments(thread.comments);
+
+                forumRefreshInterval = setInterval(async () => {
+                    try {
+                        const res = await fetch(`${CONTROL_SCRIPT_URL}?action=getForum&t=${new Date().getTime()}`);
+                        const data = await res.json();
+                        const updated = data.threads.find(t => t.row === thread.row);
+                        if (updated && updated.commentCount !== thread.commentCount) {
+                            thread = updated;
+                            renderComments(updated.comments);
+                        }
+                    } catch (e) { }
+                }, 15000);
+            };
+
+            window.submitComment = async function (row) {
+                const input = document.getElementById('new-comment-input');
+                const btn = event.target; // תופס את הכפתור שנלחץ
+                const text = input.value.trim();
+
+                if (!text || btn.disabled) return; // מונע שליחה אם ריק או אם כבר נשלח
+
+                // 1. נעילת ממשק המשתמש (מניעת הצפה)
+                btn.disabled = true;
+                btn.innerText = "שולח...";
+                btn.style.opacity = "0.5";
+                input.disabled = true;
+
+                try {
+                    const url = `${CONTROL_SCRIPT_URL}?action=addComment&user=${encodeURIComponent(globalStudentName)}&row=${row}&comment=${encodeURIComponent(text)}`;
+                    await fetch(url);
+
+                    // 2. טעינה מחדש של הנתונים
+                    const res = await fetch(`${CONTROL_SCRIPT_URL}?action=getForum&t=${new Date().getTime()}`);
+                    const data = await res.json();
+                    const updated = data.threads.find(t => t.row === row);
+
+                    // 3. הצגת האשכול המעודכן (זה גם מנקה את השדה ומשחרר את הכפתור כי ה-HTML נבנה מחדש)
+                    window.openThread(updated, parseThreadContent(updated.content));
+                } catch (e) {
+                    Sys.alert("שגיאה בשליחה");
+                    // שחרור במקרה של שגיאה כדי שיוכל לנסות שוב
+                    btn.disabled = false;
+                    btn.innerText = "שלח";
+                    btn.style.opacity = "1";
+                    input.disabled = false;
+                }
+            };
+
+            function parseThreadContent(raw) {
+                const parts = raw.split("||");
+                const result = { title: "ללא כותרת", desc: "", user: "", time: "" };
+                parts.forEach(p => {
+                    if (p.startsWith("TITLE:")) result.title = p.replace("TITLE:", "");
+                    if (p.startsWith("DESC:")) result.desc = p.replace("DESC:", "");
+                    if (p.startsWith("USER:")) result.user = p.replace("USER:", "");
+                    if (p.startsWith("TIME:")) result.time = p.replace("TIME:", "");
+                });
+                return result;
+            }
         })();
 
         function toggleGlobalFullScreen() {
@@ -3625,7 +3883,7 @@
             }
         }
 
-
+ 
 
     </script>
 
@@ -3693,5 +3951,4 @@
 
 </body>
 </html>
-
 
