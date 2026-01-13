@@ -1354,21 +1354,23 @@
         </div>
     </div>
 
-    <div id="universal-modal">
-        <div class="modal-box" style="text-align: center;">
-            <div style="margin-top: -50px; margin-bottom: 10px;">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                     style="width: 70px; height: 70px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+    <div id="universal-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 350px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px; text-align: center;">
+
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <h3 id="u-modal-title" style="margin: 0; font-weight: bold; color: #a8c7fa; font-size: 16px;">הודעת מערכת</h3>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('u-modal-cancel').click()" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
             </div>
 
-            <h3 id="u-modal-title" style="margin-top: 5px; color: #ff4d4d;">בוטלי אומר:</h3>
-            <p id="u-modal-text" style="font-size:15px; color:#e0e0e0; white-space:pre-wrap; text-align:center; direction:rtl; margin-bottom: 20px;"></p>
+            <div style="padding: 25px;">
+                <p id="u-modal-text" style="font-size:15px; color:#e0e0e0; white-space:pre-wrap; text-align:center; direction:rtl; margin-bottom: 20px; margin-top: 0;"></p>
 
-            <input type="text" id="u-modal-input" class="modal-input" style="display:none;">
+                <input type="text" id="u-modal-input" class="modal-input" style="display:none; margin-bottom: 20px;">
 
-            <div class="modal-btns">
-                <button id="u-modal-cancel" class="modal-btn-cancel" style="display:none;">לא תודה</button>
-                <button id="u-modal-ok" class="modal-btn-ok">הבנתי / אישור</button>
+                <div class="modal-btns" style="justify-content: center; gap: 10px;">
+                    <button id="u-modal-cancel" class="modal-btn-cancel" style="display:none;">ביטול</button>
+                    <button id="u-modal-ok" class="modal-btn-ok" style="min-width: 80px;">אישור</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1384,15 +1386,21 @@
         </div>
     </div>
 
-    <div id="login-overlay">
-        <div class="modal-box">
-            <h3><i class="fa-solid fa-user-lock"></i> כניסה למערכת</h3>
-            <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">שם משתמש:</label>
-            <input type="text" id="login-user" class="modal-input" placeholder="שם משתמש" style="margin-top:5px;">
-            <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">סיסמה:</label>
-            <input type="password" id="login-pass" class="modal-input" placeholder="סיסמה" style="margin-top:5px;">
-            <div id="login-msg" style="color: #ff4d4d; font-size: 13px; min-height: 20px; margin-bottom: 5px;"></div>
-            <button id="login-btn" class="modal-btn-ok btn-login-centered">התחבר</button>
+    <div id="login-overlay" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 22000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 320px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
+
+            <div style="background: #131314; padding: 15px; border-bottom: 1px solid #2d2e30; text-align: center;">
+                <h3 style="margin: 0; font-weight: bold; color: #a8c7fa; font-size: 18px;"><i class="fa-solid fa-user-lock"></i> כניסה למערכת</h3>
+            </div>
+
+            <div style="padding: 25px;">
+                <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">שם משתמש:</label>
+                <input type="text" id="login-user" class="modal-input" placeholder="שם משתמש" style="margin-top:5px;">
+                <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">סיסמה:</label>
+                <input type="password" id="login-pass" class="modal-input" placeholder="סיסמה" style="margin-top:5px;">
+                <div id="login-msg" style="color: #ff4d4d; font-size: 13px; min-height: 20px; margin-bottom: 5px;"></div>
+                <button id="login-btn" class="modal-btn-ok btn-login-centered">התחבר</button>
+            </div>
         </div>
     </div>
 
@@ -1402,19 +1410,53 @@
         <button id="unlock-btn" style="margin-top:20px; border:1px solid #555; padding:10px 20px; background:transparent; color:#ccc; cursor:pointer;">שחרור נעילה (מורה)</button>
     </div>
 
-    <div id="submit-overlay">
-        <div class="modal-box" style="text-align: center;">
-            <h3 style="margin-top: 5px; color: #ff4d4d;">בוטלי:</h3>
+    <div id="submit-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 380px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
 
-            <p id="modal-title-submit" style="font-size: 18px; color: #e0e0e0; margin-top: 0; margin-bottom: 25px; font-weight: 500;"></p>
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <span style="font-weight: bold; color: #a8c7fa; font-size: 16px;">הגשת תרגיל</span>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('submit-cancel-btn').click()" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
+            </div>
 
-            <div id="submit-status" style="font-size:14px; margin-bottom:20px; min-height:20px;"></div>
+            <div style="padding: 25px; text-align: center;">
+                <p id="modal-title-submit" style="font-size: 16px; color: #e0e0e0; margin-top: 0; margin-bottom: 25px; font-weight: 500;"></p>
 
-            <input type="hidden" id="submit-student-name">
+                <div id="submit-status" style="font-size:14px; margin-bottom:20px; min-height:20px;"></div>
+                <input type="hidden" id="submit-student-name">
 
-            <div class="modal-btns" style="justify-content: center; gap: 15px;">
-                <button id="submit-cancel-btn" class="modal-btn-cancel" style="width: 100px; justify-content: center;">ביטול</button>
-                <button id="submit-confirm-btn" class="modal-btn-ok" style="width: 120px; justify-content: center;">הגש עכשיו</button>
+                <button id="submit-confirm-btn"
+                        style="width: 100%; background: #a8c7fa; color: #000; border: none; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;"
+                        onmouseover="this.style.opacity='0.9'"
+                        onmouseout="this.style.opacity='1'">
+                    <i class="fa-solid fa-paper-plane"></i> הגש את התרגיל לבדיקה
+                </button>
+
+                <button id="submit-cancel-btn" style="display: none;"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="exam-start-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-box" style="width: 380px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
+
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <span style="font-weight: bold; color: #a8c7fa; font-size: 16px;">מצב מבחן</span>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('exam-start-overlay').style.display='none'" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
+            </div>
+
+            <div style="padding: 25px; text-align: center;">
+                <p id="exam-start-title" style="font-size: 16px; color: #e0e0e0; margin-top: 0; margin-bottom: 15px; font-weight: 500;"></p>
+
+                <p style="font-size: 13px; color: #aaa; margin-bottom: 25px;">
+                    שים לב: המערכת תינעל, העתק-הדבק יחסם, וכל יציאה מהמסך תדווח למורה.
+                </p>
+
+                <button onclick="confirmExamStart()"
+                        style="width: 100%; background: #a8c7fa; color: #000; border: none; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;"
+                        onmouseover="this.style.opacity='0.9'"
+                        onmouseout="this.style.opacity='1'">
+                    <i class="fa-solid fa-lock"></i> התחל מבחן כעת
+                </button>
             </div>
         </div>
     </div>
@@ -1602,46 +1644,67 @@
     </div>
 
     <div id="save-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
-        <div class="modal-box">
-            <h3>שמירת פרויקט</h3>
+        <div class="modal-box" style="width: 380px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
 
-            <input type="text" id="save-input-name" class="modal-input" placeholder="שם הפרויקט">
-            <div id="save-status-msg" style="min-height: 25px; font-size: 13px; margin-top: 5px;"></div>
-            <div class="modal-btns">
-                <button id="save-cancel" class="modal-btn-cancel">ביטול</button>
-                <button id="save-confirm" class="modal-btn-ok">שמור</button>
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <span style="font-weight: bold; color: #a8c7fa; font-size: 16px;">שמירת פרויקט</span>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('save-overlay').style.display='none'" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
+            </div>
+
+            <div style="padding: 20px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="save-input-name" class="modal-input" placeholder="שם הפרויקט" style="margin: 0; flex: 1;">
+                    <button id="save-confirm" class="modal-btn-ok" style="white-space: nowrap; padding: 8px 20px;">שמור</button>
+                </div>
+
+                <div id="save-status-msg" style="min-height: 20px; font-size: 13px; margin-top: 10px;"></div>
+
+                <button id="save-cancel" style="display: none;"></button>
             </div>
         </div>
     </div>
 
     <div id="load-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 21000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
-        <div class="modal-box" style="height: 450px; display: flex; flex-direction: column;">
-            <h3>הפרויקטים שלי</h3>
-            <div id="load-status-msg" style="min-height: 25px; font-size: 13px; margin-bottom: 5px;"></div>
-            <div id="project-list-area" class="project-list-container"></div>
-            <div class="modal-btns" style="margin-top: 15px;">
-                <button id="load-close" class="modal-btn-cancel">סגור</button>
+        <div class="modal-box" style="width: 400px; height: 500px; display: flex; flex-direction: column; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
+
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
+                <h3 style="margin: 0; font-weight: bold; color: #a8c7fa; font-size: 16px;">הפרויקטים שלי</h3>
+                <i class="fa-solid fa-xmark" onclick="document.getElementById('load-overlay').style.display='none'" style="cursor: pointer; color: #ccc; font-size: 18px;"></i>
+            </div>
+
+            <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 20px;">
+                <div id="load-status-msg" style="min-height: 25px; font-size: 13px; margin-bottom: 5px;"></div>
+
+                <div id="project-list-area" class="project-list-container"></div>
+
+                <button id="load-close" style="display: none;"></button>
             </div>
         </div>
     </div>
 
     <div id="new-file-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 22000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
-        <div class="modal-box" style="width: 380px;">
-            <h3 style="margin-top:0; margin-bottom: 20px;">יצירת מחלקה חדשה</h3>
-            <div class="input-group">
-                <button id="create-file-btn" class="btn-create-small">צור</button>
-                <input type="text" id="new-file-name" class="modal-input" placeholder="שם מחלקה">
+        <div class="modal-box" style="width: 380px; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
+
+            <div style="background: #131314; padding: 15px; border-bottom: 1px solid #2d2e30; text-align: center;">
+                <h3 style="margin: 0; font-weight: bold; color: #a8c7fa; font-size: 18px;">יצירת מחלקה חדשה</h3>
             </div>
-            <div style="height: 1px; background: #2d2e30; margin: 15px 0;"></div>
-            <div style="text-align: center;">
-                <div id="open-lib-link" class="lib-link" style="margin-bottom: 10px; font-size: 13px;">
-                    <i class="fa-solid fa-book"></i> פתח מאגר מחלקות מוכנות
+
+            <div style="padding: 25px;">
+                <div class="input-group">
+                    <button id="create-file-btn" class="btn-create-small">צור</button>
+                    <input type="text" id="new-file-name" class="modal-input" placeholder="שם מחלקה" style="margin: 0;">
                 </div>
-                <div id="lib-loader" style="display:none; color:#aaa; font-size:12px; margin-bottom:10px;"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען...</div>
-                <div id="lib-container" class="project-list-container" style="display:none; height: 180px; margin-bottom: 5px;"></div>
-            </div>
-            <div class="modal-btns" style="margin-top: 20px;">
-                <button id="new-file-close" class="modal-btn-cancel" style="font-size: 13px; padding: 6px 20px;">סגור</button>
+                <div style="height: 1px; background: #2d2e30; margin: 15px 0;"></div>
+                <div style="text-align: center;">
+                    <div id="open-lib-link" class="lib-link" style="margin-bottom: 10px; font-size: 13px;">
+                        <i class="fa-solid fa-book"></i> פתח מאגר מחלקות מוכנות
+                    </div>
+                    <div id="lib-loader" style="display:none; color:#aaa; font-size:12px; margin-bottom:10px;"><i class="fa-solid fa-circle-notch fa-spin"></i> טוען...</div>
+                    <div id="lib-container" class="project-list-container" style="display:none; height: 180px; margin-bottom: 5px;"></div>
+                </div>
+                <div class="modal-btns" style="margin-top: 20px;">
+                    <button id="new-file-close" class="modal-btn-cancel" style="font-size: 13px; padding: 6px 20px;">סגור</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1679,6 +1742,7 @@
                 }, 100);
             }
 
+            const FAST_STARTUP_URL = "https://docs.google.com/document/d/10130DnIo3e9Jx5lvOxyBS-s0pPMHr2w0Ll7j-YwvvpM/preview";
             const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdDnzL7JRzQIM0FwZKiWhijQzb6sgbOjZ_2l-L71iBe1_QkqgMcDZL9oO44Ihlh4zXcA/exec";
             const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
             const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
@@ -1781,8 +1845,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                                    אני כאן לעזור בתכנות - בלי מגבלות.<br>
-                                                    שאל אותי כל דבר, אענה קצר ולעניין.`;
+                                                            אני כאן לעזור בתכנות - בלי מגבלות.<br>
+                                                            שאל אותי כל דבר, אענה קצר ולעניין.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -1997,6 +2061,12 @@
                         localStorage.setItem('studentName', globalStudentName);
                         document.getElementById('login-overlay').style.display = 'none';
 
+                        // --- תיקון: הקפצת הודעת כיתה מיד לאחר שהלוגין נסגר ---
+                        if (typeof FAST_STARTUP_URL !== 'undefined' && FAST_STARTUP_URL && FAST_STARTUP_URL.length > 10) {
+                            setTimeout(() => showUrlModal(FAST_STARTUP_URL), 500);
+                        }
+                        // -----------------------------------------------------
+
                         const firstName = getFirstName(globalStudentName);
                         const chatBox = document.querySelector('.msg-ai');
                         if (chatBox) chatBox.innerHTML = `שלום ${firstName}! אני בּוֹט·לִי. 👋<br>אפשר לבחור תרגיל <span id="open-ex-link-2" class="clickable-link">מספריית התרגילים <i class="fa-solid fa-book"></i></span>, או לשאול שאלות על הקוד.`;
@@ -2148,40 +2218,59 @@
                 setTimeout(closeSubmitModal, 2000);
             }
 
+// פונקציה מעודכנת שפותחת את החלון המעוצב
             async function toggleExamMode() {
                 if (!isExamMode) {
                     if (isLearningMode) { await Sys.alert("יש לסגור את מצב הלמידה לפני תחילת מבחן"); return; }
+                    
+                    // במקום Sys.confirm - פותחים את החלון החדש
                     const firstName = getFirstName(globalStudentName);
-                    if (await Sys.confirm(`${firstName}, להתחיל מבחן?`)) {
-                        await sendlog(globalStudentName, `התחלת מבחן`); enableExamMode(); resetWorkspace();
-                    }
+                    document.getElementById('exam-start-title').innerText = `${firstName}, האם להתחיל את המבחן?`;
+                    document.getElementById('exam-start-overlay').style.display = 'flex';
                 } else {
+                    // לוגיקה ליציאה ממבחן (נשארת רגילה עם סיסמה)
                     const pwd = await Sys.prompt("הכנס סיסמת מורה לביטול מצב מבחן:", true);
                     if (pwd === remotePassword) { disableExamMode(); await Sys.alert("מצב מבחן בוטל."); } else if (pwd !== null) await Sys.alert("סיסמה שגויה");
                 }
             }
 
+            // פונקציה חדשה שמבצעת את ההתחלה בפועל (מופעלת מהכפתור בחלון)
+            // פונקציה שמבצעת את ההתחלה בפועל (מופעלת מהכפתור בחלון)
+            function confirmExamStart() {
+                document.getElementById('exam-start-overlay').style.display = 'none';
+                sendlog(globalStudentName, `התחלת מבחן`);
+                enableExamMode();
+                resetWorkspace();
+            }
+            // --- השורה החסרה: חשיפת הפונקציה ל-HTML ---
+            window.confirmExamStart = confirmExamStart;
+
             function enableExamMode() {
                 isExamMode = true;
                 examStrikes = 0;
 
-                // כפייה של מצב עורך (כדי שלא יישארו בשיעור)
+                // כפייה של מצב עורך
                 switchViewMode('editor');
 
                 document.getElementById('examBtn').classList.add('active');
                 document.getElementById('examIndicator').style.display = 'flex';
                 document.getElementById('ai-panel').classList.add('disabled-mode');
 
-                // נטרול כפתורים
+                // --- נטרול כפתורים קיימים ---
                 document.getElementById('ai-input').disabled = true;
                 document.getElementById('send-ai-btn').disabled = true;
                 document.getElementById('runBtn').disabled = true;
                 document.getElementById('btn-save').disabled = true;
                 document.getElementById('btn-load').disabled = true;
                 document.getElementById('stdin-input').disabled = true;
-
-                // --- השינוי: נטרול כפתור המעבר לשיעורים החדש ---
                 document.getElementById('mode-lesson-btn').disabled = true;
+
+                // --- חדש: נטרול כפתורי עזר ותקשורת ---
+                document.getElementById('visualizeBtn').disabled = true;      // Python Tutor
+                document.getElementById('teacher-chat-btn').disabled = true;  // צ'אט
+                document.getElementById('msg-btn').disabled = true;           // הודעות
+                document.getElementById('video-class-btn').disabled = true;   // וידאו
+                document.getElementById('scratchpad-btn').disabled = true;    // טיוטה
 
                 // מניעת העתקה והדבקה
                 document.addEventListener('copy', preventCopyPaste, true);
@@ -2196,22 +2285,28 @@
                 document.getElementById('examIndicator').style.display = 'none';
                 document.getElementById('ai-panel').classList.remove('disabled-mode');
 
-                // שחרור כפתורים
+                // --- שחרור כפתורים קיימים ---
                 document.getElementById('ai-input').disabled = false;
                 document.getElementById('send-ai-btn').disabled = false;
                 document.getElementById('runBtn').disabled = false;
                 document.getElementById('btn-save').disabled = false;
                 document.getElementById('btn-load').disabled = false;
                 document.getElementById('stdin-input').disabled = false;
-
-                // --- השינוי: שחרור כפתור המעבר לשיעורים החדש ---
                 document.getElementById('mode-lesson-btn').disabled = false;
+
+                // --- חדש: שחרור כפתורי עזר ותקשורת ---
+                document.getElementById('visualizeBtn').disabled = false;
+                document.getElementById('teacher-chat-btn').disabled = false;
+                document.getElementById('msg-btn').disabled = false;
+                document.getElementById('video-class-btn').disabled = false;
+                document.getElementById('scratchpad-btn').disabled = false;
 
                 // שחרור העתקה והדבקה
                 document.removeEventListener('copy', preventCopyPaste, true);
                 document.removeEventListener('cut', preventCopyPaste, true);
                 document.removeEventListener('paste', preventCopyPaste, true);
             }
+
             function preventCopyPaste(e) { if (isExamMode) { e.preventDefault(); e.stopPropagation(); } }
             function lockdownExam() {
                 document.getElementById('exam-lockdown-overlay').style.display = 'flex'; if (editorInstance) editorInstance.updateOptions({ readOnly: true });
@@ -2350,8 +2445,13 @@
                 const fileName = name + ".java"; if (files[fileName]) { await Sys.alert("קיים!"); return; }
                 files[fileName] = `public class ${name} {\n    \n}`; finalizeFileAdd(fileName);
             }
-            function finalizeFileAdd(fileName) { closeNewFileModal(); activeFileName = fileName; editorInstance.setValue(files[activeFileName]); renderTabs(); setTimeout(() => Sys.alert(`הקובץ ${fileName} נוסף`), 200); }
-
+            function finalizeFileAdd(fileName) {
+                closeNewFileModal();
+                activeFileName = fileName;
+                editorInstance.setValue(files[activeFileName]);
+                renderTabs();
+                // שינוי: מחקתי את שורת ה-Sys.alert שהיתה כאן
+            }
             async function runCode() {
                 if (isExamMode) { await Sys.alert("ההרצה חסומה במצב מבחן."); return; }
                 if (!editorInstance) return; files[activeFileName] = editorInstance.getValue();
@@ -2374,75 +2474,75 @@
             }
 
             // --- Python Tutor Integration Start ---
-         
-                window.openVisualizer = function () {
-                    // 1. עדכון המידע מהעורך
-                    if (editorInstance) {
-                        files[activeFileName] = editorInstance.getValue();
-                    }
 
-                    // -- עיבוד הקוד (זהה לקודם) --
-                    let mainContent = "";
-                    let otherContent = "";
-                    let allImports = new Set();
-                    const importRegex = /^\s*import\s+.*;/gm;
+            window.openVisualizer = function () {
+                // 1. עדכון המידע מהעורך
+                if (editorInstance) {
+                    files[activeFileName] = editorInstance.getValue();
+                }
 
-                    if (files["Main.java"]) {
-                        let c = files["Main.java"];
-                        let i = c.match(importRegex);
-                        if (i) i.forEach(x => allImports.add(x.trim()));
-                        mainContent = c.replace(importRegex, "").trim();
-                    } else {
-                        Sys.alert("לא נמצא קובץ Main.java");
-                        return;
-                    }
+                // -- עיבוד הקוד (זהה לקודם) --
+                let mainContent = "";
+                let otherContent = "";
+                let allImports = new Set();
+                const importRegex = /^\s*import\s+.*;/gm;
 
-                    Object.keys(files).forEach(f => {
-                        if (f === "Main.java") return;
-                        let c = files[f];
-                        let i = c.match(importRegex);
-                        if (i) i.forEach(x => allImports.add(x.trim()));
-                        let clean = c.replace(importRegex, "").replace(/\/\/.*/g, "").replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim().replace(/public\s+class/g, "class").replace(/public\s+interface/g, "interface").replace(/public\s+enum/g, "enum");
-                        otherContent += "\n" + clean;
-                    });
+                if (files["Main.java"]) {
+                    let c = files["Main.java"];
+                    let i = c.match(importRegex);
+                    if (i) i.forEach(x => allImports.add(x.trim()));
+                    mainContent = c.replace(importRegex, "").trim();
+                } else {
+                    Sys.alert("לא נמצא קובץ Main.java");
+                    return;
+                }
 
-                    const mergedCode = Array.from(allImports).join("\n") + "\n\n" + otherContent + "\n\n" + mainContent;
-                    // -- סוף עיבוד הקוד --
+                Object.keys(files).forEach(f => {
+                    if (f === "Main.java") return;
+                    let c = files[f];
+                    let i = c.match(importRegex);
+                    if (i) i.forEach(x => allImports.add(x.trim()));
+                    let clean = c.replace(importRegex, "").replace(/\/\/.*/g, "").replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim().replace(/public\s+class/g, "class").replace(/public\s+interface/g, "interface").replace(/public\s+enum/g, "enum");
+                    otherContent += "\n" + clean;
+                });
 
-                    // 2. טיפול בתצוגה
-                    const overlay = document.getElementById('visualizer-overlay');
-                    const vizContainer = document.getElementById('viz-container'); // ה-div הפנימי החדש
-                    const loader = document.getElementById('visualizer-loader');
+                const mergedCode = Array.from(allImports).join("\n") + "\n\n" + otherContent + "\n\n" + mainContent;
+                // -- סוף עיבוד הקוד --
 
-                    // ניקוי המכולה (הפתרון הגרעיני)
-                    vizContainer.innerHTML = '';
+                // 2. טיפול בתצוגה
+                const overlay = document.getElementById('visualizer-overlay');
+                const vizContainer = document.getElementById('viz-container'); // ה-div הפנימי החדש
+                const loader = document.getElementById('visualizer-loader');
 
-                    // הצגת הטוען מיד
-                    loader.style.display = 'flex';
-                    overlay.style.display = 'flex';
+                // ניקוי המכולה (הפתרון הגרעיני)
+                vizContainer.innerHTML = '';
 
-                    // יצירת ה-iframe
-                    const newIframe = document.createElement('iframe');
-                    newIframe.id = 'visualizer-iframe';
-                    // הוספתי border-radius כדי לשמור על הפינות העגולות שביקשת
-                    newIframe.style.cssText = "width: 100%; height: 100%; border: none; filter: invert(1) hue-rotate(180deg); background-color: #fff; border-radius: 0 0 12px 12px;";
+                // הצגת הטוען מיד
+                loader.style.display = 'flex';
+                overlay.style.display = 'flex';
 
-                    // כתובת + פרמטרים
-                    const baseUrl = "https://pythontutor.com/iframe-embed.html#";
-                    const params = `code=${encodeURIComponent(mergedCode)}&py=java&curInstr=0&origin=opt-frontend.js&cumulative=false&heapPrimitives=nevernest&textReferences=false&rawInputLstJSON=%5B%5D`;
+                // יצירת ה-iframe
+                const newIframe = document.createElement('iframe');
+                newIframe.id = 'visualizer-iframe';
+                // הוספתי border-radius כדי לשמור על הפינות העגולות שביקשת
+                newIframe.style.cssText = "width: 100%; height: 100%; border: none; filter: invert(1) hue-rotate(180deg); background-color: #fff; border-radius: 0 0 12px 12px;";
 
-                    // הטריק: ברגע שהטעינה מסתיימת -> העלם את הטוען
-                    newIframe.onload = function () {
-                        // טריק: מחכים 2 שניות נוספות כדי לתת לסקריפט של Python Tutor לסיים לצייר
-                        // זה מונע את הבהוב המסך השחור
-                        setTimeout(function () {
-                            loader.style.display = 'none';
-                        }, 2000);
-                    };
+                // כתובת + פרמטרים
+                const baseUrl = "https://pythontutor.com/iframe-embed.html#";
+                const params = `code=${encodeURIComponent(mergedCode)}&py=java&curInstr=0&origin=opt-frontend.js&cumulative=false&heapPrimitives=nevernest&textReferences=false&rawInputLstJSON=%5B%5D`;
 
-                    newIframe.src = baseUrl + params;
-                    vizContainer.appendChild(newIframe);
+                // הטריק: ברגע שהטעינה מסתיימת -> העלם את הטוען
+                newIframe.onload = function () {
+                    // טריק: מחכים 2 שניות נוספות כדי לתת לסקריפט של Python Tutor לסיים לצייר
+                    // זה מונע את הבהוב המסך השחור
+                    setTimeout(function () {
+                        loader.style.display = 'none';
+                    }, 2000);
                 };
+
+                newIframe.src = baseUrl + params;
+                vizContainer.appendChild(newIframe);
+            };
             // --- Python Tutor Integration End ---
 
             function resetWorkspace() { files = { "Main.java": `public class Main {\n    public static void main(String[] args) {\n        \n    }\n}` }; activeFileName = "Main.java"; editorInstance.setValue(files[activeFileName]); renderTabs(); }
@@ -2570,11 +2670,11 @@
 
                         // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                                <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                                                <span>${subCat}</span>
-                                                            </div>
-                                                        `;
+                                                                    <div style="display:flex; align-items:center; gap:8px;">
+                                                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                                                        <span>${subCat}</span>
+                                                                    </div>
+                                                                `;
 
                         // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
@@ -2769,19 +2869,38 @@
                 const titleElement = overlay.querySelector('h3');
                 const firstName = getFirstName(globalStudentName);
 
-                titleElement.innerText = `הפרויקטים של ${firstName}`;
+                if (titleElement) titleElement.innerText = `הפרויקטים של ${firstName}`;
 
                 const listArea = document.getElementById('project-list-area');
                 const statusDiv = document.getElementById('load-status-msg');
+
                 listArea.classList.remove('list-busy');
                 overlay.style.display = 'flex';
                 injectBotLiToAllModals();
 
-                listArea.innerHTML = ''; statusDiv.innerHTML = 'טוען...';
+                // --- שינוי: במקום טקסט "טוען" קטן, הזרקת אנימציה למרכז המסך ---
+                statusDiv.innerHTML = ''; // ניקוי שורת הסטטוס הקטנה
+                listArea.innerHTML = `
+                        <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: #a8c7fa; margin-bottom: 15px;"></i>
+                            <span style="font-size: 14px; color: #aaa;">טוען רשימת פרויקטים...</span>
+                        </div>
+                    `;
+                // -----------------------------------------------------------
+
                 try {
                     const listUrl = `${CONTROL_SCRIPT_URL}?action=listProjects&user=${encodeURIComponent(globalStudentName)}&t=${new Date().getTime()}`;
-                    const listRes = await fetch(listUrl); const listData = await listRes.json(); statusDiv.innerHTML = '';
-                    if (!listData.projects || listData.projects.length === 0) { listArea.innerHTML = '<div style="padding:20px; text-align:center; color:#aaa;">אין פרויקטים</div>'; return; }
+                    const listRes = await fetch(listUrl);
+                    const listData = await listRes.json();
+
+                    statusDiv.innerHTML = '';
+                    listArea.innerHTML = ''; // מחיקת האנימציה לפני טעינת הרשימה
+
+                    if (!listData.projects || listData.projects.length === 0) {
+                        listArea.innerHTML = '<div style="padding:20px; text-align:center; color:#aaa;">אין פרויקטים</div>';
+                        return;
+                    }
+
                     listData.projects.reverse().forEach(projName => {
                         const item = document.createElement('div'); item.className = 'project-item';
                         item.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-folder"></i><span>${projName}</span></div><div class="delete-btn" onclick="deleteProject(event, '${projName}')"><i class="fa-solid fa-trash"></i></div>`;
@@ -2794,7 +2913,9 @@
 
                         listArea.appendChild(item);
                     });
-                } catch (e) { statusDiv.innerHTML = 'שגיאה בטעינה'; }
+                } catch (e) {
+                    listArea.innerHTML = '<div style="padding:20px; text-align:center; color:#f2b8b5;">שגיאה בטעינה</div>';
+                }
             }
 
             async function deleteProject(e, name) {
@@ -2839,11 +2960,11 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                                    <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                                        style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                                    </div>
-                                                `;
+                                                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                                            </div>
+                                                        `;
                 document.querySelectorAll('.modal-box').forEach(box => {
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
@@ -2913,17 +3034,36 @@
 
             function openTeacherChat() {
                 if (!globalStudentName) { Sys.alert("יש להתחבר תחילה כדי לדבר עם המורה."); return; }
+
                 document.getElementById('t-chat-badge').style.display = 'none';
                 document.getElementById('teacher-chat-overlay').style.display = 'flex';
-                fetchTeacherChat();
-                if (tChatInterval) clearInterval(tChatInterval);
-                tChatInterval = setInterval(() => {
-                    if (document.getElementById('teacher-chat-overlay').style.display === 'none') {
-                        clearInterval(tChatInterval);
-                    } else {
-                        fetchTeacherChat();
-                    }
-                }, 5000);
+
+                // --- שינוי: הצגת טוען + דיליי של 2 שניות ---
+                const container = document.getElementById('t-chat-msgs');
+
+                // 1. ניקוי והצגת אנימציית טעינה במרכז
+                container.innerHTML = `
+                    <div style="height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#888;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
+                        <span style="font-size:14px;">טוען הודעות...</span>
+                    </div>
+                `;
+
+                // 2. המתנה של 2000ms (שתי שניות) לפני הטעינה האמיתית
+                setTimeout(() => {
+                    fetchTeacherChat(); // משיכת הנתונים
+
+                    // התחלת הריענון האוטומטי רק אחרי הדיליי
+                    if (tChatInterval) clearInterval(tChatInterval);
+                    tChatInterval = setInterval(() => {
+                        if (document.getElementById('teacher-chat-overlay').style.display === 'none') {
+                            clearInterval(tChatInterval);
+                        } else {
+                            fetchTeacherChat();
+                        }
+                    }, 5000);
+                }, 2000);
+                // ---------------------------------------------
             }
 
             async function fetchTeacherChat() {
@@ -3137,9 +3277,12 @@
 
                 overlay.style.display = 'flex';
                 input.style.display = 'none';
-                btnCancel.style.display = 'none';
-                textContainer.innerHTML = "";
 
+                // שינוי 1: הסתרת כפתור ה"סגור" התחתון (המשתמש ביקש רק X)
+                btnOk.style.display = 'none';
+                btnCancel.style.display = 'none'; // נשאר מוסתר ויזואלית
+
+                textContainer.innerHTML = "";
                 modalBox.style.width = "90%";
                 modalBox.style.maxWidth = "600px";
 
@@ -3168,17 +3311,19 @@
                 iframe.style.border = "none";
                 iframe.style.background = "#fff";
 
-                // הוספה ללא כפתורים
                 wrapper.appendChild(iframe);
                 textContainer.appendChild(wrapper);
 
-                btnOk.innerText = 'סגור';
-                btnOk.onclick = () => {
+                // שינוי 2: הגדרת פעולת הסגירה
+                const closeModal = () => {
                     overlay.style.display = 'none';
                     textContainer.innerHTML = "";
                     modalBox.style.width = "";
                     modalBox.style.maxWidth = "";
                 };
+
+                // שינוי 3: חיבור ה-X (שלוחץ על btnCancel) לפונקציית הסגירה
+                btnCancel.onclick = closeModal;
             }
 
             window.openTeacherChat = openTeacherChat;
@@ -3198,6 +3343,9 @@
                     window.switchViewMode('lesson');
                 }
             }, 100);
+
+
+
 
         })();
 
@@ -3496,7 +3644,7 @@
             </div>
 
 
-            <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד..." style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto; border-radius: 0 0 12px 12px;"></textarea>
+            <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד... שים לב! הטיוטה לא נשמרת לאחר התנתקות מהאתר" style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto; border-radius: 0 0 12px 12px;"></textarea>
             <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 10;">
                 <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
                 <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
@@ -3507,10 +3655,10 @@
         </div>
     </div>
 
-    <div id="video-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 28000; justify-content: center; align-items: center;">
-        <div class="modal-box" style="width: 90%; height: 90%; max-width: 1200px; display: flex; flex-direction: column; padding: 0; overflow: hidden; background: #000;">
+    <div id="video-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 28000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-box" style="width: 90%; height: 90%; max-width: 1200px; display: flex; flex-direction: column; padding: 0; overflow: visible; background: #1e1f20; border: 1px solid #444746; border-radius: 4px;">
 
-            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+            <div style="background: #131314; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d2e30;">
                 <span style="color: #a8c7fa; font-weight: bold;"><i class="fa-solid fa-video"></i> כיתה וירטואלית</span>
 
                 <div style="display: flex; gap: 15px;">
@@ -3519,7 +3667,7 @@
                 </div>
             </div>
 
-            <div id="jitsi-container" style="flex: 1; width: 100%; height: 100%; border-radius: 0 0 12px 12px;"></div>
+            <div id="jitsi-container" style="flex: 1; width: 100%; height: 100%; background: #000; border-radius: 0 0 4px 4px;"></div>
         </div>
     </div>
 
@@ -3544,3 +3692,4 @@
 
 </body>
 </html>
+
