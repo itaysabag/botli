@@ -1854,22 +1854,27 @@
 
                         overlay.style.display = 'flex';
                         input.style.display = 'none';
+
+                        // איפוס: מציגים את האישור, מסתירים את הביטול כברירת מחדל
+                        btnOk.style.display = 'inline-block';
                         btnCancel.style.display = 'none';
+
                         input.value = '';
                         text.innerText = msg;
-
                         title.innerText = "בוטלי:";
 
                         if (type === 'alert') {
                             btnOk.innerText = 'המשך';
                             btnOk.onclick = () => { close(); resolve(true); };
                         } else if (type === 'confirm') {
-                            title.innerText = "בוטלי:";
-                            btnOk.innerText = 'כן';
-                            btnCancel.innerText = 'לא';
-                            btnCancel.style.display = 'inline-block';
+                            title.innerText = "למחוק את המחלקה?";
+                            btnOk.innerText = 'כן, מחק';
+
+                            // הסרתי את הצגת כפתור הביטול - הוא נשאר מוסתר (display: none)
+                            // אבל משאירים את ה-onclick כדי שהאיקס (X) למעלה יעבוד
                             btnOk.onclick = () => { close(); resolve(true); };
                             btnCancel.onclick = () => { close(); resolve(false); };
+
                         } else if (type === 'prompt') {
                             title.innerText = "בוטלי צריך מידע:";
                             input.style.display = 'block';
@@ -1877,7 +1882,7 @@
                             input.placeholder = placeholder;
                             btnOk.innerText = 'אישור';
                             btnCancel.innerText = 'ביטול';
-                            btnCancel.style.display = 'inline-block';
+                            btnCancel.style.display = 'inline-block'; // ב-prompt נשאיר אותו
                             input.focus();
                             input.onkeydown = (e) => { if (e.key === 'Enter') btnOk.click(); };
                             btnOk.onclick = () => { let val = input.value; close(); resolve(val); };
