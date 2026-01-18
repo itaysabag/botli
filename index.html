@@ -1504,9 +1504,22 @@
                 <input type="text" id="login-user" class="modal-input" placeholder="שם משתמש" style="margin-top:5px;">
                 <label style="font-size: 12px; color: #aaa; display:block; text-align:right;">סיסמה:</label>
                 <input type="password" id="login-pass" class="modal-input" placeholder="סיסמה" style="margin-top:5px;">
-                <div id="login-msg" style="color: #ff4d4d; font-size: 13px; min-height: 20px; margin-bottom: 5px;"></div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; min-height: 20px;">
+                    <div id="login-msg" style="color: #ff4d4d; font-size: 13px; max-width: 70%;"></div>
+
+                    <a href="https://forms.gle/KsvNkkHprYXxxKWTA" target="_blank"
+                       style="color: #a8c7fa; font-size: 13px; text-decoration: none; border-bottom: 1px solid #a8c7fa; transition: opacity 0.2s; white-space: nowrap;"
+                       onmouseover="this.style.opacity='0.7'"
+                       onmouseout="this.style.opacity='1'">
+                        הרשמה
+                    </a>
+                </div>
+
                 <button id="login-btn" class="modal-btn-ok btn-login-centered">התחבר</button>
             </div>
+
+
         </div>
     </div>
 
