@@ -1395,6 +1395,36 @@
             direction: rtl;
         }
 
+        /* --- אנימציית פעימה מאוזנת (גרסה סופית) --- */
+        @keyframes pulse-red-dot {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                text-shadow: 0 0 0 rgba(255, 0, 0, 0);
+            }
+
+            50% {
+                transform: scale(1.35);
+                opacity: 0.85;
+                text-shadow: 0 0 5px rgba(255, 0, 0, 0.6);
+            }
+            /* גדל ל-135% עם זוהר עדין */
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                text-shadow: 0 0 0 rgba(255, 0, 0, 0);
+            }
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            animation: pulse-red-dot 1.5s infinite ease-in-out; /* קצב בינוני: 1.5 שניות */
+            vertical-align: middle;
+            margin-left: 5px;
+            margin-right: 2px;
+        }margin-right: 2px;
+        }
+
     </style>
 </head>
 <body>
@@ -2794,33 +2824,29 @@
                 renderLessonMenu();
             }
 
-            // 3. הפונקציה המעודכנת לרינדור התפריט (כולל לוגיקת הסינון והניקוי)
+            // 3. הפונקציה המעודכנת לרינדור התפריט (כולל סינון מקצועות + אנימציה לנקודות)
             function renderLessonMenu() {
                 const container = document.getElementById('lesson-menu-container');
                 if (!container) return;
 
                 container.innerHTML = '';
 
-                // הגדרת התגיות לחיפוש כפי שסיכמנו
+                // הגדרת התגיות לחיפוש
                 const TAG_CS = "מדמח - ";
                 const TAG_MATH = "מתמטיקה - ";
                 const TAG_PHYS = "פיזיקה - ";
 
                 let hasItems = false;
 
-                // לולאה על קטגוריות ראשיות (Main Categories)
                 Object.keys(lessonsData).forEach((rawMainCat) => {
 
-                    // --- לוגיקת הסינון והניקוי ---
+                    // --- לוגיקת סינון המקצועות ---
                     let displayMainCat = "";
                     let shouldShow = false;
 
                     if (currentSubjectMode === 'CS') {
-                        // אם המצב הוא מדמ"ח:
-                        // 1. מציגים שורות שמתחילות ב"מדמח - "
-                        // 2. מציגים שורות שאין להן שום תגית (ברירת מחדל)
                         if (rawMainCat.startsWith(TAG_CS)) {
-                            displayMainCat = rawMainCat.replace(TAG_CS, ""); // מוחק את התגית
+                            displayMainCat = rawMainCat.replace(TAG_CS, "");
                             shouldShow = true;
                         } else if (!rawMainCat.startsWith(TAG_MATH) && !rawMainCat.startsWith(TAG_PHYS)) {
                             displayMainCat = rawMainCat;
@@ -2828,31 +2854,24 @@
                         }
                     }
                     else if (currentSubjectMode === 'MATH') {
-                        // מתמטיקה: רק מה שמתחיל בתגית מתמטיקה
                         if (rawMainCat.startsWith(TAG_MATH)) {
                             displayMainCat = rawMainCat.replace(TAG_MATH, "");
                             shouldShow = true;
                         }
                     }
                     else if (currentSubjectMode === 'PHYSICS') {
-                        // פיזיקה: רק מה שמתחיל בתגית פיזיקה
                         if (rawMainCat.startsWith(TAG_PHYS)) {
                             displayMainCat = rawMainCat.replace(TAG_PHYS, "");
                             shouldShow = true;
                         }
                     }
 
-                    // אם הקטגוריה לא מתאימה למצב הנוכחי - דלג עליה
                     if (!shouldShow) return;
-
                     hasItems = true;
 
-                    // --- יצירת ה-HTML של הקטגוריה (עם השם הנקי) ---
-
+                    // --- יצירת הקטגוריה הראשית ---
                     const mainCatDiv = document.createElement('div');
                     mainCatDiv.className = 'lesson-category';
-
-                    // משתמשים ב-displayMainCat (השם הנקי) במקום rawMainCat
                     mainCatDiv.innerHTML = `<span style="color: #a8c7fa; font-size:15px;">${displayMainCat}</span> <i class="fa-solid fa-chevron-down"></i>`;
                     mainCatDiv.style.borderBottom = "1px solid #444";
                     mainCatDiv.style.backgroundColor = "#252627";
@@ -2870,10 +2889,17 @@
                         }
                     };
 
-                    const subCategories = lessonsData[rawMainCat]; // עדיין מושכים מהמפתח המקורי
+                    const subCategories = lessonsData[rawMainCat];
                     Object.keys(subCategories).forEach(subCat => {
                         const subWrapper = document.createElement('div');
                         subWrapper.style.borderBottom = "1px solid #2d2e30";
+
+                        // --- זיהוי נקודה אדומה בקטגוריה משנית ---
+                        let subCatDisplay = subCat;
+                        if (subCat.includes("🔴")) {
+                            subCatDisplay = subCat.replace("🔴", '<span class="pulse-dot">🔴</span>');
+                        }
+                        // ----------------------------------------
 
                         const subHeader = document.createElement('div');
                         subHeader.style.padding = "10px 15px";
@@ -2890,7 +2916,7 @@
                         subHeader.innerHTML = `
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                <span>${subCat}</span>
+                                <span>${subCatDisplay}</span>
                             </div>
                         `;
 
@@ -2915,7 +2941,15 @@
                         subCategories[subCat].forEach(lesson => {
                             const lDiv = document.createElement('div');
                             lDiv.className = 'lesson-item';
-                            lDiv.innerText = lesson.title;
+
+                            // --- זיהוי נקודה אדומה בשם השיעור ---
+                            if (lesson.title.includes("🔴")) {
+                                lDiv.innerHTML = lesson.title.replace("🔴", '<span class="pulse-dot">🔴</span>');
+                            } else {
+                                lDiv.innerText = lesson.title;
+                            }
+                            // ------------------------------------
+
                             lDiv.style.paddingRight = "35px";
                             lDiv.style.fontSize = "13px";
                             lDiv.style.color = "#aaa";
@@ -2962,40 +2996,54 @@
                 const content = lesson.text ? lesson.text.trim() : "";
                 let contentElement;
 
-                // --- אפשרות א': אם זה גוגל דוקס ---
-                if (content.startsWith("http") && content.includes("docs.google.com")) {
-                    let embedUrl = content;
-                    // המרה למצב תצוגה מקדימה (נקי יותר)
-                    if (embedUrl.includes("/edit")) embedUrl = embedUrl.replace(/\/edit.*/, "/preview");
-                    else if (embedUrl.includes("/view")) embedUrl = embedUrl.replace(/\/view.*/, "/preview");
+// --- אפשרות א': אם זה קישור (גוגל דוקס, דרייב או PDF) ---
+                if (content.startsWith("http") && (content.includes("docs.google.com") || content.includes("drive.google.com") || content.trim().toLowerCase().endsWith(".pdf"))) {
+                    let embedUrl = content.trim();
+                    
+                    // 1. טיפול בקישורי גוגל (הפיכה לתצוגה מקדימה + ניקוי סרגל כלים)
+                    if (embedUrl.includes("google.com")) {
+                        // המרה ל-preview
+                        if (embedUrl.includes("/edit")) embedUrl = embedUrl.replace(/\/edit.*/, "/preview");
+                        else if (embedUrl.includes("/view")) embedUrl = embedUrl.replace(/\/view.*/, "/preview");
+
+                        // --- התוספת החדשה: הסתרת ה-Toolbar ---
+                        // rm=minimal הוא הפרמטר של גוגל שמסתיר את התפריטים
+                        if (!embedUrl.includes("rm=minimal")) {
+                            embedUrl += (embedUrl.includes('?') ? '&' : '?') + "rm=minimal";
+                        }
+                    }
+
+                    // 2. אם זה PDF (בגוגל או בחוץ) - התאמה לרוחב המסך
+                    if (embedUrl.toLowerCase().endsWith(".pdf") || embedUrl.includes("/preview")) {
+                         // מוסיף view=FitH רק אם זה לא קיים כבר
+                        if (!embedUrl.includes("view=")) {
+                             embedUrl += (embedUrl.includes('#') ? '&' : '#') + "view=FitH";
+                        }
+                    }
 
                     // יצירת iframe שתופס 100% מהגובה והרוחב
                     contentElement = document.createElement('iframe');
                     contentElement.src = embedUrl;
-                    contentElement.className = 'doc-frame'; // שימוש במחלקה הקיימת (לפילטר צבעים אם יש)
+                    contentElement.className = 'doc-frame'; 
 
-                    // הגדרות עיצוב למילוי מלא
                     contentElement.style.width = "100%";
                     contentElement.style.height = "100%";
                     contentElement.style.border = "none";
                     contentElement.style.display = "block";
 
-                    // אופציונלי: שמירה על מצב לילה (הפוך צבעים).
+                    // פילטר צבעים (למצב לילה)
                     contentElement.style.filter = "invert(1) hue-rotate(180deg)";
-                    contentElement.style.background = "#fff"; // מונע הבהוב
+                    contentElement.style.background = "#fff"; 
 
                 } else {
-                    // --- אפשרות ב': אם זה טקסט רגיל (Markdown) ---
+                    // ... (קוד הטקסט הרגיל נשאר ללא שינוי) ...
                     contentElement = document.createElement('div');
                     contentElement.id = 'lesson-body';
-
-                    // עיצוב לטקסט רגיל
                     contentElement.style.padding = "30px";
                     contentElement.style.width = "100%";
                     contentElement.style.height = "100%";
-                    contentElement.style.overflowY = "auto"; // גלילה פנימית לטקסט
-                    contentElement.style.boxSizing = "border-box"; // מונע חריגה מהרוחב
-
+                    contentElement.style.overflowY = "auto";
+                    contentElement.style.boxSizing = "border-box";
                     contentElement.innerHTML = parseMarkdown(content);
                 }
 
@@ -4151,4 +4199,3 @@
 
 </body>
 </html>
-
