@@ -16,6 +16,52 @@
             box-sizing: border-box;
         }
 
+
+        /* --- עיצוב סוויץ' מקצועות משודרג (מתוקן) --- */
+        .subject-toggle-container {
+            display: flex;
+            justify-content: center; /* מבטיח שהכפתורים יהיו ממורכזים בתוך המסגרת */
+            background-color: transparent;
+            border: 1px solid #444746;
+            border-radius: 20px;
+            padding: 3px;
+            margin: 10px 12px 12px 12px;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .subject-btn {
+            flex: 1; /* רוחב שווה לכולם */
+            background: transparent;
+            border: none; /* ביטול מסגרת לכפתור עצמו */
+            color: #8e918f; /* צבע אפור כבוי */
+            padding: 6px 0;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 16px; /* פינות עגולות פנימיות */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            white-space: nowrap;
+            /* יישור לאייקונים אם נוסיף בעתיד */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+            .subject-btn:hover {
+                color: #e3e3e3;
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+
+            .subject-btn.active {
+                background-color: #a8c7fa; /* הכחול הבהיר של הבוט */
+                color: #000000; /* טקסט שחור */
+                font-weight: 700;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* צל עדין */
+            }
+
         /* כשאנחנו במצב קיוסק (on) - הסתרת כפתור מסך מלא */
         body.kiosk-mode #fs-global-btn {
             display: none !important;
@@ -1636,7 +1682,21 @@
         <div id="lesson-panel" style="display: none; flex: 1; overflow: hidden; background-color: #131314; flex-direction: row-reverse; position: relative;">
 
             <div id="lesson-sidebar" style="width: 250px; background: #1e1f20; border-left: 1px solid #2d2e30; display: flex; flex-direction: column;">
+
                 <div style="padding: 15px; font-weight: bold; border-bottom: 1px solid #2d2e30; text-align: right;">תוכן עניינים</div>
+
+                <div class="subject-toggle-container">
+                    <button id="btn-subj-cs" class="subject-btn active" onclick="setSubjectMode('CS')">
+                        <i class="fa-solid fa-code"></i> מדמ"ח
+                    </button>
+                    <button id="btn-subj-math" class="subject-btn" onclick="setSubjectMode('MATH')">
+                        <i class="fa-solid fa-calculator"></i> מתמ'
+                    </button>
+                    <button id="btn-subj-phys" class="subject-btn" onclick="setSubjectMode('PHYSICS')">
+                        <i class="fa-solid fa-atom"></i> פיזיקה
+                    </button>
+                </div>
+
                 <div id="lesson-menu-container" style="flex: 1; overflow-y: auto;">
                     <div style="padding: 20px; text-align: center; color: #888;">טוען קורסים...</div>
                 </div>
@@ -2692,23 +2752,101 @@
                 }
             }
 
+            // --- התחלת מקטע חדש: סינון שיעורים לפי מקצוע ---
+
+            // 1. משתנה גלובלי למקצוע הנוכחי
+            let currentSubjectMode = 'CS'; // ברירת מחדל: מדעי המחשב
+
+            // 2. פונקציה להחלפת מקצוע (מופעלת בלחיצה על הכפתורים)
+            window.setSubjectMode = function (mode) {
+                currentSubjectMode = mode;
+
+                // עדכון ויזואלי של הכפתורים
+                document.querySelectorAll('.subject-btn').forEach(btn => btn.classList.remove('active'));
+
+                if (mode === 'CS') {
+                    const btn = document.getElementById('btn-subj-cs');
+                    if (btn) btn.classList.add('active');
+                }
+                if (mode === 'MATH') {
+                    const btn = document.getElementById('btn-subj-math');
+                    if (btn) btn.classList.add('active');
+                }
+                if (mode === 'PHYSICS') {
+                    const btn = document.getElementById('btn-subj-phys');
+                    if (btn) btn.classList.add('active');
+                }
+
+                // רינדור מחדש של התפריט עם הסינון החדש
+                renderLessonMenu();
+            }
+
+            // 3. הפונקציה המעודכנת לרינדור התפריט (כולל לוגיקת הסינון והניקוי)
             function renderLessonMenu() {
                 const container = document.getElementById('lesson-menu-container');
+                if (!container) return;
+
                 container.innerHTML = '';
 
+                // הגדרת התגיות לחיפוש כפי שסיכמנו
+                const TAG_CS = "מדמח - ";
+                const TAG_MATH = "מתמטיקה - ";
+                const TAG_PHYS = "פיזיקה - ";
+
+                let hasItems = false;
+
                 // לולאה על קטגוריות ראשיות (Main Categories)
-                Object.keys(lessonsData).forEach((mainCat) => {
+                Object.keys(lessonsData).forEach((rawMainCat) => {
+
+                    // --- לוגיקת הסינון והניקוי ---
+                    let displayMainCat = "";
+                    let shouldShow = false;
+
+                    if (currentSubjectMode === 'CS') {
+                        // אם המצב הוא מדמ"ח:
+                        // 1. מציגים שורות שמתחילות ב"מדמח - "
+                        // 2. מציגים שורות שאין להן שום תגית (ברירת מחדל)
+                        if (rawMainCat.startsWith(TAG_CS)) {
+                            displayMainCat = rawMainCat.replace(TAG_CS, ""); // מוחק את התגית
+                            shouldShow = true;
+                        } else if (!rawMainCat.startsWith(TAG_MATH) && !rawMainCat.startsWith(TAG_PHYS)) {
+                            displayMainCat = rawMainCat;
+                            shouldShow = true;
+                        }
+                    }
+                    else if (currentSubjectMode === 'MATH') {
+                        // מתמטיקה: רק מה שמתחיל בתגית מתמטיקה
+                        if (rawMainCat.startsWith(TAG_MATH)) {
+                            displayMainCat = rawMainCat.replace(TAG_MATH, "");
+                            shouldShow = true;
+                        }
+                    }
+                    else if (currentSubjectMode === 'PHYSICS') {
+                        // פיזיקה: רק מה שמתחיל בתגית פיזיקה
+                        if (rawMainCat.startsWith(TAG_PHYS)) {
+                            displayMainCat = rawMainCat.replace(TAG_PHYS, "");
+                            shouldShow = true;
+                        }
+                    }
+
+                    // אם הקטגוריה לא מתאימה למצב הנוכחי - דלג עליה
+                    if (!shouldShow) return;
+
+                    hasItems = true;
+
+                    // --- יצירת ה-HTML של הקטגוריה (עם השם הנקי) ---
+
                     const mainCatDiv = document.createElement('div');
                     mainCatDiv.className = 'lesson-category';
-                    // קטגוריה ראשית - עיצוב
-                    mainCatDiv.innerHTML = `<span style="color: #a8c7fa; font-size:15px;">${mainCat}</span> <i class="fa-solid fa-chevron-down"></i>`;
+
+                    // משתמשים ב-displayMainCat (השם הנקי) במקום rawMainCat
+                    mainCatDiv.innerHTML = `<span style="color: #a8c7fa; font-size:15px;">${displayMainCat}</span> <i class="fa-solid fa-chevron-down"></i>`;
                     mainCatDiv.style.borderBottom = "1px solid #444";
                     mainCatDiv.style.backgroundColor = "#252627";
 
                     const mainItemsDiv = document.createElement('div');
                     mainItemsDiv.className = 'lesson-items';
 
-                    // לחיצה על קטגוריה ראשית
                     mainCatDiv.onclick = () => {
                         mainItemsDiv.classList.toggle('open');
                         const icon = mainCatDiv.querySelector('i');
@@ -2719,15 +2857,11 @@
                         }
                     };
 
-                    // לולאה על תתי-קטגוריות (Sub Categories)
-                    const subCategories = lessonsData[mainCat];
+                    const subCategories = lessonsData[rawMainCat]; // עדיין מושכים מהמפתח המקורי
                     Object.keys(subCategories).forEach(subCat => {
-
-                        // --- כאן השינוי: יצירת מיכל לתת-הקטגוריה ---
                         const subWrapper = document.createElement('div');
                         subWrapper.style.borderBottom = "1px solid #2d2e30";
 
-                        // 1. הכותרת של תת-הקטגוריה (עכשיו היא לחיצה)
                         const subHeader = document.createElement('div');
                         subHeader.style.padding = "10px 15px";
                         subHeader.style.fontSize = "13px";
@@ -2740,40 +2874,36 @@
                         subHeader.style.alignItems = "center";
                         subHeader.style.userSelect = "none";
 
-                        // החץ בצד ימין (RTL) + הטקסט
                         subHeader.innerHTML = `
-                                                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                                                <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                                                                <span>${subCat}</span>
-                                                                            </div>
-                                                                        `;
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                <span>${subCat}</span>
+                            </div>
+                        `;
 
-                        // 2. המיכל של השיעורים עצמם (מוסתר בהתחלה)
                         const lessonsContainer = document.createElement('div');
-                        lessonsContainer.style.display = "none"; // סגור כברירת מחדל
+                        lessonsContainer.style.display = "none";
                         lessonsContainer.style.backgroundColor = "#131314";
 
-                        // לחיצה על תת-קטגוריה
                         subHeader.onclick = (e) => {
-                            e.stopPropagation(); // כדי לא לסגור את הקטגוריה הראשית בטעות
+                            e.stopPropagation();
                             const isOpen = lessonsContainer.style.display === "block";
                             const icon = subHeader.querySelector('i');
 
                             if (isOpen) {
                                 lessonsContainer.style.display = "none";
-                                icon.style.transform = "rotate(0deg)"; // חץ שמאלה (סגור)
+                                icon.style.transform = "rotate(0deg)";
                             } else {
                                 lessonsContainer.style.display = "block";
-                                icon.style.transform = "rotate(-90deg)"; // חץ למטה (פתוח)
+                                icon.style.transform = "rotate(-90deg)";
                             }
                         };
 
-                        // הוספת השיעורים לתוך המיכל
                         subCategories[subCat].forEach(lesson => {
                             const lDiv = document.createElement('div');
                             lDiv.className = 'lesson-item';
                             lDiv.innerText = lesson.title;
-                            lDiv.style.paddingRight = "35px"; // הזחה פנימה
+                            lDiv.style.paddingRight = "35px";
                             lDiv.style.fontSize = "13px";
                             lDiv.style.color = "#aaa";
 
@@ -2784,7 +2914,6 @@
                             lessonsContainer.appendChild(lDiv);
                         });
 
-                        // הרכבת המבנה
                         subWrapper.appendChild(subHeader);
                         subWrapper.appendChild(lessonsContainer);
                         mainItemsDiv.appendChild(subWrapper);
@@ -2793,8 +2922,12 @@
                     container.appendChild(mainCatDiv);
                     container.appendChild(mainItemsDiv);
                 });
-            }
 
+                if (!hasItems) {
+                    container.innerHTML = `<div style="padding:20px; text-align:center; color:#666; font-size:13px;">אין שיעורים בקטגוריה זו</div>`;
+                }
+            }
+            // --- סוף מקטע סינון שיעורים ---
             function loadLessonContent(element, lesson) {
                 lessonScale = 1.0;
                 isLessonDark = true;
