@@ -1436,7 +1436,23 @@
             vertical-align: middle;
             margin-left: 5px;
             margin-right: 2px;
-        }margin-right: 2px;
+        }
+
+        /* דף מחברת משבצות לצייר */
+        /* דף מחברת משבצות לצייר */
+        #canvas-container {
+            background-color: #1e1f20 !important;
+            background-image: linear-gradient(to right, #2d2e30 1px, transparent 1px), linear-gradient(to bottom, #2d2e30 1px, transparent 1px) !important;
+            background-size: 25px 25px !important;
+        }
+
+        #paint-canvas {
+            background: transparent !important;
+        }
+
+        .zoom-btn.active-tool {
+            background-color: #a8c7fa !important;
+            color: #131314 !important;
         }
 
     </style>
@@ -4022,55 +4038,245 @@
 
         let scratchpadFontSize = 16;
         let isScratchpadDark = true;
+        let pCanvas, pCtx, pDrawing = false, pTool = 'pen', pStartX, pStartY, pLineWidth = 3;
+        let objects = []; // רשימת כל הקווים והצורות
+        let undoStack = [];
+        let redoStack = [];
+        let currentObject = null;
 
-        // שינוי גודל טקסט
-        function zoomScratchpad(change) {
-            scratchpadFontSize = Math.max(10, Math.min(40, scratchpadFontSize + change));
-            document.getElementById('scratchpad-area').style.fontSize = scratchpadFontSize + 'px';
+        // פונקציית עזר לחישוב מרחק בין נקודה לקו (עבור המחק)
+        function getDistance(x, y, x1, y1, x2, y2) {
+            const A = x - x1; const B = y - y1; const C = x2 - x1; const D = y2 - y1;
+            const dot = A * C + B * D; const len_sq = C * C + D * D;
+            let param = -1;
+            if (len_sq != 0) param = dot / len_sq;
+            let xx, yy;
+            if (param < 0) { xx = x1; yy = y1; }
+            else if (param > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + param * C; yy = y1 + param * D; }
+            return Math.sqrt(Math.pow(x - xx, 2) + Math.pow(y - yy, 2));
         }
 
-        // היפוך צבעים (יום/לילה)
-        function toggleScratchpadContrast() {
-            isScratchpadDark = !isScratchpadDark;
-            const area = document.getElementById('scratchpad-area');
-            if (isScratchpadDark) {
-                area.style.background = "#1e1f20";
-                area.style.color = "#e3e3e3";
-            } else {
-                area.style.background = "#ffffff";
-                area.style.color = "#000000";
+        // ציור מחדש של כל הקנבס מהאובייקטים
+        function render() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            objects.forEach(obj => {
+                pCtx.beginPath();
+                pCtx.strokeStyle = obj.color;
+                pCtx.lineWidth = obj.width;
+                if (obj.type === 'pen') {
+                    pCtx.moveTo(obj.points[0].x, obj.points[0].y);
+                    obj.points.forEach(p => pCtx.lineTo(p.x, p.y));
+                } else if (obj.type === 'line') {
+                    pCtx.moveTo(obj.startX, obj.startY); pCtx.lineTo(obj.endX, obj.endY);
+                } else if (obj.type === 'rect') {
+                    pCtx.strokeRect(obj.startX, obj.startY, obj.endX - obj.startX, obj.endY - obj.startY);
+                } else if (obj.type === 'circle') {
+                    let r = Math.sqrt(Math.pow(obj.startX - obj.endX, 2) + Math.pow(obj.startY - obj.endY, 2));
+                    pCtx.arc(obj.startX, obj.startY, r, 0, 2 * Math.PI);
+                }
+                pCtx.stroke();
+            });
+        }
+
+        function saveState() {
+            if (undoStack.length > 30) undoStack.shift();
+            undoStack.push(JSON.stringify(objects));
+            redoStack = [];
+        }
+
+        window.undo = function () {
+            if (undoStack.length > 0) {
+                redoStack.push(JSON.stringify(objects));
+                objects = JSON.parse(undoStack.pop());
+                render();
+            }
+        };
+
+        window.redo = function () {
+            if (redoStack.length > 0) {
+                undoStack.push(JSON.stringify(objects));
+                objects = JSON.parse(redoStack.pop());
+                render();
+            }
+        };
+
+        window.initPainter = function () {
+            pCanvas = document.getElementById('paint-canvas');
+            pCtx = pCanvas.getContext('2d');
+            const container = document.getElementById('canvas-container');
+            if (pCanvas.width !== container.clientWidth) {
+                pCanvas.width = container.clientWidth; pCanvas.height = container.clientHeight;
+                pCtx.lineCap = 'round'; pCtx.lineJoin = 'round';
+                render();
+            }
+
+            pCanvas.onmousedown = (e) => {
+                const x = e.offsetX, y = e.offsetY;
+
+                // לוגיקת המחק החכם
+                if (pTool === 'eraser') {
+                    const index = objects.findIndex(obj => {
+                        const threshold = 10; // רגישות המחיקה (בפיקסלים)
+
+                        if (obj.type === 'pen') {
+                            for (let i = 0; i < obj.points.length - 1; i++) {
+                                if (getDistance(x, y, obj.points[i].x, obj.points[i].y, obj.points[i + 1].x, obj.points[i + 1].y) < threshold) return true;
+                            }
+                        } else if (obj.type === 'line') {
+                            if (getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.endY) < threshold) return true;
+                        } else if (obj.type === 'rect') {
+                            // בדיקת מרחק מ-4 צלעות המלבן
+                            const d1 = getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.startY); // צלע עליונה
+                            const d2 = getDistance(x, y, obj.endX, obj.startY, obj.endX, obj.endY);     // צלע ימנית
+                            const d3 = getDistance(x, y, obj.endX, obj.endY, obj.startX, obj.endY);     // צלע תחתונה
+                            const d4 = getDistance(x, y, obj.startX, obj.endY, obj.startX, obj.startY); // צלע שמאלית
+                            if (d1 < threshold || d2 < threshold || d3 < threshold || d4 < threshold) return true;
+                        } else if (obj.type === 'circle') {
+                            // בדיקת מרחק מהיקף העיגול
+                            const radius = Math.sqrt(Math.pow(obj.startX - obj.endX, 2) + Math.pow(obj.startY - obj.endY, 2));
+                            const distToCenter = Math.sqrt(Math.pow(x - obj.startX, 2) + Math.pow(y - obj.startY, 2));
+                            if (Math.abs(distToCenter - radius) < threshold) return true;
+                        }
+                        return false;
+                    });
+
+                    if (index !== -1) {
+                        saveState();
+                        objects.splice(index, 1);
+                        render();
+                    }
+                    return;
+                }
+
+                // לוגיקת ציור רגילה
+                saveState();
+                pDrawing = true;
+                currentObject = {
+                    type: pTool, color: document.getElementById('paint-color').value,
+                    width: pLineWidth, points: [{ x, y }], startX: x, startY: y
+                };
+            };
+
+            pCanvas.onmousemove = (e) => {
+                if (!pDrawing || !currentObject) return;
+                const x = e.offsetX, y = e.offsetY;
+                currentObject.endX = x; currentObject.endY = y;
+                if (pTool === 'pen') currentObject.points.push({ x, y });
+                render();
+                // ציור אובייקט זמני מעל הכל
+                pCtx.beginPath();
+                pCtx.strokeStyle = currentObject.color; pCtx.lineWidth = currentObject.width;
+                if (pTool === 'pen') {
+                    pCtx.moveTo(currentObject.points[0].x, currentObject.points[0].y);
+                    currentObject.points.forEach(p => pCtx.lineTo(p.x, p.y));
+                } else if (pTool === 'line') {
+                    pCtx.moveTo(currentObject.startX, currentObject.startY); pCtx.lineTo(x, y);
+                } else if (pTool === 'rect') {
+                    pCtx.strokeRect(currentObject.startX, currentObject.startY, x - currentObject.startX, y - currentObject.startY);
+                } else if (pTool === 'circle') {
+                    let r = Math.sqrt(Math.pow(currentObject.startX - x, 2) + Math.pow(currentObject.startY - y, 2));
+                    pCtx.arc(currentObject.startX, currentObject.startY, r, 0, 2 * Math.PI);
+                }
+                pCtx.stroke();
+            };
+
+            window.onmouseup = () => {
+                if (pDrawing && currentObject) { objects.push(currentObject); render(); }
+                pDrawing = false; currentObject = null;
+            };
+        };
+
+        window.setTool = function (t) {
+            pTool = t;
+            document.querySelectorAll('#painter-tools .zoom-btn').forEach(b => b.classList.remove('active-tool'));
+            document.getElementById('tool-' + t)?.classList.add('active-tool');
+        };
+
+        window.clearCanvas = function () {
+            saveState(); objects = []; render();
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (document.getElementById('painter-area').style.display === 'flex') {
+                if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); window.undo(); }
+                if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); window.redo(); }
+            }
+        });
+
+        // פונקציות Scratchpad קיימות
+        function zoomScratchpad(change) {
+            const isPainter = document.getElementById('painter-area').style.display === 'flex';
+            if (!isPainter) {
+                scratchpadFontSize = Math.max(10, Math.min(40, scratchpadFontSize + change));
+                document.getElementById('scratchpad-area').style.fontSize = scratchpadFontSize + 'px';
             }
         }
 
-        // מסך מלא לחלון הטיוטה
+        function toggleScratchpadContrast() {
+            isScratchpadDark = !isScratchpadDark;
+            const isPainter = document.getElementById('painter-area').style.display === 'flex';
+            const area = document.getElementById('scratchpad-area');
+            const container = document.getElementById('canvas-container');
+            if (isPainter) { container.style.filter = isScratchpadDark ? "none" : "invert(1) hue-rotate(180deg)"; }
+            else {
+                area.style.background = isScratchpadDark ? "#1e1f20" : "#ffffff";
+                area.style.color = isScratchpadDark ? "#e3e3e3" : "#000000";
+            }
+        }
+
+        window.toggleScratchMode = function (isPainter) {
+            const area = document.getElementById('scratchpad-area');
+            const painter = document.getElementById('painter-area');
+            const btnText = document.getElementById('scratch-text-btn');
+            const btnPaint = document.getElementById('scratch-paint-btn');
+            const zoomPlus = document.getElementById('scratch-zoom-plus');
+            const zoomMinus = document.getElementById('scratch-zoom-minus');
+            if (isPainter) {
+                area.style.display = 'none'; painter.style.display = 'flex';
+                btnPaint.classList.add('active'); btnText.classList.remove('active');
+                if (zoomPlus) zoomPlus.style.display = 'none';
+                if (zoomMinus) zoomMinus.style.display = 'none';
+                setTimeout(() => window.initPainter(), 50);
+            } else {
+                area.style.display = 'block'; painter.style.display = 'none';
+                btnText.classList.add('active'); btnPaint.classList.remove('active');
+                if (zoomPlus) zoomPlus.style.display = 'flex';
+                if (zoomMinus) zoomMinus.style.display = 'flex';
+            }
+        };
+
         function toggleScratchpadFullScreen() {
             const box = document.getElementById('scratchpad-box');
             const icon = document.getElementById('fs-scratch-icon');
-
-            // בדיקה אם אנחנו כבר במסך מלא לפי הרוחב
             if (box.style.width === '100vw') {
-                // חזרה לגודל רגיל
-                box.style.width = '800px';
-                box.style.height = '600px';
-                box.style.borderRadius = '12px';
+                box.style.width = '800px'; box.style.height = '600px'; box.style.borderRadius = '12px';
                 icon.classList.replace('fa-compress', 'fa-expand');
             } else {
-                // מעבר למסך מלא
-                box.style.width = '100vw';
-                box.style.height = '100vh';
-                box.style.borderRadius = '0';
+                box.style.width = '100vw'; box.style.height = '100vh'; box.style.borderRadius = '0';
                 icon.classList.replace('fa-expand', 'fa-compress');
             }
+            setTimeout(() => window.initPainter(), 100);
         }
 
-        // חשיפת הפונקציות
         window.zoomScratchpad = zoomScratchpad;
         window.toggleScratchpadContrast = toggleScratchpadContrast;
         window.toggleScratchpadFullScreen = toggleScratchpadFullScreen;
-
-        // חשיפת הפונקציה לחלון
         window.toggleScratchpad = toggleScratchpad;
 
+        window.addEventListener('keydown', (e) => {
+            // בודק אם אזור הצייר מוצג כרגע
+            if (document.getElementById('painter-area').style.display === 'flex') {
+                if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    window.undo();
+                }
+                if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+                    e.preventDefault();
+                    window.redo();
+                }
+            }
+        });
 
         let jitsiApi = null;
 
@@ -4158,17 +4364,47 @@
     <div id="scratchpad-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 26000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
         <div class="modal-box" id="scratchpad-box" style="width: 800px; height: 600px; display: flex; flex-direction: column; padding: 0; overflow: hidden; position: relative;">
 
-            <div style="background: #131314; padding: 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl;">
-                <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-pen-to-square"></i> דף טיוטה</span>
-                <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888;"></i>
+            <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-pen-to-square"></i> דף טיוטה</span>
+
+                    <div class="mode-toggle-container" style="height: 30px; border-radius: 15px;">
+                        <button id="scratch-text-btn" class="mode-btn active" onclick="window.toggleScratchMode(false)" style="padding: 0 12px; font-size: 11px;">
+                            <i class="fa-solid fa-font"></i> טקסט
+                        </button>
+                        <button id="scratch-paint-btn" class="mode-btn" onclick="window.toggleScratchMode(true)" style="padding: 0 12px; font-size: 11px;">
+                            <i class="fa-solid fa-palette"></i> צייר
+                        </button>
+                    </div>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888; font-size: 20px;"></i>
             </div>
 
+            <div style="flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #1e1f20;">
+                <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד... שים לב! הטיוטה לא נשמרת לאחר התנתקות מהאתר" style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left;"></textarea>
 
-            <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד... שים לב! הטיוטה לא נשמרת לאחר התנתקות מהאתר" style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; overflow: auto; border-radius: 0 0 12px 12px;"></textarea>
-            <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 10;">
+                <div id="painter-area" style="display: none; flex-direction: column; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;">
+                    <div id="painter-tools" style="display: flex; gap: 10px; padding: 8px; background: #131314; border-bottom: 1px solid #2d2e30; direction: rtl; align-items: center;">
+                        <input type="color" id="paint-color" value="#a8c7fa" style="width:25px; height:25px; border:none; background:none; cursor:pointer;">
+                        <button class="zoom-btn" onclick="window.setTool('pen')" id="tool-pen" title="עיפרון"><i class="fa-solid fa-pen"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('line')" id="tool-line" title="קו ישר"><i class="fa-solid fa-minus"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('rect')" id="tool-rect" title="מלבן"><i class="fa-solid fa-vector-square"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('circle')" id="tool-circle" title="עיגול"><i class="fa-regular fa-circle"></i></button>                        <button class="zoom-btn" onclick="window.redo()" title="שחזור (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button class="zoom-btn" onclick="window.undo()" title="ביטול (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('eraser')" id="tool-eraser" title="מחק קו שלם"><i class="fa-solid fa-eraser"></i></button>
+                        <div style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+                        <button class="zoom-btn" onclick="window.clearCanvas()" title="נקה הכל" style="color:#ff4d4d;"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <div id="canvas-container" style="flex: 1; cursor: crosshair; overflow: hidden; position: relative;">
+                        <canvas id="paint-canvas" style="display: block;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 1000;">
                 <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
-                <button class="zoom-btn" onclick="zoomScratchpad(1)" title="הגדל טקסט"><i class="fa-solid fa-plus"></i></button>
-                <button class="zoom-btn" onclick="zoomScratchpad(-1)" title="הקטן טקסט"><i class="fa-solid fa-minus"></i></button>
+                <button id="scratch-zoom-plus" class="zoom-btn" onclick="zoomScratchpad(1)" title="הגדל"><i class="fa-solid fa-plus"></i></button>
+                <button id="scratch-zoom-minus" class="zoom-btn" onclick="zoomScratchpad(-1)" title="הקטן"><i class="fa-solid fa-minus"></i></button>
                 <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
             </div>
 
