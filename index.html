@@ -1714,6 +1714,10 @@
 
             <div id="right-header-group" style="display: flex; align-items: center; gap: 10px; position: relative;">
 
+                <button id="calc-btn" class="header-circle-btn" onclick="toggleCalculator()" title="מחשבון מדעי">
+                    <i class="fa-solid fa-calculator"></i>
+                </button>
+
                 <button id="scratchpad-btn" class="header-circle-btn" onclick="toggleScratchpad()" title="דף טיוטה">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
@@ -2056,8 +2060,8 @@
 `;
 
             const WELCOME_MSG = `שלום! אני בּוֹט·לִי. 👋<br>
-                                                                        אני כאן לעזור בתכנות - בלי מגבלות.<br>
-                                                                        שאל אותי כל דבר, אענה קצר ולעניין.`;
+                                                                            אני כאן לעזור בתכנות - בלי מגבלות.<br>
+                                                                            שאל אותי כל דבר, אענה קצר ולעניין.`;
 
             let editorInstance;
             let currentFontSize = 16;
@@ -2951,11 +2955,11 @@
                         subHeader.style.userSelect = "none";
 
                         subHeader.innerHTML = `
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
-                                    <span>${subCatDisplay}</span>
-                                </div>
-                            `;
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <i class="fa-solid fa-chevron-left" style="font-size:10px; color:#888; transition: transform 0.2s;"></i>
+                                        <span>${subCatDisplay}</span>
+                                    </div>
+                                `;
 
                         const lessonsContainer = document.createElement('div');
                         lessonsContainer.style.display = "none";
@@ -3184,11 +3188,11 @@
                 // --- שינוי: במקום טקסט "טוען" קטן, הזרקת אנימציה למרכז המסך ---
                 statusDiv.innerHTML = ''; // ניקוי שורת הסטטוס הקטנה
                 listArea.innerHTML = `
-                                    <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: #a8c7fa; margin-bottom: 15px;"></i>
-                                        <span style="font-size: 14px; color: #aaa;">טוען רשימת פרויקטים...</span>
-                                    </div>
-                                `;
+                                        <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: #a8c7fa; margin-bottom: 15px;"></i>
+                                            <span style="font-size: 14px; color: #aaa;">טוען רשימת פרויקטים...</span>
+                                        </div>
+                                    `;
                 // -----------------------------------------------------------
 
                 try {
@@ -3263,12 +3267,17 @@
 
             function injectBotLiToAllModals() {
                 const botliHeadHTML = `
-                                                                        <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
-                                                                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
-                                                                            style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                                                                        </div>
-                                                                    `;
+                                                                            <div class="botli-head" style="position: absolute; top: -45px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none;">
+                                                                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iNDQiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iOCIgeT0iMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxyZWN0IHg9IjY0IiB5PSIzMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmY0ZDRkIi8+PHJlY3QgeD0iMzYiIHk9IjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEwIiByeD0iMiIgZmlsbD0iI2ZmNGQ0ZCIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzUiIHI9IjUiIGZpbGw9IiMxMzEzMTQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSI1IiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMjgiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iMzciIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PHJlY3QgeD0iNDYiIHk9IjQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIzIiBmaWxsPSIjMTMxMzE0Ii8+PC9zdmc+"
+                                                                                style="width: 75px; height: 75px; background: #1e1f20; border-radius: 50%; padding: 5px; border: 3px solid #ff4d4d; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                                                                            </div>
+                                                                        `;
                 document.querySelectorAll('.modal-box').forEach(box => {
+                    // --- התיקון כאן: אם המחשבון ממוזער, אל תשנה לו את המיקום ---
+                    if (box.id === 'calc-window' && isCalcMinimized) return;
+                    if (box.id === 'calc-window' && typeof isCalcMinimized !== 'undefined' && isCalcMinimized) {
+                        return;
+                    }
                     box.querySelectorAll('.botli-head').forEach(el => el.remove());
                     box.querySelectorAll('img').forEach(img => {
                         if (img.src.includes('PHN2ZyB4bWx')) {
@@ -3346,11 +3355,11 @@
 
                 // 1. ניקוי והצגת אנימציית טעינה במרכז
                 container.innerHTML = `
-                                <div style="height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#888;">
-                                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
-                                    <span style="font-size:14px;">טוען הודעות...</span>
-                                </div>
-                            `;
+                                    <div style="height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#888;">
+                                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
+                                        <span style="font-size:14px;">טוען הודעות...</span>
+                                    </div>
+                                `;
 
                 // 2. המתנה של 2000ms (שתי שניות) לפני הטעינה האמיתית
                 setTimeout(() => {
@@ -3686,15 +3695,15 @@
                         card.onmouseout = () => card.style.borderColor = "#2d2e30";
 
                         card.innerHTML = `
-                                <div style="display:flex; justify-content:space-between; align-items:flex-start; direction:rtl;">
-                                    <div style="font-weight:bold; color:#a8c7fa; font-size:16px;">${info.title}</div>
-                                    <span style="background:#2d2e30; color:#aaa; font-size:11px; padding:2px 8px; border-radius:10px;">${thread.commentCount} תגובות</span>
-                                </div>
-                                <div style="color:#aaa; font-size:13px; margin-top:8px; direction:rtl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    ${preview}
-                                </div>
-                                <div style="color:#666; font-size:11px; margin-top:5px; direction:rtl;">${info.user} • ${info.time}</div>
-                            `;
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; direction:rtl;">
+                                        <div style="font-weight:bold; color:#a8c7fa; font-size:16px;">${info.title}</div>
+                                        <span style="background:#2d2e30; color:#aaa; font-size:11px; padding:2px 8px; border-radius:10px;">${thread.commentCount} תגובות</span>
+                                    </div>
+                                    <div style="color:#aaa; font-size:13px; margin-top:8px; direction:rtl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${preview}
+                                    </div>
+                                    <div style="color:#666; font-size:11px; margin-top:5px; direction:rtl;">${info.user} • ${info.time}</div>
+                                `;
                         card.onclick = () => window.openThread(thread, info);
                         container.appendChild(card);
                     });
@@ -3725,38 +3734,38 @@
                 const container = document.getElementById('forum-content');
                 // הסרת פריטי גלילה כפולים ושיפור המרווחים
                 container.innerHTML = `
-                        <div style="text-align:right; direction:rtl; padding-bottom: 20px;">
-                            <button onclick="window.loadForumThreads()" style="color:#a8c7fa; background:none; border:none; cursor:pointer; padding:0; font-size:14px; margin-bottom: 15px;">
-                                <i class="fa-solid fa-arrow-right"></i> חזרה לפורום
-                            </button>
+                            <div style="text-align:right; direction:rtl; padding-bottom: 20px;">
+                                <button onclick="window.loadForumThreads()" style="color:#a8c7fa; background:none; border:none; cursor:pointer; padding:0; font-size:14px; margin-bottom: 15px;">
+                                    <i class="fa-solid fa-arrow-right"></i> חזרה לפורום
+                                </button>
 
-                            <div style="background: #1e1f20; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                                <h2 style="color:#fff; margin:0 0 10px 0; font-size: 22px;">${info.title}</h2>
-                                <p style="color:#e3e3e3; white-space:pre-wrap; font-size:16px; line-height: 1.6; margin: 0;">${info.desc}</p>
-                                <div style="font-size:12px; color:#888; margin-top:15px; border-top: 1px solid #333; padding-top: 10px;">
-                                    <i class="fa-solid fa-user-edit"></i> פורסם ע"י: <b>${info.user}</b> | <i class="fa-solid fa-clock"></i> ${info.time}
+                                <div style="background: #1e1f20; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                    <h2 style="color:#fff; margin:0 0 10px 0; font-size: 22px;">${info.title}</h2>
+                                    <p style="color:#e3e3e3; white-space:pre-wrap; font-size:16px; line-height: 1.6; margin: 0;">${info.desc}</p>
+                                    <div style="font-size:12px; color:#888; margin-top:15px; border-top: 1px solid #333; padding-top: 10px;">
+                                        <i class="fa-solid fa-user-edit"></i> פורסם ע"י: <b>${info.user}</b> | <i class="fa-solid fa-clock"></i> ${info.time}
+                                    </div>
+                                </div>
+
+                                <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 15px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-comments"></i> תגובות:
+                                </div>
+
+                                <div id="thread-comments-area" style="display:flex; flex-direction:column; gap:15px; margin-bottom: 30px;">
+                                </div>
+
+                                <div style="background:#131314; border: 1px solid #a8c7fa; padding:15px; border-radius:12px; direction:rtl; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);">
+                                    <textarea id="new-comment-input" placeholder="הצטרפו לשיחה... (Enter לירידת שורה)"
+                                        style="width:100%; background:transparent; border:none; color:white; outline:none; text-align:right; resize:none; font-family:inherit; min-height:80px; font-size: 15px;"></textarea>
+                                    <div style="display:flex; justify-content:flex-start; margin-top: 10px;">
+                                        <button id="send-comment-btn" onclick="window.submitComment(${thread.row})"
+                                            style="background:#a8c7fa; color:#000; padding:8px 25px; border-radius:20px; border:none; cursor:pointer; font-weight:bold; transition: 0.2s;">
+                                            <i class="fa-solid fa-paper-plane"></i> שלח תגובה
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div style="font-weight: bold; color: #a8c7fa; margin-bottom: 15px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-comments"></i> תגובות:
-                            </div>
-
-                            <div id="thread-comments-area" style="display:flex; flex-direction:column; gap:15px; margin-bottom: 30px;">
-                            </div>
-
-                            <div style="background:#131314; border: 1px solid #a8c7fa; padding:15px; border-radius:12px; direction:rtl; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);">
-                                <textarea id="new-comment-input" placeholder="הצטרפו לשיחה... (Enter לירידת שורה)"
-                                    style="width:100%; background:transparent; border:none; color:white; outline:none; text-align:right; resize:none; font-family:inherit; min-height:80px; font-size: 15px;"></textarea>
-                                <div style="display:flex; justify-content:flex-start; margin-top: 10px;">
-                                    <button id="send-comment-btn" onclick="window.submitComment(${thread.row})"
-                                        style="background:#a8c7fa; color:#000; padding:8px 25px; border-radius:20px; border:none; cursor:pointer; font-weight:bold; transition: 0.2s;">
-                                        <i class="fa-solid fa-paper-plane"></i> שלח תגובה
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                        `;
 
                 const renderComments = (comments) => {
                     const commentsDiv = document.getElementById('thread-comments-area');
@@ -3766,17 +3775,17 @@
                             const div = document.createElement('div');
                             // עיצוב תגובה כ"בועה" נקייה
                             div.style.cssText = `
-                                    background: #1a1a1b;
-                                    color: #d1d1d1;
-                                    padding: 15px 20px;
-                                    border-radius: 15px 0 15px 15px;
-                                    font-size: 15px;
-                                    line-height: 1.5;
-                                    border-right: 4px solid #a8c7fa;
-                                    direction: rtl;
-                                    white-space: pre-wrap;
-                                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                                `;
+                                        background: #1a1a1b;
+                                        color: #d1d1d1;
+                                        padding: 15px 20px;
+                                        border-radius: 15px 0 15px 15px;
+                                        font-size: 15px;
+                                        line-height: 1.5;
+                                        border-right: 4px solid #a8c7fa;
+                                        direction: rtl;
+                                        white-space: pre-wrap;
+                                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                    `;
                             div.innerText = c;
                             commentsDiv.appendChild(div);
                         });
@@ -4028,6 +4037,95 @@
                 monaco.editor.setTheme('vs');
             }
         }
+
+        let isCalcMinimized = false;
+
+        function toggleCalculator() {
+            const overlay = document.getElementById('calc-overlay');
+            const win = document.getElementById('calc-window');
+
+            // בדיקה אם המחשבון פתוח (בין אם הוא במרכז ובין אם הוא בפינה)
+            const isOpen = (overlay.style.display === 'flex') || (isCalcMinimized && overlay.style.visibility === 'hidden');
+
+            if (isOpen) {
+                // --- סגירה מוחלטת ---
+                overlay.style.display = 'none';
+                overlay.style.visibility = 'visible';
+
+                // אם המחשבון היה בפינה בזמן הסגירה, נאפס את ההגדרות שלו 
+                // כדי שבפעם הבאה הוא ייפתח שוב במרכז כרגיל
+                if (isCalcMinimized) {
+                    isCalcMinimized = false;
+
+                    // החזרת עיצוב החלון למצב מרכזי (בזיכרון, כי ה-overlay מוסתר)
+                    win.style.position = "relative";
+                    win.style.bottom = "auto";
+                    win.style.right = "auto";
+                    win.style.width = "500px";
+                    win.style.height = "600px";
+                    win.style.margin = "auto";
+                    win.style.zIndex = "";
+
+                    // החזרת האייקון למצב "מינוס"
+                    const minBtn = document.getElementById('calc-min-btn');
+                    if (minBtn) {
+                        minBtn.classList.replace('fa-expand', 'fa-minus');
+                        minBtn.title = "מזער לפינה";
+                    }
+                }
+            } else {
+                // --- פתיחה במרכז ---
+                overlay.style.display = 'flex';
+                overlay.style.visibility = 'visible';
+                injectBotLiToAllModals(); // מוסיף את הראש של בוטלי
+            }
+        }
+
+        function minimizeCalculator() {
+            const overlay = document.getElementById('calc-overlay');
+            const win = document.getElementById('calc-window');
+            const minBtn = document.getElementById('calc-min-btn');
+
+            if (!isCalcMinimized) {
+                isCalcMinimized = true;
+
+                // הופך את הרקע לבלתי נראה לחלוטין לקליקים
+                overlay.style.visibility = "hidden";
+
+                // המחשבון עצמו חוזר להיות נראה ופעיל
+                win.style.visibility = "visible";
+                win.style.position = "fixed";
+                win.style.bottom = "20px";
+                win.style.right = "20px";
+                win.style.left = "auto";
+                win.style.width = "400px"; // הגדלתי מעט כדי שהכפתורים לא יתכווצו
+                win.style.height = "500px";
+                win.style.zIndex = "30000";
+                win.style.margin = "0";
+                win.style.boxShadow = "0 10px 40px rgba(0,0,0,0.8)";
+
+                win.querySelectorAll('.botli-head').forEach(el => el.remove());
+                minBtn.classList.replace('fa-minus', 'fa-expand');
+            } else {
+                isCalcMinimized = false;
+                overlay.style.visibility = "visible";
+                overlay.style.display = "flex";
+
+                win.style.position = "relative";
+                win.style.bottom = "auto";
+                win.style.right = "auto";
+                win.style.width = "500px";
+                win.style.height = "600px";
+                win.style.margin = "auto";
+
+                injectBotLiToAllModals();
+                minBtn.classList.replace('fa-expand', 'fa-minus');
+            }
+        }
+
+
+        window.toggleCalculator = toggleCalculator;
+        window.minimizeCalculator = minimizeCalculator;
 
         // פונקציה לפתיחת/סגירת דף הטיוטה
         function toggleScratchpad() {
@@ -4513,58 +4611,77 @@
         <button onclick="toggleGlobalFullScreen()" style="padding: 15px 30px; font-size: 20px; background: #a8c7fa; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">חזור למסך מלא מייד</button>
     </div>
 
+
+    <div id="calc-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 26500; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div id="calc-window" class="modal-box" style="width: 500px; height: 600px; display: flex; flex-direction: column; padding: 0; overflow: visible; border-radius: 12px; position: relative; transition: all 0.3s ease;">
+
+            <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl; flex-shrink: 0;">
+                <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-calculator"></i> מחשבון מדעי</span>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <i id="calc-min-btn" class="fa-solid fa-minus" onclick="minimizeCalculator()" title="מזער לפינה" style="cursor: pointer; color: #888; font-size: 18px;"></i>
+                    <i class="fa-solid fa-xmark" onclick="toggleCalculator()" title="סגור" style="cursor: pointer; color: #888; font-size: 20px;"></i>
+                </div>
+            </div>
+
+            <div id="calc-body" style="flex: 1; background: #fff; overflow: hidden; border-radius: 0 0 12px 12px; position: relative;">
+                <iframe src="https://www.desmos.com/scientific?embed"
+                        style="width: 100%; height: 100%; border: none; filter: invert(1) hue-rotate(180deg);"></iframe>
+            </div>
+        </div>
+    </div>
+
     <div id="scratchpad-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 26000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
         <div class="modal-box" id="scratchpad-box" style="width: 800px; height: 600px; display: flex; flex-direction: column; padding: 0; overflow: hidden; border-radius: 12px; position: relative;">
-                <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl; flex-shrink: 0;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-pen-to-square"></i> דף טיוטה</span>
+            <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center; direction: rtl; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-weight: bold; color: #a8c7fa;"><i class="fa-solid fa-pen-to-square"></i> דף טיוטה</span>
 
-                        <div class="mode-toggle-container" style="height: 30px; border-radius: 15px;">
-                            <button id="scratch-text-btn" class="mode-btn active" onclick="window.toggleScratchMode(false)" style="padding: 0 12px; font-size: 11px;">
-                                <i class="fa-solid fa-font"></i> טקסט
-                            </button>
-                            <button id="scratch-paint-btn" class="mode-btn" onclick="window.toggleScratchMode(true)" style="padding: 0 12px; font-size: 11px;">
-                                <i class="fa-solid fa-palette"></i> צייר
-                            </button>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888; font-size: 20px;"></i>
-                </div>
-
-                <div style="flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #1e1f20; border-radius: 0 0 12px 12px;">
-                    <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד... שים לב! הטיוטה לא נשמרת לאחר התנתקות מהאתר" style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; border-radius: 0 0 12px 12px;"></textarea>
-
-                    <div id="painter-area" style="display: none; flex-direction: column; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;">
-                        <div id="painter-tools" style="display: flex; gap: 10px; padding: 8px; background: #131314; border-bottom: 1px solid #2d2e30; direction: rtl; align-items: center;">
-                            <input type="color" id="paint-color" value="#a8c7fa" style="width:25px; height:25px; border:none; background:none; cursor:pointer;">
-                            <button class="zoom-btn" onclick="window.setTool('pen')" id="tool-pen" title="עיפרון"><i class="fa-solid fa-pen"></i></button>
-                            <button class="zoom-btn" onclick="window.setTool('line')" id="tool-line" title="קו ישר"><i class="fa-solid fa-minus"></i></button>
-                            <button class="zoom-btn" onclick="window.setTool('rect')" id="tool-rect" title="מלבן"><i class="fa-solid fa-vector-square"></i></button>
-                            <button class="zoom-btn" onclick="window.setTool('circle')" id="tool-circle" title="עיגול"><i class="fa-regular fa-circle"></i></button>
-                            <button class="zoom-btn" onclick="window.setTool('select')" id="tool-select" title="בחירה והזזה"><i class="fa-solid fa-scissors"></i></button>
-                            <button class="zoom-btn" onclick="window.pastePainter()" id="tool-paste" title="הדבק (Paste)"><i class="fa-solid fa-paste"></i></button>
-                            <button class="zoom-btn" onclick="window.redo()" title="שחזור (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
-                            <button class="zoom-btn" onclick="window.undo()" title="ביטול (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
-                            <button class="zoom-btn" onclick="window.setTool('eraser')" id="tool-eraser" title="מחק קו שלם"><i class="fa-solid fa-eraser"></i></button>
-                            <div style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
-                            <button class="zoom-btn" onclick="window.clearCanvas()" title="נקה הכל" style="color:#ff4d4d;"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-
-                        <div id="canvas-container" style="flex: 1; cursor: crosshair; overflow: hidden; position: relative; border-radius: 0 0 12px 12px;">
-
-                            <canvas id="paint-canvas" style="display: block;"></canvas>
-                        </div>
+                    <div class="mode-toggle-container" style="height: 30px; border-radius: 15px;">
+                        <button id="scratch-text-btn" class="mode-btn active" onclick="window.toggleScratchMode(false)" style="padding: 0 12px; font-size: 11px;">
+                            <i class="fa-solid fa-font"></i> טקסט
+                        </button>
+                        <button id="scratch-paint-btn" class="mode-btn" onclick="window.toggleScratchMode(true)" style="padding: 0 12px; font-size: 11px;">
+                            <i class="fa-solid fa-palette"></i> צייר
+                        </button>
                     </div>
                 </div>
-
-                <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 1000;">
-                    <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
-                    <button id="scratch-zoom-plus" class="zoom-btn" onclick="zoomScratchpad(1)" title="הגדל"><i class="fa-solid fa-plus"></i></button>
-                    <button id="scratch-zoom-minus" class="zoom-btn" onclick="zoomScratchpad(-1)" title="הקטן"><i class="fa-solid fa-minus"></i></button>
-                    <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
-                </div>
-
+                <i class="fa-solid fa-xmark" onclick="toggleScratchpad()" style="cursor: pointer; color: #888; font-size: 20px;"></i>
             </div>
+
+            <div style="flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #1e1f20; border-radius: 0 0 12px 12px;">
+                <textarea id="scratchpad-area" spellcheck="false" placeholder="כתוב כאן הערות חופשיות או קוד... שים לב! הטיוטה לא נשמרת לאחר התנתקות מהאתר" style="flex: 1; background: #1e1f20; color: #e3e3e3; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; resize: none; outline: none; line-height: 1.5; box-sizing: border-box; direction: ltr; text-align: left; border-radius: 0 0 12px 12px;"></textarea>
+
+                <div id="painter-area" style="display: none; flex-direction: column; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;">
+                    <div id="painter-tools" style="display: flex; gap: 10px; padding: 8px; background: #131314; border-bottom: 1px solid #2d2e30; direction: rtl; align-items: center;">
+                        <input type="color" id="paint-color" value="#a8c7fa" style="width:25px; height:25px; border:none; background:none; cursor:pointer;">
+                        <button class="zoom-btn" onclick="window.setTool('pen')" id="tool-pen" title="עיפרון"><i class="fa-solid fa-pen"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('line')" id="tool-line" title="קו ישר"><i class="fa-solid fa-minus"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('rect')" id="tool-rect" title="מלבן"><i class="fa-solid fa-vector-square"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('circle')" id="tool-circle" title="עיגול"><i class="fa-regular fa-circle"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('select')" id="tool-select" title="בחירה והזזה"><i class="fa-solid fa-scissors"></i></button>
+                        <button class="zoom-btn" onclick="window.pastePainter()" id="tool-paste" title="הדבק (Paste)"><i class="fa-solid fa-paste"></i></button>
+                        <button class="zoom-btn" onclick="window.redo()" title="שחזור (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button class="zoom-btn" onclick="window.undo()" title="ביטול (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="zoom-btn" onclick="window.setTool('eraser')" id="tool-eraser" title="מחק קו שלם"><i class="fa-solid fa-eraser"></i></button>
+                        <div style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
+                        <button class="zoom-btn" onclick="window.clearCanvas()" title="נקה הכל" style="color:#ff4d4d;"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+
+                    <div id="canvas-container" style="flex: 1; cursor: crosshair; overflow: hidden; position: relative; border-radius: 0 0 12px 12px;">
+
+                        <canvas id="paint-canvas" style="display: block;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 20px; right: 25px; display: flex; gap: 8px; z-index: 1000;">
+                <button class="zoom-btn" onclick="toggleScratchpadFullScreen()" title="מסך מלא"><i id="fs-scratch-icon" class="fa-solid fa-expand"></i></button>
+                <button id="scratch-zoom-plus" class="zoom-btn" onclick="zoomScratchpad(1)" title="הגדל"><i class="fa-solid fa-plus"></i></button>
+                <button id="scratch-zoom-minus" class="zoom-btn" onclick="zoomScratchpad(-1)" title="הקטן"><i class="fa-solid fa-minus"></i></button>
+                <button class="zoom-btn" onclick="toggleScratchpadContrast()" title="מצב יום/לילה"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            </div>
+
+        </div>
     </div>
 
     <div id="video-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 28000; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
