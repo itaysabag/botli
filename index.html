@@ -1200,8 +1200,8 @@
             z-index: 20000; /* מעל הכל */
         }
 
-        /* מצב מסך מלא לעורך הקוד */
-        #editor-wrapper.editor-fullscreen {
+        /* מצב מסך מלא לעורך + לשוניות */
+        .ide-body.editor-fullscreen {
             position: fixed !important;
             top: 0;
             left: 0;
@@ -1209,9 +1209,23 @@
             bottom: 0;
             width: 100vw !important;
             height: 100vh !important;
-            z-index: 20000; /* מעל הכל */
-            background: #1e1f20; /* רקע ברירת מחדל */
+            z-index: 20000;
+            background: #131314;
+            display: flex !important;
+            flex-direction: column;
         }
+
+            /* במצב מסך מלא - העורך יתפוס את כל הגובה שנותר מתחת ללשוניות */
+            .ide-body.editor-fullscreen #editor-wrapper {
+                flex: 1 !important;
+                height: auto !important;
+            }
+
+            /* הסתרת הקונסול והמפריד בזמן מסך מלא של העורך */
+            .ide-body.editor-fullscreen .resizer-horizontal,
+            .ide-body.editor-fullscreen #bottom-panel {
+                display: none !important;
+            }
 
         /* --- עיצוב מתג מצבים (עורך / שיעורים) --- */
         .mode-toggle-container {
@@ -3965,15 +3979,22 @@
 
         let isEditorDark = true;
         function toggleEditorFullScreen() {
-            const wrapper = document.getElementById('editor-wrapper');
+            // שינוי: במקום להשפיע רק על העורך, משפיעים על כל גוף ה-IDE שמכיל לשוניות + עורך
+            const ideBody = document.querySelector('.ide-body');
             const icon = document.getElementById('fs-editor-icon');
-            wrapper.classList.toggle('editor-fullscreen');
-            if (wrapper.classList.contains('editor-fullscreen')) {
+
+            ideBody.classList.toggle('editor-fullscreen');
+
+            if (ideBody.classList.contains('editor-fullscreen')) {
                 icon.classList.replace('fa-expand', 'fa-compress');
             } else {
                 icon.classList.replace('fa-compress', 'fa-expand');
             }
-            if (window.editorInstance) window.editorInstance.layout();
+
+            // עדכון הפריסה של Monaco Editor
+            if (window.editorInstance) {
+                setTimeout(() => window.editorInstance.layout(), 10);
+            }
         }
 
         function toggleEditorTheme() {
