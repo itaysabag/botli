@@ -1448,6 +1448,7 @@
 
         #paint-canvas {
             background: transparent !important;
+            touch-action: none; /* מונע מהדפדפן לגלול את הדף כשמנסים לצייר */
         }
 
         .zoom-btn.active-tool {
@@ -4105,20 +4106,25 @@
             pCanvas = document.getElementById('paint-canvas');
             pCtx = pCanvas.getContext('2d');
             const container = document.getElementById('canvas-container');
-            if (pCanvas.width !== container.clientWidth) {
+
+            // התאמת גודל הקנבס
+            if (pCanvas.width !== container.clientWidth || pCanvas.height !== container.clientHeight) {
+                const temp = pCtx.getImageData(0, 0, pCanvas.width, pCanvas.height);
                 pCanvas.width = container.clientWidth; pCanvas.height = container.clientHeight;
+                pCtx.putImageData(temp, 0, 0);
                 pCtx.lineCap = 'round'; pCtx.lineJoin = 'round';
-                render();
             }
 
-            pCanvas.onmousedown = (e) => {
+            // שימוש ב-Pointer Events לתמיכה במגע, עט ועכבר
+            pCanvas.onpointerdown = (e) => {
+                // מונע מהדפדפן לבצע פעולות ברירת מחדל כמו גלילה
+                if (e.pointerType === 'touch') pCanvas.releasePointerCapture(e.pointerId);
+
                 const x = e.offsetX, y = e.offsetY;
 
-                // לוגיקת המחק החכם
                 if (pTool === 'eraser') {
                     const index = objects.findIndex(obj => {
-                        const threshold = 10; // רגישות המחיקה (בפיקסלים)
-
+                        const threshold = 15; // רגישות גבוהה יותר למגע
                         if (obj.type === 'pen') {
                             for (let i = 0; i < obj.points.length - 1; i++) {
                                 if (getDistance(x, y, obj.points[i].x, obj.points[i].y, obj.points[i + 1].x, obj.points[i + 1].y) < threshold) return true;
@@ -4126,14 +4132,12 @@
                         } else if (obj.type === 'line') {
                             if (getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.endY) < threshold) return true;
                         } else if (obj.type === 'rect') {
-                            // בדיקת מרחק מ-4 צלעות המלבן
-                            const d1 = getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.startY); // צלע עליונה
-                            const d2 = getDistance(x, y, obj.endX, obj.startY, obj.endX, obj.endY);     // צלע ימנית
-                            const d3 = getDistance(x, y, obj.endX, obj.endY, obj.startX, obj.endY);     // צלע תחתונה
-                            const d4 = getDistance(x, y, obj.startX, obj.endY, obj.startX, obj.startY); // צלע שמאלית
+                            const d1 = getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.startY);
+                            const d2 = getDistance(x, y, obj.endX, obj.startY, obj.endX, obj.endY);
+                            const d3 = getDistance(x, y, obj.endX, obj.endY, obj.startX, obj.endY);
+                            const d4 = getDistance(x, y, obj.startX, obj.endY, obj.startX, obj.startY);
                             if (d1 < threshold || d2 < threshold || d3 < threshold || d4 < threshold) return true;
                         } else if (obj.type === 'circle') {
-                            // בדיקת מרחק מהיקף העיגול
                             const radius = Math.sqrt(Math.pow(obj.startX - obj.endX, 2) + Math.pow(obj.startY - obj.endY, 2));
                             const distToCenter = Math.sqrt(Math.pow(x - obj.startX, 2) + Math.pow(y - obj.startY, 2));
                             if (Math.abs(distToCenter - radius) < threshold) return true;
@@ -4141,15 +4145,10 @@
                         return false;
                     });
 
-                    if (index !== -1) {
-                        saveState();
-                        objects.splice(index, 1);
-                        render();
-                    }
+                    if (index !== -1) { saveState(); objects.splice(index, 1); render(); }
                     return;
                 }
 
-                // לוגיקת ציור רגילה
                 saveState();
                 pDrawing = true;
                 currentObject = {
@@ -4158,13 +4157,14 @@
                 };
             };
 
-            pCanvas.onmousemove = (e) => {
+            pCanvas.onpointermove = (e) => {
                 if (!pDrawing || !currentObject) return;
                 const x = e.offsetX, y = e.offsetY;
                 currentObject.endX = x; currentObject.endY = y;
                 if (pTool === 'pen') currentObject.points.push({ x, y });
                 render();
-                // ציור אובייקט זמני מעל הכל
+
+                // תצוגה מקדימה בזמן אמת
                 pCtx.beginPath();
                 pCtx.strokeStyle = currentObject.color; pCtx.lineWidth = currentObject.width;
                 if (pTool === 'pen') {
@@ -4181,10 +4181,12 @@
                 pCtx.stroke();
             };
 
-            window.onmouseup = () => {
+            pCanvas.onpointerup = () => {
                 if (pDrawing && currentObject) { objects.push(currentObject); render(); }
                 pDrawing = false; currentObject = null;
             };
+
+            pCanvas.onpointerleave = pCanvas.onpointerup; // עוצר ציור אם האצבע/עט יצאו מגבולות הקנבס
         };
 
         window.setTool = function (t) {
