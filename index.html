@@ -1703,13 +1703,17 @@
                 </div>
 
                 <div style="width: 1px; height: 18px; background: #2d2e30;"></div>
-
+				
                 <div id="exam-tools" style="display: flex; align-items: center; gap: 10px;">
+				
                     <button id="submitBtn" title="הגשת עבודה"><i class="fa-solid fa-paper-plane"></i> הגשה</button>
+					
                     <button id="examBtn" title="מצב מבחן"><i class="fa-solid fa-lock"></i> מצב מבחן</button>
+					
                     <div class="exam-indicator" id="examIndicator"><div class="exam-dot"></div>מצב מבחן</div>
+					
                 </div>
-
+				
             </div>
 
             <div id="right-header-group" style="display: flex; align-items: center; gap: 10px; position: relative;">
@@ -1725,11 +1729,11 @@
                 <button id="video-class-btn" class="header-circle-btn" onclick="toggleVideoClass()" title="שיעור וידאו חי">
                     <i class="fa-solid fa-video"></i>
                 </button>
-
+				<!--
                 <button id="forum-btn" class="header-circle-btn" onclick="openForum()" title="פורום כיתתי">
                     <i class="fa-solid fa-users"></i>
                 </button>
-
+				-->
                 <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
                     <i class="fa-solid fa-comments"></i>
                     <span id="t-chat-badge" style="display: none; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ff4d4d; border-radius: 50%; border: 2px solid #131314;"></span>
@@ -4165,7 +4169,8 @@
         let scratchpadFontSize = 16;
         let isScratchpadDark = true;
         let pCanvas, pCtx, pDrawing = false, pTool = 'pen', pStartX, pStartY, pLineWidth = 3, pClipboard = [];
-        let objects = []; // רשימת כל הקווים והצורות
+        let eraserPos = null; // מיקום המחק לצורך הצגת העיגול
+		let objects = []; // רשימת כל הקווים והצורות
         let undoStack = [];
         let redoStack = [];
         let selectedObjects = [];
@@ -4185,7 +4190,45 @@
             else { xx = x1 + param * C; yy = y1 + param * D; }
             return Math.sqrt(Math.pow(x - xx, 2) + Math.pow(y - yy, 2));
         }
+		
+		// פונקציית עזר למחיקה נגררת עם רדיוס
+function eraseAt(x, y) {
+            const radius = 10;
+            let changed = false;
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                let hit = false;
+                
+                if (obj.type === 'pen') {
+                    // בדיקת נקודות בודדות (מטפל בנקודות קטנות)
+                    for (let p of obj.points) {
+                        const dist = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+                        if (dist < radius) { hit = true; break; }
+                    }
+                    // בדיקת קטעי קווים (למחיקה רגילה)
+                    if (!hit) {
+                        for (let j = 0; j < obj.points.length - 1; j++) {
+                            if (getDistance(x, y, obj.points[j].x, obj.points[j].y, obj.points[j + 1].x, obj.points[j + 1].y) < radius) { hit = true; break; }
+                        }
+                    }
+                } else if (obj.type === 'line') {
+                    if (getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.endY) < radius) hit = true;
+                } else if (obj.type === 'rect') {
+                    const d1 = getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.startY);
+                    const d2 = getDistance(x, y, obj.endX, obj.startY, obj.endX, obj.endY);
+                    const d3 = getDistance(x, y, obj.endX, obj.endY, obj.startX, obj.endY);
+                    const d4 = getDistance(x, y, obj.startX, obj.endY, obj.startX, obj.startY);
+                    if (d1 < radius || d2 < radius || d3 < radius || d4 < radius) hit = true;
+                } else if (obj.type === 'circle') {
+                    const r = Math.sqrt(Math.pow(obj.startX - obj.endX, 2) + Math.pow(obj.startY - obj.endY, 2));
+                    const dist = Math.sqrt(Math.pow(x - obj.startX, 2) + Math.pow(y - obj.startY, 2));
+                    if (Math.abs(dist - r) < radius) hit = true;
+                }
 
+                if (hit) { objects.splice(i, 1); changed = true; }
+            }
+            if (changed) render();
+        }
         // ציור מחדש של כל הקנבס מהאובייקטים
         function render() {
             pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
@@ -4212,6 +4255,14 @@
                 pCtx.strokeRect(selectBox.startX, selectBox.startY, selectBox.endX - selectBox.startX, selectBox.endY - selectBox.startY);
                 pCtx.setLineDash([]);
             }
+	if (pTool === 'eraser' && pDrawing) {
+        pCtx.beginPath();
+        pCtx.arc(pStartX, pStartY, 10, 0, Math.PI * 2);
+        pCtx.strokeStyle = '#a8c7fa';
+        pCtx.setLineDash([5, 5]);
+        pCtx.stroke();
+        pCtx.setLineDash([]); // מחזיר לקו רגיל כדי לא להרוס צורות אחרות
+    }
         }
 
         function saveState() {
@@ -4276,30 +4327,12 @@
                 // מונע מהדפדפן לבצע פעולות ברירת מחדל כמו גלילה
                 if (e.pointerType === 'touch') pCanvas.releasePointerCapture(e.pointerId);
 
-                if (pTool === 'eraser') {
-                    const index = objects.findIndex(obj => {
-                        const threshold = 15; // רגישות גבוהה יותר למגע
-                        if (obj.type === 'pen') {
-                            for (let i = 0; i < obj.points.length - 1; i++) {
-                                if (getDistance(x, y, obj.points[i].x, obj.points[i].y, obj.points[i + 1].x, obj.points[i + 1].y) < threshold) return true;
-                            }
-                        } else if (obj.type === 'line') {
-                            if (getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.endY) < threshold) return true;
-                        } else if (obj.type === 'rect') {
-                            const d1 = getDistance(x, y, obj.startX, obj.startY, obj.endX, obj.startY);
-                            const d2 = getDistance(x, y, obj.endX, obj.startY, obj.endX, obj.endY);
-                            const d3 = getDistance(x, y, obj.endX, obj.endY, obj.startX, obj.endY);
-                            const d4 = getDistance(x, y, obj.startX, obj.endY, obj.startX, obj.startY);
-                            if (d1 < threshold || d2 < threshold || d3 < threshold || d4 < threshold) return true;
-                        } else if (obj.type === 'circle') {
-                            const radius = Math.sqrt(Math.pow(obj.startX - obj.endX, 2) + Math.pow(obj.startY - obj.endY, 2));
-                            const distToCenter = Math.sqrt(Math.pow(x - obj.startX, 2) + Math.pow(y - obj.startY, 2));
-                            if (Math.abs(distToCenter - radius) < threshold) return true;
-                        }
-                        return false;
-                    });
-
-                    if (index !== -1) { saveState(); objects.splice(index, 1); render(); }
+if (pTool === 'eraser') {
+                    saveState();
+                    pDrawing = true; // מסמן שאנחנו "מציירים" (מוחקים) כרגע
+                    pStartX = x; pStartY = y; // שומר מיקום נוכחי
+                    eraseAt(x, y);
+                    render(); // מצייר מחדש כדי להציג את העיגול
                     return;
                 }
 
@@ -4318,8 +4351,12 @@
                     else if (selectBox) { selectBox.endX = x; selectBox.endY = y; }
                     render(); return;
                 }
-
-
+if (pDrawing && pTool === 'eraser') {
+                    pStartX = x; pStartY = y; // מעדכן את המיקום לעיגול
+                    eraseAt(x, y);
+                    render();
+                    return;
+                }
 
                 if (!pDrawing || !currentObject) return;
 
@@ -4344,15 +4381,23 @@
                 pCtx.stroke();
             };
 
-            pCanvas.onpointerup = () => {
+pCanvas.onpointerup = () => {
                 if (pTool === 'select' && !isMoving && selectBox) {
                     selectedObjects = objects.filter(obj => isObjectInBox(obj, selectBox));
                     selectBox = null;
                 }
                 isMoving = false;
 
-                if (pDrawing && currentObject) { objects.push(currentObject); render(); }
-                pDrawing = false; currentObject = null;
+                if (pDrawing && currentObject) { 
+                    objects.push(currentObject); 
+                }
+                
+                pDrawing = false; 
+                currentObject = null;
+                
+                // --- השורה החשובה: ---
+                render(); 
+                // ---------------------
             };
 
             pCanvas.onpointerleave = pCanvas.onpointerup; // עוצר ציור אם האצבע/עט יצאו מגבולות הקנבס
