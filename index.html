@@ -88,6 +88,7 @@
         }
 
         #ai-panel {
+            display: none !important; /* חסימה לבוטלי */
             width: 350px;
             min-width: 360px;
             height: 100%;
@@ -105,7 +106,12 @@
                 filter: grayscale(100%);
             }
 
+        #resizer-v {
+            display: none !important;
+        }
+
         .resizer-vertical {
+            
             width: 6px;
             height: 100%;
             background: #131314;
@@ -1725,15 +1731,16 @@
                 <button id="scratchpad-btn" class="header-circle-btn" onclick="toggleScratchpad()" title="דף טיוטה">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-
-                <button id="video-class-btn" class="header-circle-btn" onclick="toggleVideoClass()" title="שיעור וידאו חי">
-                    <i class="fa-solid fa-video"></i>
-                </button>
-				<!--
-                <button id="forum-btn" class="header-circle-btn" onclick="openForum()" title="פורום כיתתי">
-                    <i class="fa-solid fa-users"></i>
-                </button>
-				-->
+                <!--
+    <button id="video-class-btn" class="header-circle-btn" onclick="toggleVideoClass()" title="שיעור וידאו חי">
+        <i class="fa-solid fa-video"></i>
+    </button>
+    -->
+                <!--
+    <button id="forum-btn" class="header-circle-btn" onclick="openForum()" title="פורום כיתתי">
+        <i class="fa-solid fa-users"></i>
+    </button>
+    -->
                 <button id="teacher-chat-btn" class="header-circle-btn" onclick="openTeacherChat()" title="צ'אט עם המורה">
                     <i class="fa-solid fa-comments"></i>
                     <span id="t-chat-badge" style="display: none; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ff4d4d; border-radius: 50%; border: 2px solid #131314;"></span>
