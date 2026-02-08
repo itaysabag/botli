@@ -16,38 +16,62 @@
             box-sizing: border-box;
         }
 
-
-        /* --- עיצוב סוויץ' מקצועות משודרג (מתוקן) --- */
+        /* 1. הקונטיינר - מותאם בדיוק לרוחב הסרגל (260px) */
         .subject-toggle-container {
-            display: flex;
-            justify-content: center; /* מבטיח שהכפתורים יהיו ממורכזים בתוך המסגרת */
-            background-color: transparent;
-            border: 1px solid #444746;
-            border-radius: 20px;
-            padding: 3px;
-            margin: 10px 12px 12px 12px;
-            align-items: center;
-            gap: 2px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* חלוקה ל-6 עמודות */
+            background-color: #1e1f20;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 5px;
+            gap: 3px; /* רווח מינימלי כדי לחסוך מקום */
+            width: 98%; /* תופס את כל רוחב הסרגל */
+            max-width: 250px; /* לא חורג מ-250 פיקסלים */
+            margin: 0 auto;
+            box-sizing: border-box; /* מונע חריגות בחישוב הרוחב */
         }
 
+        /* 2. הכפתורים - מוקטנים טיפה כדי להיכנס */
         .subject-btn {
-            flex: 1; /* רוחב שווה לכולם */
-            background: transparent;
-            border: none; /* ביטול מסגרת לכפתור עצמו */
-            color: #8e918f; /* צבע אפור כבוי */
-            padding: 6px 0;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 16px; /* פינות עגולות פנימיות */
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            white-space: nowrap;
-            /* יישור לאייקונים אם נוסיף בעתיד */
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 3px; /* פחות רווח בין האייקון לטקסט */
+
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 11px; /* הקטנו מ-13 ל-11 כדי שהכל ייכנס */
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            padding: 6px 0; /* בלי ריפוד בצדדים כדי לחסוך מקום */
+            width: 100%;
+        }
+
+        /* 3. הסידור ב-Grid (בדיוק מה שביקשת) */
+
+        /* שורה ראשונה: מדמ"ח ומתמטיקה (חצי-חצי) */
+        #btn-subj-cs {
+            grid-column: span 3;
+        }
+
+        #btn-subj-math {
+            grid-column: span 3;
+        }
+
+        /* שורה שניה: פיזיקה, לשון, אנגלית (שליש-שליש-שליש) */
+        #btn-subj-phys {
+            grid-column: span 2;
+        }
+
+        #btn-subj-lang {
+            grid-column: span 2;
+        }
+
+        #btn-subj-eng {
+            grid-column: span 2;
         }
 
             .subject-btn:hover {
@@ -1782,13 +1806,19 @@
 
                 <div class="subject-toggle-container">
                     <button id="btn-subj-cs" class="subject-btn active" onclick="setSubjectMode('CS')">
-                        <i class="fa-solid fa-code"></i> מדמ"ח
+                        <i class="fa-solid fa-code"></i>  מדעי-המחשב 
                     </button>
                     <button id="btn-subj-math" class="subject-btn" onclick="setSubjectMode('MATH')">
-                        <i class="fa-solid fa-calculator"></i> מתמ'
+                        <i class="fa-solid fa-calculator"></i> מתמטיקה
                     </button>
                     <button id="btn-subj-phys" class="subject-btn" onclick="setSubjectMode('PHYSICS')">
                         <i class="fa-solid fa-atom"></i> פיזיקה
+                    </button>
+                    <button id="btn-subj-lang" class="subject-btn" onclick="setSubjectMode('LANGUAGE')">
+                        <i class="fa-solid fa-pen-nib"></i> לשון
+                    </button>
+                    <button id="btn-subj-eng" class="subject-btn" onclick="setSubjectMode('ENGLISH')">
+                        <i class="fa-solid fa-language"></i> אנגלית
                     </button>
                 </div>
 
@@ -2892,6 +2922,14 @@
                     const btn = document.getElementById('btn-subj-phys');
                     if (btn) btn.classList.add('active');
                 }
+                if (mode === 'LANGUAGE') {
+                    const btn = document.getElementById('btn-subj-lang');
+                    if (btn) btn.classList.add('active');
+                }
+                if (mode === 'ENGLISH') {
+                    const btn = document.getElementById('btn-subj-eng');
+                    if (btn) btn.classList.add('active');
+                }
 
                 // רינדור מחדש של התפריט עם הסינון החדש
                 renderLessonMenu();
@@ -2908,6 +2946,8 @@
                 const TAG_CS = "מדמח - ";
                 const TAG_MATH = "מתמטיקה - ";
                 const TAG_PHYS = "פיזיקה - ";
+                const TAG_LANG = "לשון - ";
+                const TAG_ENG = "אנגלית - ";
 
                 let hasItems = false;
 
@@ -2929,6 +2969,18 @@
                     else if (currentSubjectMode === 'MATH') {
                         if (rawMainCat.startsWith(TAG_MATH)) {
                             displayMainCat = rawMainCat.replace(TAG_MATH, "");
+                            shouldShow = true;
+                        }
+                    }
+                    else if (currentSubjectMode === 'LANGUAGE') {   //language 
+                        if (rawMainCat.startsWith(TAG_LANG)) {
+                            displayMainCat = rawMainCat.replace(TAG_LANG, "");
+                            shouldShow = true;
+                        }
+                    }
+                    else if (currentSubjectMode === 'ENGLISH') {
+                        if (rawMainCat.startsWith(TAG_ENG)) {
+                            displayMainCat = rawMainCat.replace(TAG_ENG, "");
                             shouldShow = true;
                         }
                     }
