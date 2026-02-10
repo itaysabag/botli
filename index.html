@@ -2961,7 +2961,7 @@
                         if (rawMainCat.startsWith(TAG_CS)) {
                             displayMainCat = rawMainCat.replace(TAG_CS, "");
                             shouldShow = true;
-                        } else if (!rawMainCat.startsWith(TAG_MATH) && !rawMainCat.startsWith(TAG_PHYS)) {
+                        } else if (!rawMainCat.startsWith(TAG_MATH) && !rawMainCat.startsWith(TAG_PHYS) && !rawMainCat.startsWith(TAG_LANG) && !rawMainCat.startsWith(TAG_ENG)) {
                             displayMainCat = rawMainCat;
                             shouldShow = true;
                         }
@@ -4854,3 +4854,4 @@ pCanvas.onpointerup = () => {
 
 </body>
 </html>
+
