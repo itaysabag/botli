@@ -54,6 +54,23 @@
 
         /* שורה ראשונה: מדמ"ח ומתמטיקה (חצי-חצי) */
         #btn-subj-cs {
+            grid-column: span 2;
+        }
+
+        #btn-subj-math {
+            grid-column: span 2;
+        }
+
+        #btn-subj-phys {
+            grid-column: span 2;
+        }
+
+
+
+        /*
+            שורה ראשונה: מדמ"ח ומתמטיקה (חצי-חצי) 
+
+        #btn-subj-cs {
             grid-column: span 3;
         }
 
@@ -61,7 +78,10 @@
             grid-column: span 3;
         }
 
-        /* שורה שניה: פיזיקה, לשון, אנגלית (שליש-שליש-שליש) */
+        */
+
+        /*
+            שורה שניה: פיזיקה, לשון, אנגלית (שליש-שליש-שליש) 
         #btn-subj-phys {
             grid-column: span 2;
         }
@@ -73,6 +93,8 @@
         #btn-subj-eng {
             grid-column: span 2;
         }
+
+        */
 
             .subject-btn:hover {
                 color: #e3e3e3;
@@ -1806,21 +1828,23 @@
 
                 <div class="subject-toggle-container">
                     <button id="btn-subj-cs" class="subject-btn active" onclick="setSubjectMode('CS')">
-                        <i class="fa-solid fa-code"></i>  מדעי-המחשב 
+                        <!-- <i class="fa-solid"></i> --> מדעי המחשב
                     </button>
                     <button id="btn-subj-math" class="subject-btn" onclick="setSubjectMode('MATH')">
-                        <i class="fa-solid fa-calculator"></i> מתמטיקה
+                        <!-- <i class="fa-solid fa-calculator"></i> --> מתמטיקה
                     </button>
                     <button id="btn-subj-phys" class="subject-btn" onclick="setSubjectMode('PHYSICS')">
-                        <i class="fa-solid fa-atom"></i> פיזיקה
+                        <!--  <i class="fa-solid fa-atom"></i> --> פיזיקה
                     </button>
-                    <button id="btn-subj-lang" class="subject-btn" onclick="setSubjectMode('LANGUAGE')">
-                        <i class="fa-solid fa-pen-nib"></i> לשון
-                    </button>
-                    <button id="btn-subj-eng" class="subject-btn" onclick="setSubjectMode('ENGLISH')">
-                        <i class="fa-solid fa-language"></i> אנגלית
-                    </button>
-                </div>
+    <!--
+    <button id="btn-subj-lang" class="subject-btn" onclick="setSubjectMode('LANGUAGE')">
+        <i class="fa-solid fa-pen-nib"></i> לשון
+    </button>
+    <button id="btn-subj-eng" class="subject-btn" onclick="setSubjectMode('ENGLISH')">
+        <i class="fa-solid fa-language"></i> אנגלית
+    </button>
+    -->
+</div>
 
                 <div id="lesson-menu-container" style="flex: 1; overflow-y: auto;">
                     <div style="padding: 20px; text-align: center; color: #888;">טוען קורסים...</div>
