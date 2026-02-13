@@ -1770,6 +1770,11 @@
 
             <div id="right-header-group" style="display: flex; align-items: center; gap: 10px; position: relative;">
 
+                <button id="personal-doc-btn" class="header-circle-btn" onclick="openPersonalDoc()" title="המחברת האישית שלי" style="display: none;">
+                    <i class="fa-solid fa-file-signature"></i>
+                </button>
+
+
                 <button id="calc-btn" class="header-circle-btn" onclick="toggleCalculator()" title="מחשבון מדעי">
                     <i class="fa-solid fa-calculator"></i>
                 </button>
@@ -2018,7 +2023,7 @@
             }
 
             const FAST_STARTUP_URL = "https://docs.google.com/document/d/10130DnIo3e9Jx5lvOxyBS-s0pPMHr2w0Ll7j-YwvvpM/preview";
-            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzpClD3xwbMRDRFHTF31Pta1Jd3mG0I4_QLD8r5gKP8R1Ki1vmOsOl-vH2m-tUH6DwG1g/exec";
+            const CONTROL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUGjQ6rKSP80b4AsdLXFoYpuiIQUzkI6TpGjZYUfpolGyrGWbo4WxsdlR3LSP087Qv9g/exec";
             const ORIGINAL_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT7dGkvqmR6SZR1K6CQO_xSkpeP4I78Dycw_58HoscO_WRkK3NWZcUtIdTRELwPCnG79NHcBFV7euoB/pub?output=csv";
             const EXERCISES_CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(ORIGINAL_SHEET_URL);
             const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfkV1E_rCAlRt6qcvIwI4Nmb5QRqN0S6vo7-mPx_shgknVzQ/formResponse";
@@ -2359,6 +2364,12 @@
 
                     if (data.result === "APPROVE") {
                         globalStudentName = data.name;
+
+                        if (data.docUrl && data.docUrl.trim() !== "") {
+                            currentUserDocLink = data.docUrl;
+                            document.getElementById('personal-doc-btn').style.display = 'flex';
+                        }
+
                         localStorage.setItem('studentName', globalStudentName);
                         document.getElementById('login-overlay').style.display = 'none';
 
@@ -4749,6 +4760,43 @@ pCanvas.onpointerup = () => {
             }
         }
 
+
+
+        // משתנה לשמירת הלינק האישי
+        let currentUserDocLink = "";
+
+        // פונקציה לפתיחת הדף האישי
+        function openPersonalDoc() {
+            if (!currentUserDocLink) {
+                Sys.alert("לא מוגדר לך קובץ אישי במערכת.");
+                return;
+            }
+
+            // 1. מעבר למצב שיעורים
+            switchViewMode('lesson');
+
+            // 2. פתיחת הלינק בחלונית השיעור
+            const lessonContentDiv = document.getElementById('lesson-content');
+            lessonContentDiv.innerHTML = '';
+            lessonContentDiv.style.padding = "0";
+            lessonContentDiv.style.overflow = "hidden";
+
+            const iframe = document.createElement('iframe');
+            iframe.src = currentUserDocLink; // משתמשים בלינק המקורי לעריכה
+            iframe.className = 'doc-frame';
+
+            // הגדרות עיצוב
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+            // במצב עריכה עדיף לא להפוך צבעים כדי לא לשבור את הממשק של גוגל דוקס
+            iframe.style.background = "#fff";
+
+            lessonContentDiv.appendChild(iframe);
+
+            // עדכון כותרת השיעור בתפריט צד (אופציונלי)
+            // document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active-lesson'));
+        }
 
 
     </script>
