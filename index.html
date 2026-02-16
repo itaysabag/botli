@@ -2249,6 +2249,39 @@
                     return match ? match[1] : null;
                 }
 
+                // --- מנגנון עיצוב (Formatter) - הוחזר ---
+                const javaFormatter = function (model) {
+                    const text = model.getValue();
+                    const lines = text.split('\n');
+                    const edits = [];
+                    let indentLevel = 0;
+
+                    for (let i = 0; i < lines.length; i++) {
+                        let line = lines[i].trim();
+
+                        // אם השורה מתחילה ב-}, מורידים רמת הזחה לפני שמדפיסים
+                        if (line.startsWith('}')) indentLevel = Math.max(0, indentLevel - 1);
+
+                        const indentString = "    ".repeat(indentLevel);
+                        const newText = indentString + line;
+
+                        if (lines[i] !== newText) {
+                            edits.push({
+                                range: { startLineNumber: i + 1, startColumn: 1, endLineNumber: i + 1, endColumn: lines[i].length + 1 },
+                                text: newText
+                            });
+                        }
+
+                        // אם השורה מסתיימת ב-{, מעלים רמת הזחה לשורה הבאה
+                        if (line.endsWith('{')) indentLevel++;
+                    }
+                    return edits;
+                };
+
+                monaco.languages.registerDocumentFormattingEditProvider('java', {
+                    provideDocumentFormattingEdits: (model) => javaFormatter(model)
+                });
+
                 // --- ספק ההשלמות הסופי והמעוצב ---
                 monaco.languages.registerCompletionItemProvider('java', {
                     triggerCharacters: ['.', ' ', '('],
