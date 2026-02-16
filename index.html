@@ -2391,7 +2391,59 @@
 
                             suggestions.push({ label: 'sysout', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'System.out.println($0);', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Print', range: range });
                             suggestions.push({ label: 'main', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'public static void main(String[] args) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Main', range: range });
-                            suggestions.push({ label: 'for', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'for (int ${1:i} = 0; ${1:i} < ${2:args.length}; ${1:i}++) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'For Loop', range: range });
+                            suggestions.push({
+                                label: 'for',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'for (int ${1:i} = 0; ${1:i} < ${2:args.length}; ${1:i}++) {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'For Loop',
+                                documentation: 'יצירת לולאת for סטנדרטית',
+                                range: range
+                            });
+                            suggestions.push({
+                                label: 'foreach',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'for (${1:int} ${2:item} : ${3:collection}) {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'Foreach Loop',
+                                range: range
+                            });
+                            suggestions.push({
+                                label: 'if',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'if (${1:condition}) {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'If Statement',
+                                range: range
+                            });
+                            suggestions.push({
+                                label: 'while',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'while (${1:condition}) {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'While Loop',
+                                documentation: 'לולאת while רגילה',
+                                range: range
+                            });
+                            suggestions.push({
+                                label: 'if else',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'if (${1:condition}) {\n\t$2\n} else {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'If-Else Statement',
+                                documentation: 'יצירת בלוק if-else מלא',
+                                range: range
+                            });
+                            suggestions.push({
+                                label: 'if else-if else',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'if (${1:condition}) {\n\t$2\n} else if (${3:condition}) {\n\t$4\n} else {\n\t$0\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                detail: 'If-ElseIf-Else',
+                                documentation: 'מבנה תנאי מלא עם שלוש אפשרויות',
+                                range: range
+                            });
+
                         }
 
                         return { suggestions: suggestions };
