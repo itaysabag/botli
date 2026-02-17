@@ -2185,7 +2185,7 @@
             require(['vs/editor/editor.main'], function () {
 
 
-                // --- רשימת השיטות של Object (חובה שיהיה מוגדר) ---
+                // --- רשימת השיטות של Object ---
                 const OBJECT_METHODS = [
                     { name: "toString", type: "String", params: "" },
                     { name: "equals", type: "boolean", params: "Object obj" },
@@ -2196,50 +2196,53 @@
                     { name: "wait", type: "void", params: "" }
                 ];
 
-                // --- מנוע סריקה חכם (כולל משתנים/שדות) ---
+                const WRAPPER_TYPES = ["Integer", "String", "Double", "Boolean", "Float", "Long", "Character", "Byte", "Short", "Object"];
+
+                // --- מנוע סריקה חכם ---
                 function analyzeProject() {
                     const metadata = {};
 
                     Object.keys(files).forEach(filename => {
                         const code = (filename === activeFileName && editorInstance) ? editorInstance.getValue() : files[filename];
 
-                        // זיהוי שם המחלקה + האבא
-                        const classMatch = code.match(/(?:public\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/);
+                        // זיהוי שם המחלקה + גנריקה <T>
+                        const classMatch = code.match(/(?:public\s+)?class\s+(\w+)(?:\s*<([^>]+)>)?(?:\s+extends\s+(\w+))?/);
                         if (!classMatch) return;
 
                         const className = classMatch[1];
-                        const parentName = classMatch[2] || null;
+                        const genericParam = classMatch[2] ? classMatch[2].trim() : null; // למשל "T"
+                        const parentName = classMatch[3] || null;
 
                         metadata[className] = {
                             parent: parentName,
+                            genericParam: genericParam, // שומרים את השם הגנרי (T)
                             methods: [],
-                            fields: [],       // <--- הוספנו מאגר למשתנים
+                            fields: [],
                             constructors: []
                         };
 
-                        // 1. זיהוי שיטות (Methods)
+                        // 1. זיהוי שיטות
                         const methodRegex = /public\s+(static\s+)?([\w<>\[\]]+)\s+(\w+)\s*\(([^)]*)\)/g;
                         let match;
                         while ((match = methodRegex.exec(code)) !== null) {
                             if (match[3] === className) continue;
                             metadata[className].methods.push({
                                 name: match[3],
-                                type: match[2],
+                                type: match[2], // סוג ההחזרה (למשל T או int)
                                 params: match[4],
                                 isStatic: !!match[1],
                                 signature: `(${match[4]})`
                             });
                         }
 
-                        // 2. זיהוי משתנים/שדות (Fields) - כולל private/protected
-                        // מבנה: modifier [static] type name [= value];
+                        // 2. זיהוי משתנים
                         const fieldRegex = /(public|private|protected)\s+(static\s+)?(?:final\s+)?([\w<>\[\]]+)\s+(\w+)\s*(?:=|[;])/g;
                         while ((match = fieldRegex.exec(code)) !== null) {
                             metadata[className].fields.push({
-                                access: match[1],      // public/private/protected
+                                access: match[1],
                                 isStatic: !!match[2],
-                                type: match[3],        // סוג המשתנה (int, String...)
-                                name: match[4]         // שם המשתנה (age, id...)
+                                type: match[3],
+                                name: match[4]
                             });
                         }
 
@@ -2255,14 +2258,26 @@
                     return metadata;
                 }
 
-                // פונקציית עזר למציאת סוג המשתנה (תומכת גם במערכים)
+                function getLocalVariables(textUntilPosition) {
+                    const locals = [];
+                    const regex = /\b(?!return|new|class|public|private|protected|static|final|void|if|else|for|while|switch|case|default|try|catch|finally|import|package)([A-Z][\w<>\[\]]*|[a-z][\w<>\[\]]*)\s+([a-z][\w]*)\b/g;
+                    let match;
+                    while ((match = regex.exec(textUntilPosition)) !== null) {
+                        if (!/^\d/.test(match[2])) {
+                            locals.push({ type: match[1], name: match[2] });
+                        }
+                    }
+                    return locals;
+                }
+
+                // פונקציה למציאת סוג משתנה (כולל גנריקה)
                 function getVariableType(text, varName) {
-                    const regex = new RegExp(`\\b([\\w\\[\\]]+)\\s+${varName}\\b`);
+                    const regex = new RegExp(`\\b([\\w\\[\\]<>]+)\\s+${varName}\\b`);
                     const match = text.match(regex);
                     return match ? match[1] : null;
                 }
 
-                // --- מנגנון עיצוב (Formatter) ---
+                // --- מנגנון עיצוב ---
                 const javaFormatter = function (model) {
                     const text = model.getValue();
                     const lines = text.split('\n');
@@ -2284,30 +2299,11 @@
                     provideDocumentFormattingEdits: (model) => javaFormatter(model)
                 });
 
-
-
-                // --- פונקציית עזר למציאת משתנים מקומיים (Local Variables) ---
-                function getLocalVariables(textUntilPosition) {
-                    const locals = [];
-                    // סורק משתנים שהוגדרו (למשל: int age, Person p1)
-                    // מתעלם ממילות מפתח כדי לא להתבלבל
-                    const regex = /\b(?!return|new|class|public|private|protected|static|final|void|if|else|for|while|switch|case|default|try|catch|finally|import|package)([A-Z][\w<>\[\]]*|[a-z][\w<>\[\]]*)\s+([a-z][\w]*)\b/g;
-
-                    let match;
-                    while ((match = regex.exec(textUntilPosition)) !== null) {
-                        if (!/^\d/.test(match[2])) { // לא מתחיל במספר
-                            locals.push({
-                                type: match[1], // סוג (int, String)
-                                name: match[2]  // שם (age, p1)
-                            });
-                        }
-                    }
-                    return locals;
-                }
-
-                // --- ספק ההשלמות המלא (כולל הכל) ---
+                // --- ספק ההשלמות המשודרג (תומך בשרשור וגנריקה) ---
+                // --- ספק ההשלמות המלא (כולל גנריקה, שרשור ובנאים חכמים) ---
+                // --- ספק ההשלמות המלא (כולל בנאים עם פילרים חכמים) ---
                 monaco.languages.registerCompletionItemProvider('java', {
-                    triggerCharacters: ['.', ' ', '('],
+                    triggerCharacters: ['.', ' ', '(', '<'],
                     provideCompletionItems: function (model, position) {
                         const textUntilPosition = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
                         const lineContent = model.getLineContent(position.lineNumber);
@@ -2321,50 +2317,91 @@
                         const projectData = analyzeProject();
                         const addedItems = new Set();
 
-                        // זיהוי המחלקה הנוכחית
                         const classMatch = fullText.match(/(?:public\s+)?class\s+(\w+)/);
                         const currentClassName = classMatch ? classMatch[1] : null;
 
-                        // 1. טיפול בנקודה (Member Access)
+                        // 1. טיפול ב-Generics (<)
+                        if (textBeforeCursor.trim().endsWith('<') || textUntilPosition.trim().endsWith('<')) {
+                            WRAPPER_TYPES.forEach(type => suggestions.push({ label: type, kind: monaco.languages.CompletionItemKind.Class, insertText: type, detail: "Wrapper", range: range }));
+                            Object.keys(projectData).forEach(cls => suggestions.push({ label: cls, kind: monaco.languages.CompletionItemKind.Class, insertText: cls, detail: "Class", range: range }));
+                            return { suggestions: suggestions };
+                        }
+
+                        // 2. טיפול בנקודה (Member Access / Chaining)
                         if (textBeforeCursor.trim().endsWith('.')) {
                             const textWithoutDot = textBeforeCursor.trim().slice(0, -1);
 
-                            // זיהוי מערכים ומשתנים
+                            const chainMatch = textWithoutDot.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\(\)$/);
                             const arrayAccessMatch = textWithoutDot.match(/([a-zA-Z0-9_]+)\s*(\[.*\])$/);
                             const simpleMatch = textWithoutDot.match(/([a-zA-Z0-9_]+)$/);
 
-                            let prevWord = "";
-                            let isArrayAccess = false;
-
-                            if (arrayAccessMatch) { prevWord = arrayAccessMatch[1]; isArrayAccess = true; }
-                            else if (simpleMatch) { prevWord = simpleMatch[1]; }
-
-                            const isThis = (prevWord === 'this');
                             let targetType = null;
                             let isStaticAccess = false;
 
-                            if (isThis && currentClassName) { targetType = currentClassName; }
-                            else if (projectData[prevWord]) { targetType = prevWord; isStaticAccess = true; }
-                            else if (JAVA_STDLIB[prevWord]) {
-                                JAVA_STDLIB[prevWord].forEach(method => suggestions.push({ label: method, kind: monaco.languages.CompletionItemKind.Method, insertText: method.replace('()', '($0)'), insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: " : void - Java Library", range: range }));
-                                return { suggestions: suggestions };
+                            if (chainMatch) {
+                                const varName = chainMatch[1];
+                                const methodName = chainMatch[2];
+                                const rawType = getVariableType(textUntilPosition, varName);
+                                if (rawType) {
+                                    const typeParts = rawType.match(/(\w+)(?:<(.+)>)?/);
+                                    if (typeParts) {
+                                        const baseClass = typeParts[1];
+                                        const innerType = typeParts[2];
+                                        if (projectData[baseClass]) {
+                                            const method = projectData[baseClass].methods.find(m => m.name === methodName);
+                                            if (method) {
+                                                if (method.type === projectData[baseClass].genericParam || method.type.length === 1) {
+                                                    targetType = innerType;
+                                                } else {
+                                                    targetType = method.type;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             else {
-                                targetType = getVariableType(textUntilPosition, prevWord);
-                                if (isArrayAccess && targetType && targetType.endsWith('[]')) targetType = targetType.replace('[]', '');
+                                let prevWord = "";
+                                let isArrayAccess = false;
+
+                                if (arrayAccessMatch) { prevWord = arrayAccessMatch[1]; isArrayAccess = true; }
+                                else if (simpleMatch) { prevWord = simpleMatch[1]; }
+
+                                const isThis = (prevWord === 'this');
+
+                                if (isThis && currentClassName) { targetType = currentClassName; }
+                                else if (projectData[prevWord]) { targetType = prevWord; isStaticAccess = true; }
+                                else if (JAVA_STDLIB[prevWord]) {
+                                    JAVA_STDLIB[prevWord].forEach(method => suggestions.push({ label: method, kind: monaco.languages.CompletionItemKind.Method, insertText: method.replace('()', '($0)'), insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: "Java Lib", range: range }));
+                                    return { suggestions: suggestions };
+                                }
+                                else {
+                                    const rawType = getVariableType(textUntilPosition, prevWord);
+                                    if (rawType) {
+                                        if (isArrayAccess && rawType.endsWith('[]')) {
+                                            targetType = rawType.replace('[]', '');
+                                        } else if (rawType.includes('<')) {
+                                            targetType = rawType.substring(0, rawType.indexOf('<'));
+                                        } else {
+                                            targetType = rawType;
+                                        }
+                                    }
+                                }
                             }
 
                             if (targetType) {
                                 let typeHierarchy = targetType;
                                 while (typeHierarchy && projectData[typeHierarchy]) {
                                     const clsData = projectData[typeHierarchy];
+
                                     clsData.fields.forEach(f => {
-                                        const isVisible = (f.access === 'public') || (isThis && typeHierarchy === targetType) || (f.access === 'protected' && isThis);
+                                        const isVisible = (f.access === 'public') || (typeHierarchy === currentClassName);
                                         if (((isStaticAccess && f.isStatic) || (!isStaticAccess && !f.isStatic)) && isVisible && !addedItems.has(f.name)) {
                                             addedItems.add(f.name);
-                                            suggestions.push({ label: f.name, kind: monaco.languages.CompletionItemKind.Field, insertText: f.name, detail: ` : ${f.type} - ${typeHierarchy}`, sortText: "0_" + f.name, range: range });
+                                            suggestions.push({ label: f.name, kind: monaco.languages.CompletionItemKind.Field, insertText: f.name, detail: `${f.type} - ${typeHierarchy}`, sortText: "0_" + f.name, range: range });
                                         }
                                     });
+
                                     clsData.methods.forEach(m => {
                                         const isVisible = (!isStaticAccess) || (m.isStatic);
                                         if (((isStaticAccess && m.isStatic) || (!isStaticAccess && !m.isStatic)) && isVisible && !addedItems.has(m.name)) {
@@ -2380,128 +2417,94 @@
                             }
                         }
 
-                        // 2. השלמה כללית (כשאין נקודה)
+                        // 3. השלמה כללית (new, משתנים, Snippets)
                         else {
-
-                            // א. משתנים מקומיים (Local Variables) - מופיעים ראשונים
                             const locals = getLocalVariables(textUntilPosition);
                             locals.forEach(l => {
                                 if (!addedItems.has(l.name)) {
                                     addedItems.add(l.name);
-                                    suggestions.push({
-                                        label: l.name,
-                                        kind: monaco.languages.CompletionItemKind.Variable,
-                                        insertText: l.name,
-                                        detail: `${l.type} (Local)`,
-                                        sortText: "0_" + l.name,
-                                        range: range
-                                    });
+                                    suggestions.push({ label: l.name, kind: monaco.languages.CompletionItemKind.Variable, insertText: l.name, detail: `${l.type} (Local)`, sortText: "0_" + l.name, range: range });
                                 }
                             });
 
-                            // ב. שדות של המחלקה הנוכחית
                             if (currentClassName && projectData[currentClassName]) {
                                 const myFields = projectData[currentClassName].fields;
                                 myFields.forEach(f => {
                                     if (!addedItems.has(f.name)) {
                                         addedItems.add(f.name);
+                                        suggestions.push({ label: f.name, kind: monaco.languages.CompletionItemKind.Field, insertText: f.name, detail: `${f.type} (Field)`, sortText: "1_" + f.name, range: range });
+                                    }
+                                });
+                            }
+
+                            // === התיקון: בנאים עם פילרים ===
+                            if (textUntilPosition.trim().endsWith("new")) {
+                                Object.keys(projectData).forEach(clsName => {
+                                    const ctors = projectData[clsName].constructors;
+
+                                    if (ctors.length > 0) {
+                                        ctors.forEach(c => {
+                                            // יצירת ה-Snippet החכם
+                                            let snippet = clsName + "()";
+                                            const paramStr = c.params.trim();
+
+                                            if (paramStr.length > 0) {
+                                                // מפרק את הפרמטרים: "String name, int age"
+                                                const args = paramStr.split(",");
+                                                const argSnippets = args.map((arg, idx) => {
+                                                    // לוקח את המילה האחרונה (שם המשתנה)
+                                                    const parts = arg.trim().split(/\s+/);
+                                                    const varName = parts[parts.length - 1].replace(/[\[\]]/g, ""); // מנקה סוגרי מערך אם נדבקו
+                                                    return `\${${idx + 1}:${varName}}`; // מייצר ${1:name}
+                                                });
+                                                snippet = clsName + "(" + argSnippets.join(", ") + ")";
+                                            }
+
+                                            suggestions.push({
+                                                label: clsName,
+                                                kind: monaco.languages.CompletionItemKind.Constructor,
+                                                insertText: snippet,
+                                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                                detail: `(${c.params})`,
+                                                range: range
+                                            });
+                                        });
+                                    }
+                                    else {
                                         suggestions.push({
-                                            label: f.name,
-                                            kind: monaco.languages.CompletionItemKind.Field,
-                                            insertText: f.name,
-                                            detail: `${f.type} (Field)`,
-                                            sortText: "1_" + f.name,
+                                            label: clsName,
+                                            kind: monaco.languages.CompletionItemKind.Constructor,
+                                            insertText: clsName + "($0)",
+                                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                            detail: `()`,
                                             range: range
                                         });
                                     }
                                 });
                             }
-
-                            // ג. בנאים (אם כתוב new)
-                            if (textUntilPosition.trim().endsWith("new")) {
-                                Object.keys(projectData).forEach(clsName => {
-                                    suggestions.push({ label: clsName, kind: monaco.languages.CompletionItemKind.Constructor, insertText: clsName + "($0)", insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: `Constructor`, range: range });
-                                });
-                            } else {
-                                // ד. מילות מפתח ומחלקות
+                            // שאר ההשלמות (אם לא כתוב new)
+                            else {
                                 KEYWORDS.forEach(kw => suggestions.push({ label: kw, kind: monaco.languages.CompletionItemKind.Keyword, insertText: kw, range: range }));
                                 Object.keys(projectData).forEach(cls => suggestions.push({ label: cls, kind: monaco.languages.CompletionItemKind.Class, insertText: cls, range: range }));
                                 Object.keys(JAVA_STDLIB).forEach(cls => suggestions.push({ label: cls, kind: monaco.languages.CompletionItemKind.Class, insertText: cls, range: range }));
 
-                                // ה. כל ה-Snippets (כולל אלו שהיו חסרים)
                                 suggestions.push({ label: 'sysout', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'System.out.println($0);', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Print', range: range });
                                 suggestions.push({ label: 'main', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'public static void main(String[] args) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Main', range: range });
-
-                                suggestions.push({
-                                    label: 'for',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'for (int ${1:i} = 0; ${1:i} < ${2:args.length}; ${1:i}++) {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'For Loop',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'foreach',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'for (${1:int} ${2:item} : ${3:collection}) {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'Foreach Loop',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'if',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'if (${1:condition}) {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'If Statement',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'while',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'while (${1:condition}) {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'While Loop',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'if else',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'if (${1:condition}) {\n\t$2\n} else {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'If-Else',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'if else-if else',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'if (${1:condition}) {\n\t$2\n} else if (${3:condition}) {\n\t$4\n} else {\n\t$0\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'If-ElseIf-Else',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'switch',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'switch (${1:key}) {\n\tcase ${2:value}:\n\t\t$0\n\t\tbreak;\n\tdefault:\n\t\tbreak;\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'Switch Case',
-                                    range: range
-                                });
-                                suggestions.push({
-                                    label: 'try',
-                                    kind: monaco.languages.CompletionItemKind.Snippet,
-                                    insertText: 'try {\n\t$0\n} catch (${1:Exception} ${2:e}) {\n\t${2:e}.printStackTrace();\n}',
-                                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                    detail: 'Try-Catch',
-                                    range: range
-                                });
+                                suggestions.push({ label: 'for', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'for (int ${1:i} = 0; ${1:i} < ${2:args.length}; ${1:i}++) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'For Loop', range: range });
+                                suggestions.push({ label: 'foreach', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'for (${1:int} ${2:item} : ${3:collection}) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Foreach Loop', range: range });
+                                suggestions.push({ label: 'if', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'if (${1:condition}) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'If Statement', range: range });
+                                suggestions.push({ label: 'while', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'while (${1:condition}) {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'While Loop', range: range });
+                                suggestions.push({ label: 'if else', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'if (${1:condition}) {\n\t$2\n} else {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'If-Else', range: range });
+                                suggestions.push({ label: 'if else-if else', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'if (${1:condition}) {\n\t$2\n} else if (${3:condition}) {\n\t$4\n} else {\n\t$0\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'If-ElseIf-Else', range: range });
+                                suggestions.push({ label: 'switch', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'switch (${1:key}) {\n\tcase ${2:value}:\n\t\t$0\n\t\tbreak;\n\tdefault:\n\t\tbreak;\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Switch Case', range: range });
+                                suggestions.push({ label: 'try', kind: monaco.languages.CompletionItemKind.Snippet, insertText: 'try {\n\t$0\n} catch (${1:Exception} ${2:e}) {\n\t${2:e}.printStackTrace();\n}', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, detail: 'Try-Catch', range: range });
                             }
                         }
 
                         return { suggestions: suggestions };
                     }
                 });
+
                 monaco.editor.defineTheme('java-custom', { base: 'vs-dark', inherit: true, rules: [{ token: 'keyword', foreground: '569CD6', fontStyle: 'bold' }, { token: 'type.identifier', foreground: '4EC9B0' }, { token: 'identifier', foreground: 'DCDCAA' }, { token: 'string', foreground: 'CE9178' }, { token: 'comment', foreground: '6A9955' }, { token: 'number', foreground: 'B5CEA8' }], colors: { 'editor.background': '#1e1f20' } });
 
                 editorInstance = monaco.editor.create(document.getElementById('editor'), {
