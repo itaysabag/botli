@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מלחמת טריטוריות - 25x25</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e272e;
+            color: #d2dae2;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            height: 100vh; /* מונע גלילה - גובה המסך בדיוק */
+            overflow: hidden; /* חותך כל תוכן שחורג מהמסך */
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 { 
+            margin: 0 0 10px 0; 
+            font-size: 2rem; 
+            color: #0fbcf9; 
+            flex-shrink: 0;
+        }
+        
+        #game-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+            background-color: #2c3e50;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #485460;
+        }
+
+        .status-box {
+            background-color: #1e272e;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 1px solid #485460;
+        }
+
+        #current-turn { 
+            padding: 8px 20px; 
+            border: 2px solid white; 
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        /* צבעי הקבוצות */
+        .color-1 { color: #ff4757; }
+        .color-2 { color: #1e90ff; }
+        .color-3 { color: #2ed573; }
+        .color-4 { color: #ffa502; }
+
+        .bg-1 { background-color: #ff4757 !important; color: white; }
+        .bg-2 { background-color: #1e90ff !important; color: white; }
+        .bg-3 { background-color: #2ed573 !important; color: #1e272e; }
+        .bg-4 { background-color: #ffa502 !important; color: #1e272e; }
+        .bg-dead { background-color: #485460 !important; color: #808e9b !important; border-color: #808e9b !important; text-decoration: line-through;}
+
+        #layout-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1; /* לוקח את כל המקום שנשאר במסך */
+            min-height: 0; /* קריטי כדי ש-flex לא יחרוג מהמסך */
+        }
+
+        /* פאנל שליטה וניקוד בצד */
+        #side-panel {
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        .scoreboard {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #485460;
+            height: 100%;
+        }
+
+        .scoreboard h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            color: #0fbcf9;
+            border-bottom: 2px solid #485460;
+            padding-bottom: 10px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .score-val {
+            font-size: 1.3rem;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        /* לוח המשחק - התאמה אוטומטית למסך */
+        #board-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(25, 1fr);
+            grid-template-rows: repeat(25, 1fr);
+            /* מתאים את עצמו לגובה הזמין ושומר על פרופורציה ריבועית */
+            height: 100%;
+            max-height: 75vh;
+            aspect-ratio: 1 / 1;
+            background-color: #2c3e50;
+            border: 3px solid #808e9b;
+            gap: 1px;
+            direction: ltr;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .cell { background-color: #1e272e; width: 100%; height: 100%; }
+
+        .wall-1 { background-color: #ff4757; }
+        .wall-2 { background-color: #1e90ff; }
+        .wall-3 { background-color: #2ed573; }
+        .wall-4 { background-color: #ffa502; }
+
+        .fill-1 { background-color: rgba(255, 71, 87, 0.45); }
+        .fill-2 { background-color: rgba(30, 144, 255, 0.45); }
+        .fill-3 { background-color: rgba(46, 213, 115, 0.45); }
+        .fill-4 { background-color: rgba(255, 165, 2, 0.45); }
+
+        .head {
+            box-shadow: 0 0 10px white;
+            border: 2px solid white;
+            z-index: 10;
+            transform: scale(1.3);
+        }
+
+        /* כפתורי פעולה עליונים */
+        button.primary-btn {
+            padding: 8px 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #0fbcf9;
+            color: #1e272e;
+            transition: 0.3s;
+        }
+        button.primary-btn:hover { background-color: #0bd1fb; }
+        button.primary-btn:disabled { background-color: #485460; color: #808e9b; cursor: not-allowed;}
+        
+        button.secondary-btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+            border: 2px solid #ef5777;
+            background-color: transparent;
+            color: #ef5777;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button.secondary-btn:hover { background-color: rgba(239, 87, 119, 0.2); }
+        button.secondary-btn:disabled { border-color: #485460; color: #485460; cursor: not-allowed;}
+
+        button.surrender-btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+            border: 2px solid #808e9b;
+            background-color: #485460;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button.surrender-btn:hover { background-color: #d63031; border-color: #d63031; }
+        button.surrender-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #game-over-msg {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(30, 39, 46, 0.95);
+            border: 4px solid #0fbcf9;
+            padding: 40px;
+            border-radius: 15px;
+            font-size: 2.5rem;
+            z-index: 100;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>מלחמת טריטוריות</h1>
+    
+    <div id="game-header">
+        <div id="current-turn" class="bg-1">תור קבוצה 1 (אדום)</div>
+        <button id="roll-btn" class="primary-btn" onclick="rollDice()">הטל 🎲</button>
+        <div class="status-box">צעדים: <span id="steps-display">0</span></div>
+        <button id="end-turn-btn" class="secondary-btn" onclick="endTurn()" disabled>סיים תור</button>
+        <button id="surrender-btn" class="surrender-btn" onclick="surrender()">🏳️ כניעה</button>
+        <div class="status-box" style="color:#0fbcf9" id="msg-display">ממתין לתחילת המשחק</div>
+    </div>
+
+    <div id="layout-wrapper">
+        <div id="side-panel">
+            <div class="scoreboard">
+                <h2>שטח כבוש (משבצות)</h2>
+                <div id="score-row-1" class="score-row bg-1"><span>קבוצה 1:</span> <span id="score-1" class="score-val">1</span></div>
+                <div id="score-row-2" class="score-row bg-2"><span>קבוצה 2:</span> <span id="score-2" class="score-val">1</span></div>
+                <div id="score-row-3" class="score-row bg-3"><span>קבוצה 3:</span> <span id="score-3" class="score-val">1</span></div>
+                <div id="score-row-4" class="score-row bg-4"><span>קבוצה 4:</span> <span id="score-4" class="score-val">1</span></div>
+            </div>
+        </div>
+
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
+    </div>
+
+    <div id="game-over-msg">המשחק הסתיים! 🏆</div>
+
+    <script>
+        const SIZE = 25;
+        let board = [];
+        let domCells = [];
+        let gameActive = true;
+        let globalScores = [0, 0, 0, 0, 0];
+        
+        let players = [
+            { id: 1, r: 0, c: 0, colorClass: 'bg-1', name: "קבוצה 1 (אדום)", active: true },
+            { id: 2, r: 0, c: SIZE - 1, colorClass: 'bg-2', name: "קבוצה 2 (כחול)", active: true },
+            { id: 3, r: SIZE - 1, c: SIZE - 1, colorClass: 'bg-3', name: "קבוצה 3 (ירוק)", active: true },
+            { id: 4, r: SIZE - 1, c: 0, colorClass: 'bg-4', name: "קבוצה 4 (צהוב)", active: true }
+        ];
+
+        let currentPlayerIdx = 0;
+        let stepsLeft = 0;
+
+        function initBoard() {
+            const boardEl = document.getElementById('board');
+            for (let r = 0; r < SIZE; r++) {
+                let row = [];
+                let domRow = [];
+                for (let c = 0; c < SIZE; c++) {
+                    row.push(0);
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    boardEl.appendChild(cell);
+                    domRow.push(cell);
+                }
+                board.push(row);
+                domCells.push(domRow);
+            }
+
+            players.forEach(p => { board[p.r][p.c] = p.id; });
+            drawBoard();
+            updateScores();
+        }
+
+        function drawBoard() {
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    let val = board[r][c];
+                    let className = 'cell';
+                    
+                    if (val >= 1 && val <= 4) className += ` wall-${val}`;
+                    else if (val >= 11 && val <= 14) className += ` fill-${val - 10}`;
+                    
+                    players.forEach(p => {
+                        if (p.active && p.r === r && p.c === c) {
+                            className += ` wall-${p.id} head`;
+                        }
+                    });
+
+                    domCells[r][c].className = className;
+                }
+            }
+        }
+
+        function rollDice() {
+            if (!gameActive) return;
+            stepsLeft = Math.floor(Math.random() * 11) + 2; 
+            document.getElementById('steps-display').innerText = stepsLeft;
+            document.getElementById('msg-display').innerText = "שחקו עם חיצי המקלדת";
+            
+            document.getElementById('roll-btn').disabled = true;
+            document.getElementById('end-turn-btn').disabled = false;
+            document.getElementById('surrender-btn').disabled = true; // אי אפשר להיכנע באמצע תור
+        }
+
+        function move(dr, dc) {
+            if (stepsLeft <= 0 || !gameActive) return;
+            
+            let p = players[currentPlayerIdx];
+            let nr = p.r + dr;
+            let nc = p.c + dc;
+
+            if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) return;
+
+            let target = board[nr][nc];
+            
+            if (target === 0 || target === p.id || target === p.id + 10) {
+                board[p.r][p.c] = p.id;
+                p.r = nr;
+                p.c = nc;
+                board[p.r][p.c] = p.id;
+                
+                stepsLeft--;
+                document.getElementById('steps-display').innerText = stepsLeft;
+                drawBoard();
+                updateScores();
+
+                if (stepsLeft === 0) endTurn();
+            } else {
+                document.getElementById('msg-display').innerText = "נחסמת! צא לכיוון אחר.";
+            }
+        }
+
+        function surrender() {
+            if (!gameActive || !confirm("האם קבוצה זו מוותרת על המשך המשחק?")) return;
+            
+            let p = players[currentPlayerIdx];
+            p.active = false;
+            
+            // עדכון חזותי ללוח התוצאות של הקבוצה שנכנעה
+            let scoreRow = document.getElementById(`score-row-${p.id}`);
+            scoreRow.classList.remove(`bg-${p.id}`);
+            scoreRow.classList.add('bg-dead');
+
+            endTurn(true); // מעביר תור כרגיל
+        }
+
+        function endTurn(isSurrender = false) {
+            stepsLeft = 0;
+            document.getElementById('steps-display').innerText = 0;
+            document.getElementById('roll-btn').disabled = false;
+            document.getElementById('end-turn-btn').disabled = true;
+            document.getElementById('surrender-btn').disabled = false;
+            
+            if (!isSurrender) {
+                captureTerritories();
+                updateScores();
+            }
+            
+            checkGameOver();
+            
+            if (gameActive) {
+                // מציאת השחקן הפעיל הבא
+                do {
+                    currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+                } while (!players[currentPlayerIdx].active);
+                
+                let p = players[currentPlayerIdx];
+                let turnEl = document.getElementById('current-turn');
+                turnEl.innerText = p.name;
+                turnEl.className = p.colorClass;
+                document.getElementById('msg-display').innerText = "הטילו קוביות כדי להתחיל";
+                
+                drawBoard();
+            }
+        }
+
+        function checkGameOver() {
+            let activePlayers = players.filter(p => p.active).length;
+            let totalFilledCells = globalScores[1] + globalScores[2] + globalScores[3] + globalScores[4];
+            let isBoardFull = totalFilledCells >= (SIZE * SIZE);
+
+            // המשחק נגמר אם הלוח מלא לגמרי, או שנשארה רק קבוצה אחת (או 0) פעילה
+            if (isBoardFull || activePlayers <= 1) {
+                gameActive = false;
+                document.getElementById('roll-btn').disabled = true;
+                document.getElementById('surrender-btn').disabled = true;
+                document.getElementById('game-over-msg').style.display = 'block';
+                document.getElementById('msg-display').innerText = "המשחק הסתיים!";
+            }
+        }
+
+        function captureTerritories() {
+            let visited = Array(SIZE).fill().map(() => Array(SIZE).fill(false));
+
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if (board[r][c] === 0 && !visited[r][c]) {
+                        
+                        let queue = [[r, c]];
+                        let region = [];
+                        let boundingPlayers = new Set();
+                        visited[r][c] = true;
+                        let containsPlayerHead = false;
+
+                        while (queue.length > 0) {
+                            let [cr, cc] = queue.shift();
+                            region.push([cr, cc]);
+
+                            players.forEach(p => {
+                                if (p.active && p.r === cr && p.c === cc) containsPlayerHead = true;
+                            });
+
+                            let neighbors = [[cr-1, cc], [cr+1, cc], [cr, cc-1], [cr, cc+1]];
+                            for (let [nr, nc] of neighbors) {
+                                if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
+
+                                let val = board[nr][nc];
+                                if (val === 0) {
+                                    if (!visited[nr][nc]) {
+                                        visited[nr][nc] = true;
+                                        queue.push([nr, nc]);
+                                    }
+                                } else if (val >= 1 && val <= 4) {
+                                    boundingPlayers.add(val);
+                                } else if (val >= 11 && val <= 14) {
+                                    boundingPlayers.add(val - 10);
+                                }
+                            }
+                        }
+
+                        if (!containsPlayerHead && boundingPlayers.size === 1) {
+                            let winnerId = Array.from(boundingPlayers)[0];
+                            region.forEach(([rr, cc]) => {
+                                board[rr][cc] = winnerId + 10;
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateScores() {
+            globalScores = [0, 0, 0, 0, 0];
+            
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    let val = board[r][c];
+                    if (val >= 1 && val <= 4) globalScores[val]++;
+                    else if (val >= 11 && val <= 14) globalScores[val - 10]++;
+                }
+            }
+            
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`score-${i}`).innerText = globalScores[i];
+            }
+        }
+
+        // האזנה לחיצי המקלדת בלבד
+        document.addEventListener('keydown', (e) => {
+            if (stepsLeft > 0 && gameActive) {
+                if (e.key === 'ArrowUp') { move(-1, 0); e.preventDefault(); }
+                if (e.key === 'ArrowDown') { move(1, 0); e.preventDefault(); }
+                if (e.key === 'ArrowLeft') { move(0, -1); e.preventDefault(); }
+                if (e.key === 'ArrowRight') { move(0, 1); e.preventDefault(); }
+            }
+        });
+
+        initBoard();
+    </script>
+</body>
+</html>
