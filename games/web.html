@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רשת הקשרים האסטרטגית - BotLi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #0f172a;
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- מסך הגדרות --- */
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 80%;
+            max-width: 500px;
+            height: 150px;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        /* --- ממשק ראשי --- */
+        header {
+            background: #1e293b;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #game-layout {
+            display: flex;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        /* --- לוח המשחק (SVG) --- */
+        #svg-container {
+            flex-grow: 1;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        svg {
+            width: 90vmin;
+            height: 90vmin;
+        }
+
+        .student-node { cursor: pointer; transition: 0.3s; }
+        .student-node circle { stroke: rgba(255,255,255,0.2); stroke-width: 2; }
+        
+        .selected circle {
+            stroke: #fbbf24 !important;
+            stroke-width: 5px !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { r: 25; stroke-opacity: 1; }
+            50% { r: 30; stroke-opacity: 0.5; }
+            100% { r: 25; stroke-opacity: 1; }
+        }
+
+        .student-node text { 
+            fill: white; font-size: 13px; font-weight: bold; text-anchor: middle; 
+            pointer-events: none; dominant-baseline: middle;
+        }
+
+        /* --- פאנל צדי מורחב --- */
+        #side-panel {
+            width: 300px;
+            background: #1e293b;
+            border-right: 2px solid #334155;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .score-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .red-team { background: #ef4444; border: 3px solid transparent; }
+        .blue-team { background: #3b82f6; border: 3px solid transparent; }
+        .active-turn { border-color: white; transform: scale(1.03); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+
+        /* אזור ההסברים */
+        .instructions {
+            background: #334155;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .dot-sample {
+            width: 12px; height: 12px; border-radius: 50%; border: 1px solid white;
+        }
+
+        .intersection-dot {
+            r: 5;
+            stroke: white;
+            stroke-width: 1.5;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen">
+        <h1 style="color:#10b981">הקמת רשת הקשרים</h1>
+        <p>הכנס שמות תלמידים (מופרדים בפסיק):</p>
+        <textarea id="names-input" placeholder="ישראל, נועה, דני, מאיה..."></textarea>
+        <button onclick="startGame()" style="background:#10b981; color:white; padding:15px 30px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.2rem;">צור לוח משחק!</button>
+    </div>
+
+    <header>
+        <div style="font-size: 1.4rem; font-weight: bold; color: #10b981;">רשת הקשרים - גרסת האסטרטגיה</div>
+        <div id="game-status" style="font-size: 1.1rem; color: #94a3b8;">המתן לתחילת המשחק</div>
+        <button onclick="location.reload()" style="background:#475569; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">איפוס 🔄</button>
+    </header>
+
+    <div id="game-layout">
+        <div id="side-panel">
+            <div id="card-red" class="score-card red-team active-turn">אדומים: <span id="score-red">0</span></div>
+            <div id="card-blue" class="score-card blue-team">כחולים: <span id="score-blue">0</span></div>
+            
+            <div class="instructions">
+                <h3 style="margin-top:0; color:#10b981">איך משחקים?</h3>
+                1. לוחצים על תלמיד מהקבוצה הפעילה.<br>
+                2. לוחצים על תלמיד יעד כלשהו.<br>
+                3. הקו נמתח והניקוד מחושב אוטומטית.
+                
+                <h3 style="color:#10b981">שיטת הניקוד:</h3>
+                <div class="legend-item">
+                    <div class="dot-sample" style="background:#ff0000"></div>
+                    <span><b>חיתוך פנימי:</b> 1 נקודה<br><small>(קו אדום פוגש קו אדום)</small></span>
+                </div>
+                <div class="legend-item">
+                    <div class="dot-sample" style="background:#fbbf24"></div>
+                    <span><b>חיתוך עוין:</b> 2 נקודות<br><small>(קו שלך חוצה קו יריב!)</small></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="svg-container">
+            <svg id="game-svg" viewBox="0 0 500 500">
+                <g id="lines-group"></g>
+                <g id="dots-group"></g>
+                <g id="nodes-group"></g>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+        let lines = [];
+        let scores = { red: 0, blue: 0 };
+        let currentTeam = 'red';
+        let firstSelectedIdx = null;
+
+        const SVG_SIZE = 500;
+        const RADIUS = 210;
+
+        function startGame() {
+            const input = document.getElementById('names-input').value;
+            const names = input.split(/[\n,]+/).map(n => n.trim()).filter(n => n !== "");
+            if (names.length < 4) { alert("צריך לפחות 4 תלמידים!"); return; }
+
+            students = names.map((name, i) => ({
+                name, team: i % 2 === 0 ? 'red' : 'blue',
+                angle: (i / names.length) * 2 * Math.PI, id: i
+            }));
+
+            document.getElementById('setup-screen').style.display = 'none';
+            initBoard();
+        }
+
+        function initBoard() {
+            const nodesGroup = document.getElementById('nodes-group');
+            students.forEach((s, i) => {
+                const x = SVG_SIZE / 2 + RADIUS * Math.cos(s.angle);
+                const y = SVG_SIZE / 2 + RADIUS * Math.sin(s.angle);
+                s.x = x; s.y = y;
+
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("class", "student-node");
+                g.setAttribute("id", `node-${i}`);
+                g.onclick = () => handleNodeClick(i);
+                
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x); circle.setAttribute("cy", y);
+                circle.setAttribute("r", "25");
+                circle.setAttribute("fill", s.team === 'red' ? "#ef4444" : "#3b82f6");
+                
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", x); text.setAttribute("y", y);
+                text.textContent = s.name.substring(0, 6);
+
+                g.appendChild(circle); g.appendChild(text);
+                nodesGroup.appendChild(g);
+            });
+            document.getElementById('game-status').innerText = "התור של אדום - בחר תלמיד";
+        }
+
+        function handleNodeClick(index) {
+            const clickedStudent = students[index];
+            if (firstSelectedIdx === null) {
+                if (clickedStudent.team !== currentTeam) {
+                    alert(`זה התור של הקבוצה ה${currentTeam === 'red' ? 'אדומה' : 'כחולה'}!`);
+                    return;
+                }
+                firstSelectedIdx = index;
+                document.getElementById(`node-${index}`).classList.add('selected');
+                document.getElementById('game-status').innerText = `מציזים קו מ${clickedStudent.name} אל...`;
+            } else if (firstSelectedIdx === index) {
+                deselect();
+            } else {
+                drawConnection(firstSelectedIdx, index);
+                deselect();
+                toggleTurn();
+            }
+        }
+
+        function drawConnection(fromIdx, toIdx) {
+            const from = students[fromIdx];
+            const to = students[toIdx];
+            const team = from.team;
+            const newLine = { x1: from.x, y1: from.y, x2: to.x, y2: to.y, team: team };
+            
+            lines.forEach(oldLine => {
+                const intersect = findIntersection(newLine, oldLine);
+                if (intersect) {
+                    const isHostile = oldLine.team !== team;
+                    createDot(intersect.x, intersect.y, isHostile ? 'gold' : team);
+                    scores[team] += isHostile ? 2 : 1;
+                }
+            });
+
+            lines.push(newLine);
+            renderLine(newLine);
+            updateScores();
+        }
+
+        function renderLine(line) {
+            const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            lineEl.setAttribute("x1", line.x1); lineEl.setAttribute("y1", line.y1);
+            lineEl.setAttribute("x2", line.x2); lineEl.setAttribute("y2", line.y2);
+            lineEl.setAttribute("stroke", line.team === 'red' ? "#fca5a5" : "#93c5fd");
+            lineEl.setAttribute("stroke-width", "3");
+            lineEl.setAttribute("opacity", "0.6");
+            document.getElementById('lines-group').appendChild(lineEl);
+        }
+
+        function createDot(x, y, type) {
+            const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+            dot.setAttribute("class", "intersection-dot");
+            dot.setAttribute("fill", type === 'gold' ? "#fbbf24" : (type === 'red' ? "#ff0000" : "#0044ff"));
+            document.getElementById('dots-group').appendChild(dot);
+        }
+
+        function findIntersection(l1, l2) {
+            const det = (l1.x2 - l1.x1) * (l2.y2 - l2.y1) - (l1.y2 - l1.y1) * (l2.x2 - l2.x1);
+            if (det === 0) return null;
+            const t = ((l2.x1 - l1.x1) * (l2.y2 - l2.y1) - (l2.y1 - l1.y1) * (l2.x2 - l2.x1)) / det;
+            const u = ((l2.x1 - l1.x1) * (l1.y2 - l1.y1) - (l2.y1 - l1.y1) * (l1.x2 - l1.x1)) / det;
+            if (t > 0.05 && t < 0.95 && u > 0.05 && u < 0.95) {
+                return { x: l1.x1 + t * (l1.x2 - l1.x1), y: l1.y1 + t * (l1.y2 - l1.y1) };
+            }
+            return null;
+        }
+
+        function deselect() {
+            if (firstSelectedIdx !== null) document.getElementById(`node-${firstSelectedIdx}`).classList.remove('selected');
+            firstSelectedIdx = null;
+            document.getElementById('game-status').innerText = `התור של ${currentTeam === 'red' ? 'אדום' : 'כחול'} - בחר תלמיד`;
+        }
+
+        function toggleTurn() {
+            currentTeam = (currentTeam === 'red') ? 'blue' : 'red';
+            document.getElementById('card-red').classList.toggle('active-turn');
+            document.getElementById('card-blue').classList.toggle('active-turn');
+            document.getElementById('game-status').innerText = `התור של ${currentTeam === 'red' ? 'אדום' : 'כחול'} - בחר תלמיד`;
+        }
+
+        function updateScores() {
+            document.getElementById('score-red').innerText = scores.red;
+            document.getElementById('score-blue').innerText = scores.blue;
+        }
+    </script>
+</body>
+</html>
