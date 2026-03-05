@@ -1,1 +1,143 @@
 
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טלוויזיה - BotLi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #212121; /* צבע רקע תואם לתמונה */
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* מונע גלילה מיותרת של העמוד הראשי */
+        }
+
+        /* --- אזור התפריט --- */
+        #menu-container {
+            text-align: center;
+            padding: 50px;
+            display: block; /* מוצג כברירת מחדל */
+        }
+
+        h1 { color: #81c784; font-size: 2.5rem; margin-bottom: 5px;}
+        .subtitle { margin-bottom: 30px; font-size: 1.2rem; }
+
+        .game-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .game-btn {
+            background-color: transparent;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 20px;
+            width: 300px;
+            border: 2px solid #4CAF50;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .game-btn:hover {
+            background-color: #4CAF50;
+            color: #212121;
+        }
+
+        .btn-disabled {
+            border-color: #555;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        .btn-disabled:hover { background-color: transparent; color: #aaa; }
+
+
+        /* --- אזור המשחק (המוסתר בהתחלה) --- */
+        #game-container {
+            display: none; /* מוסתר כברירת מחדל */
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        #top-bar {
+            height: 50px;
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #4CAF50;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        #back-btn {
+            background-color: transparent;
+            color: #ef5777;
+            border: 2px solid #ef5777;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        #back-btn:hover { 
+            background-color: #ef5777; 
+            color: white;
+        }
+
+        #game-frame {
+            width: 100%;
+            height: calc(100vh - 50px); /* ממלא את כל המסך פחות הפס העליון */
+            border: none;
+            background-color: #1e272e; /* צבע רקע למקרה שהמשחק שקוף */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-container">
+        <h1>ערוצים</h1>
+        <div class="subtitle">בחרו משחק מהרשימה כדי להתחיל:</div>
+
+        <div class="game-menu">
+            <button class="game-btn" onclick="openGame('ch11.html')">כאן11</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="top-bar">
+            <button id="back-btn" onclick="closeGame()">חזור לתפריט ↩️</button>
+        </div>
+        <iframe id="game-frame" src=""></iframe>
+    </div>
+
+    <script>
+        function openGame(fileName) {
+            // 1. מעלימים את התפריט
+            document.getElementById('menu-container').style.display = 'none';
+            // 2. מציגים את אזור המשחק
+            document.getElementById('game-container').style.display = 'flex';
+            // 3. טוענים את הכתובת של המשחק הנבחר לתוך החלון הפנימי
+            document.getElementById('game-frame').src = fileName;
+        }
+
+        function closeGame() {
+            // 1. מרוקנים את החלון (כדי שהמשחק יעצור לגמרי והטיימרים שלו יתאפסו)
+            document.getElementById('game-frame').src = "";
+            // 2. מעלימים את אזור המשחק
+            document.getElementById('game-container').style.display = 'none';
+            // 3. מחזירים את התפריט
+            document.getElementById('menu-container').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
