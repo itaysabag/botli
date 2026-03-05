@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קוד הנטרול - בול פגיעה</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e272e;
+            color: #d2dae2;
+            text-align: center;
+            margin: 0;
+            padding: 30px 20px;
+            transition: background-color 0.5s;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            color: #0fbcf9;
+        }
+
+        p { margin-top: 0; font-size: 1.2rem; }
+        
+        .note {
+            color: #f1c40f;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        #layout-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        #main-game { flex: 2; }
+
+        /* עיצוב משודרג וקומפקטי לאזור ההיסטוריה */
+        #history-container {
+            flex: 1;
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 10px; /* הוקטן */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: right;
+            min-width: 260px;
+            max-height: 400px; /* גובה מקסימלי */
+            overflow-y: auto; /* פס גלילה אוטומטי */
+        }
+
+        /* עיצוב פס הגלילה */
+        #history-container::-webkit-scrollbar { width: 6px; }
+        #history-container::-webkit-scrollbar-track { background: #2c3e50; border-radius: 10px; }
+        #history-container::-webkit-scrollbar-thumb { background: #808e9b; border-radius: 10px; }
+
+        #timer {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #0fbcf9;
+            margin: 10px 0;
+            text-shadow: 0 0 15px rgba(15, 188, 249, 0.5);
+        }
+
+        .danger {
+            color: #ff3f34 !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 63, 52, 0.5); }
+            50% { transform: scale(1.1); text-shadow: 0 0 40px rgba(255, 63, 52, 1); }
+            100% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 63, 52, 0.5); }
+        }
+
+        .code-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            direction: ltr; 
+        }
+
+        .code-input {
+            width: 60px;
+            height: 80px;
+            font-size: 3rem;
+            text-align: center;
+            background-color: #485460;
+            color: white;
+            border: 3px solid #808e9b;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .code-input:focus { border-color: #0fbcf9; }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #05c46b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        button:hover { background-color: #04b05f; }
+        button:active { transform: scale(0.95); }
+
+        #message {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 40px;
+        }
+
+        #history-container h3 { 
+            margin-top: 0; 
+            margin-bottom: 10px;
+            text-align: center; 
+            color: #f1c40f; 
+            font-size: 1.1rem;
+        }
+
+        /* פריטי היסטוריה קומפקטיים יותר */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2c3e50;
+            padding: 6px 12px; /* הוקטן */
+            margin-bottom: 5px; /* הוקטן */
+            border-radius: 5px;
+            border-right: 4px solid #808e9b;
+        }
+        
+        .guess-text { 
+            font-weight: bold; 
+            letter-spacing: 3px; /* הוקטן */
+            font-size: 1.2rem; /* הוקטן */
+            direction: ltr; 
+            display: inline-block;
+        }
+        
+        .result-text { font-size: 0.9rem; text-align: left; line-height: 1.2;} /* הוקטן */
+        .bull { color: #05c46b; font-weight: bold; }
+        .cow { color: #f39c12; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <h1>משימה כיתתית: בול פגיעה</h1>
+    <p>מצאו את 4 הספרות לפני שהזמן יגמר!</p>
+    <div class="note">(שימו לב: הספרות בקוד שונות זו מזו ואינן חוזרות על עצמן)</div>
+
+    <div id="layout-wrapper">
+        <div id="main-game">
+            <div id="timer">03:00</div>
+
+            <div class="code-container">
+                <input type="text" maxlength="1" class="code-input" id="digit1" disabled>
+                <input type="text" maxlength="1" class="code-input" id="digit2" disabled>
+                <input type="text" maxlength="1" class="code-input" id="digit3" disabled>
+                <input type="text" maxlength="1" class="code-input" id="digit4" disabled>
+            </div>
+
+            <button id="action-btn" onclick="startGame()">התחל משימה</button>
+
+            <div id="message"></div>
+        </div>
+
+        <div id="history-container">
+            <h3>היסטוריית ניחושים</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let SECRET_CODE = ""; 
+        let timeLeft = 180; 
+        let timerInterval;
+        let isPlaying = false;
+        let guessCount = 0;
+
+        // אלגוריתם לייצור קוד אקראי ללא כפילויות
+        function generateRandomCode() {
+            let digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+            
+            // ערבוב המערך (Fisher-Yates Shuffle)
+            for (let i = digits.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [digits[i], digits[j]] = [digits[j], digits[i]];
+            }
+            
+            // לוקחים את 4 הספרות הראשונות אחרי הערבוב
+            return digits.slice(0, 4).join("");
+        }
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            if (minutes < 10) minutes = "0" + minutes;
+            if (seconds < 10) seconds = "0" + seconds;
+            
+            const timerElement = document.getElementById('timer');
+            timerElement.innerText = minutes + ":" + seconds;
+
+            if (timeLeft <= 15 && timeLeft > 0) {
+                timerElement.classList.add('danger');
+            }
+        }
+
+        function startGame() {
+            if (isPlaying) {
+                checkCode();
+                return;
+            }
+
+            SECRET_CODE = generateRandomCode();
+            console.log("הקוד הסודי (לעיני המורה בלבד!): " + SECRET_CODE);
+
+            isPlaying = true;
+            document.getElementById('action-btn').innerText = "בדוק ניחוש!";
+            document.getElementById('message').innerText = "";
+            document.getElementById('history-list').innerHTML = ""; 
+            guessCount = 0;
+            
+            clearInputs();
+            const inputs = document.querySelectorAll('.code-input');
+            inputs.forEach(input => input.disabled = false);
+            inputs[0].focus(); 
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    gameOver(false);
+                }
+            }, 1000);
+        }
+
+        function checkCode() {
+            let userGuess = "";
+            userGuess += document.getElementById('digit1').value;
+            userGuess += document.getElementById('digit2').value;
+            userGuess += document.getElementById('digit3').value;
+            userGuess += document.getElementById('digit4').value;
+
+            if (userGuess.length < 4) {
+                document.getElementById('message').innerText = "אנא הזינו 4 ספרות!";
+                document.getElementById('message').style.color = "#f39c12";
+                return;
+            }
+
+            // בדיקה שאין ספרות כפולות בניחוש של המשתמש
+            let uniqueDigits = new Set(userGuess.split(""));
+            if (uniqueDigits.size < 4) {
+                document.getElementById('message').innerText = "הספרות לא יכולות לחזור על עצמן!";
+                document.getElementById('message').style.color = "#f39c12";
+                return;
+            }
+
+            guessCount++;
+            let bulls = 0; 
+            let cows = 0;  
+
+            let secretArray = SECRET_CODE.split("");
+            let guessArray = userGuess.split("");
+            
+            let secretMatched = [false, false, false, false];
+            let guessMatched = [false, false, false, false];
+
+            for (let i = 0; i < 4; i++) {
+                if (guessArray[i] === secretArray[i]) {
+                    bulls++;
+                    secretMatched[i] = true;
+                    guessMatched[i] = true;
+                }
+            }
+
+            for (let i = 0; i < 4; i++) {
+                if (!guessMatched[i]) { 
+                    for (let j = 0; j < 4; j++) {
+                        if (!secretMatched[j] && guessArray[i] === secretArray[j]) {
+                            cows++;
+                            secretMatched[j] = true; 
+                            break; 
+                        }
+                    }
+                }
+            }
+
+            addGuessToHistory(userGuess, bulls, cows);
+
+            if (bulls === 4) {
+                gameOver(true); 
+            } else {
+                document.getElementById('message').innerText = "ניסיון " + guessCount + " הושלם. המשיכו לנסות!";
+                document.getElementById('message').style.color = "#d2dae2";
+                clearInputs(); 
+                document.getElementById('digit1').focus();
+            }
+        }
+
+        function addGuessToHistory(guess, bulls, cows) {
+            const historyList = document.getElementById('history-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            
+            newItem.innerHTML = `
+                <span class="guess-text" dir="ltr">${guess}</span>
+                <span class="result-text">
+                    <span class="bull">🟢 ${bulls} בול</span><br>
+                    <span class="cow">🟡 ${cows} פגיעה</span>
+                </span>
+            `;
+            
+            historyList.insertBefore(newItem, historyList.firstChild);
+        }
+
+        function clearInputs() {
+            document.getElementById('digit1').value = "";
+            document.getElementById('digit2').value = "";
+            document.getElementById('digit3').value = "";
+            document.getElementById('digit4').value = "";
+        }
+
+        function gameOver(isWin) {
+            clearInterval(timerInterval); 
+            isPlaying = false;
+            
+            const inputs = document.querySelectorAll('.code-input');
+            inputs.forEach(input => input.disabled = true); 
+
+            const actionBtn = document.getElementById('action-btn');
+            const message = document.getElementById('message');
+            const timerElement = document.getElementById('timer');
+
+            if (isWin) {
+                document.body.style.backgroundColor = "#05c46b"; 
+                timerElement.style.color = "white";
+                timerElement.classList.remove('danger');
+                message.innerText = `🎯 כל הכבוד! הקוד פוצח לאחר ${guessCount} ניחושים!`;
+                message.style.color = "white";
+                actionBtn.style.display = "none"; 
+            } else {
+                document.body.style.backgroundColor = "#ff3f34"; 
+                timerElement.innerText = "00:00";
+                message.innerText = `💥 הזמן עבר! הקוד הסודי היה: ${SECRET_CODE}`;
+                message.style.color = "white";
+                actionBtn.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
