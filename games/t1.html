@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <title>משחק הזיכרון הכיתתי</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        background: #0c6b32;
+        margin: 0;
+        text-align: center;
+        color: white;
+      }
+
+      h1 {
+        font-size: 48px;
+        margin-top: 20px;
+      }
+
+      #setup {
+        margin-top: 100px;
+      }
+
+      .teamInput {
+        padding: 15px;
+        font-size: 24px;
+        width: 260px;
+        margin: 10px;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .yellow {
+        background: #ffe75e;
+      }
+      .blue {
+        background: #63b3ff;
+      }
+      .pink {
+        background: #ff8fd1;
+      }
+
+      #startBtn {
+        font-size: 32px;
+        padding: 18px 60px;
+        border-radius: 15px;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      #game {
+        display: none;
+      }
+
+      #topBar {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        font-size: 28px;
+        margin-top: 10px;
+      }
+
+      .team {
+        padding: 10px 20px;
+        border-radius: 10px;
+      }
+
+      .active {
+        outline: 5px solid white;
+        transform: scale(1.1);
+      }
+
+      #timer {
+        font-size: 40px;
+      }
+
+      #board {
+        display: grid;
+        grid-template-columns: repeat(8, 80px);
+        grid-gap: 8px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .card {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        cursor: pointer;
+        background: black;
+        color: white;
+        transition: 0.4s;
+      }
+
+      .card.back {
+        background: linear-gradient(45deg, #000, #444);
+      }
+
+      .card.selected {
+        outline: 6px solid white;
+      }
+
+      .card.open {
+        background: white;
+        color: black;
+        font-size: 30px;
+      }
+
+      #controls {
+        margin-top: 20px;
+      }
+
+      button {
+        font-size: 24px;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin: 5px;
+      }
+
+      #revealBtn {
+        background: white;
+      }
+
+      #continueBtn {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 18px;
+      }
+
+      #fireworks {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: yellow;
+        border-radius: 50%;
+        animation: explode 1s linear forwards;
+      }
+
+      @keyframes explode {
+        from {
+          transform: translate(0, 0);
+          opacity: 1;
+        }
+        to {
+          transform: translate(var(--x), var(--y));
+          opacity: 0;
+        }
+      }
+
+      #podium {
+        display: none;
+        margin-top: 100px;
+      }
+
+      .podiumBox {
+        display: inline-block;
+        margin: 20px;
+        padding: 30px;
+        border-radius: 10px;
+        font-size: 30px;
+      }
+      #boardWrapper {
+        display: grid;
+        grid-template-columns: 40px auto;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      #letters {
+        display: grid;
+        grid-template-columns: repeat(8, 110px);
+        margin-left: 40px;
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      #numbers {
+        display: grid;
+        grid-template-rows: repeat(7, 110px);
+        align-items: center;
+        font-size: 22px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>🐾 משחק הזיכרון – חיות</h1>
+
+    <div id="setup">
+      <input id="t1" class="teamInput yellow" placeholder="שם קבוצה צהובה" />
+
+      <br />
+
+      <input id="t2" class="teamInput blue" placeholder="שם קבוצה כחולה" />
+
+      <br />
+
+      <input id="t3" class="teamInput pink" placeholder="שם קבוצה ורודה" />
+
+      <br />
+
+      <button id="startBtn">התחל משחק</button>
+    </div>
+
+    <div id="game">
+      <div id="topBar">
+        <div id="team0" class="team yellow"></div>
+
+        <div id="timer">⏳ 1:30</div>
+
+        <div id="team1" class="team blue"></div>
+
+        <div id="team2" class="team pink"></div>
+      </div>
+
+      <div id="boardWrapper">
+        <div></div>
+
+        <div id="letters">
+          <div>A</div>
+          <div>B</div>
+          <div>C</div>
+          <div>D</div>
+          <div>E</div>
+          <div>F</div>
+          <div>G</div>
+          <div>H</div>
+        </div>
+
+        <div id="numbers">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+          <div>4</div>
+          <div>5</div>
+          <div>6</div>
+          <div>7</div>
+        </div>
+
+        <div id="board"></div>
+      </div>
+
+      <div id="controls">
+        <button id="revealBtn">חשיפה</button>
+      </div>
+
+      <button id="continueBtn">המשך</button>
+    </div>
+
+    <div id="podium"></div>
+
+    <div id="fireworks"></div>
+
+    <script>
+      const animals = [
+        ["🐶", "כלב"],
+        ["🐱", "חתול"],
+        ["🐭", "עכבר"],
+        ["🐰", "ארנב"],
+        ["🦁", "אריה"],
+        ["🐯", "טיגריס"],
+        ["🐮", "פרה"],
+        ["🐷", "חזיר"],
+        ["🐸", "צפרדע"],
+        ["🐵", "קוף"],
+        ["🐔", "תרנגול"],
+        ["🐧", "פינגווין"],
+        ["🐼", "פנדה"],
+        ["🐺", "זאב"],
+        ["🦊", "שועל"],
+        ["🐨", "קואלה"],
+        ["🐯", "טיגריס2"],
+        ["🐗", "חזיר בר"],
+        ["🐙", "תמנון"],
+        ["🐢", "צב"],
+        ["🐍", "נחש"],
+        ["🐬", "דולפין"],
+        ["🐳", "לוויתן"],
+        ["🦒", "ג'ירפה"],
+        ["🐘", "פיל"],
+        ["🦓", "זברה"],
+        ["🐎", "סוס"],
+        ["🐕", "כלב2"],
+      ];
+
+      let deck = [];
+      let selected = [];
+      let currentTeam = 0;
+
+      let teams = [
+        { name: "", score: 0, color: "#ffe75e" },
+        { name: "", score: 0, color: "#63b3ff" },
+        { name: "", score: 0, color: "#ff8fd1" },
+      ];
+
+      function shuffle(a) {
+        return a.sort(() => Math.random() - 0.5);
+      }
+
+      function startGame() {
+        teams[0].name = document.getElementById("t1").value || "צהובים";
+        teams[1].name = document.getElementById("t2").value || "כחולים";
+        teams[2].name = document.getElementById("t3").value || "ורודים";
+
+        document.getElementById("setup").style.display = "none";
+        document.getElementById("game").style.display = "block";
+
+        deck = [];
+
+        // ערבוב החיות קודם
+        let chosen = shuffle([...animals]).slice(0, 28);
+
+        // יצירת זוגות
+        chosen.forEach((a) => {
+          deck.push({ type: "emoji", value: a[0], pair: a[1] });
+          deck.push({ type: "word", value: a[1], pair: a[0] });
+        });
+
+        // ערבוב הקלפים
+        deck = shuffle(deck);
+
+        drawBoard();
+        updateTeams();
+        startTimer();
+      }
+
+      function drawBoard() {
+        const board = document.getElementById("board");
+        board.innerHTML = "";
+
+        deck.forEach((card, i) => {
+          let d = document.createElement("div");
+          d.className = "card back";
+          d.dataset.index = i;
+
+          d.onclick = () => selectCard(d);
+
+          board.appendChild(d);
+        });
+      }
+
+      function selectCard(el) {
+        if (selected.length >= 2) return;
+        if (el.classList.contains("open")) return;
+        if (selected.includes(el)) return;
+
+        el.classList.add("selected");
+        el.style.outlineColor = teams[currentTeam].color;
+
+        selected.push(el);
+      }
+
+      function reveal() {
+        selected.forEach((el) => {
+          let i = el.dataset.index;
+          el.innerText = deck[i].value;
+          el.classList.remove("back");
+          el.classList.add("open");
+        });
+
+        if (selected.length == 2) {
+          let a = deck[selected[0].dataset.index];
+          let b = deck[selected[1].dataset.index];
+
+          setTimeout(() => {
+            if (a.value == b.pair || b.value == a.pair) {
+              teams[currentTeam].score += 5;
+
+              fireworks();
+              clap();
+
+              selected.forEach((el) => {
+                el.style.background = teams[currentTeam].color;
+              });
+
+              updateTeams();
+
+              resetTurn(true);
+            } else {
+              sad();
+
+              selected.forEach((el) => {
+                el.innerText = "";
+                el.classList.remove("open");
+                el.classList.add("back");
+              });
+
+              currentTeam = (currentTeam + 1) % 3;
+
+              updateTeams();
+
+              resetTurn(false);
+            }
+          }, 1000);
+        }
+      }
+
+      function resetTurn(extra) {
+        selected.forEach((c) => c.classList.remove("selected"));
+        selected = [];
+
+        if (!extra) startTimer();
+        else startTimer();
+      }
+
+      function updateTeams() {
+        teams.forEach((t, i) => {
+          let el = document.getElementById("team" + i);
+
+          el.innerText = t.name + " : " + t.score;
+
+          el.classList.remove("active");
+
+          if (i == currentTeam) el.classList.add("active");
+        });
+      }
+
+      let time = 90;
+      let timerInt;
+
+      function startTimer() {
+        clearInterval(timerInt);
+        time = 90;
+
+        timerInt = setInterval(() => {
+          time--;
+
+          let m = Math.floor(time / 60);
+          let s = time % 60;
+
+          document.getElementById("timer").innerText =
+            "⏳ " + m + ":" + ("0" + s).slice(-2);
+
+          if (time <= 0) {
+            currentTeam = (currentTeam + 1) % 3;
+
+            updateTeams();
+
+            time = 90;
+          }
+        }, 1000);
+      }
+
+      function fireworks() {
+        let fw = document.getElementById("fireworks");
+
+        for (let i = 0; i < 80; i++) {
+          let p = document.createElement("div");
+          p.className = "particle";
+
+          p.style.left = Math.random() * window.innerWidth + "px";
+          p.style.top = Math.random() * window.innerHeight + "px";
+
+          p.style.setProperty("--x", Math.random() * 400 - 200 + "px");
+          p.style.setProperty("--y", Math.random() * 400 - 200 + "px");
+
+          fw.appendChild(p);
+
+          setTimeout(() => p.remove(), 1000);
+        }
+      }
+
+      function clap() {
+        let a = new Audio(
+          "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAA=",
+        );
+        a.play();
+      }
+
+      function sad() {
+        let a = new Audio(
+          "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAA=",
+        );
+        a.play();
+      }
+
+      function showPodium() {
+        document.getElementById("game").style.display = "none";
+
+        let p = document.getElementById("podium");
+
+        p.style.display = "block";
+
+        let sorted = [...teams].sort((a, b) => b.score - a.score);
+
+        p.innerHTML = "<h1>🏆 תוצאות</h1>";
+
+        sorted.forEach((t, i) => {
+          let d = document.createElement("div");
+          d.className = "podiumBox";
+          d.style.background = t.color;
+
+          d.innerText = i + 1 + " מקום - " + t.name + " (" + t.score + ")";
+
+          p.appendChild(d);
+        });
+      }
+
+      document.getElementById("startBtn").onclick = startGame;
+      document.getElementById("revealBtn").onclick = reveal;
+      document.getElementById("continueBtn").onclick = showPodium;
+    </script>
+  </body>
+</html>
