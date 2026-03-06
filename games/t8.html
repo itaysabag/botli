@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<title>משחק ניחוש מילים</title>
+
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+background:linear-gradient(135deg,#5f9cff,#7be0ff);
+direction:rtl;
+margin:0;
+padding:20px;
+color:white;
+}
+
+h1{
+font-size:50px;
+margin-bottom:10px;
+}
+
+#scoreboard{
+font-size:22px;
+margin-bottom:20px;
+}
+
+#wordHint{
+font-size:30px;
+margin:20px;
+}
+
+input{
+padding:12px;
+font-size:22px;
+text-align:center;
+width:220px;
+border-radius:10px;
+border:none;
+}
+
+button{
+padding:12px 18px;
+margin:8px;
+font-size:18px;
+cursor:pointer;
+border:none;
+border-radius:10px;
+background:white;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(1.1);
+background:#ffe066;
+}
+
+#message{
+font-size:26px;
+margin-top:20px;
+min-height:40px;
+}
+
+#attempts{
+margin-top:30px;
+}
+
+.row{
+margin:8px 0;
+}
+
+.cell{
+display:inline-flex;
+justify-content:center;
+align-items:center;
+width:60px;
+height:60px;
+margin:4px;
+border-radius:10px;
+font-size:30px;
+font-weight:bold;
+background:white;
+color:black;
+}
+
+.correct{
+background:#4CAF50;
+color:white;
+}
+
+.exists{
+background:#FFD54F;
+color:black;
+}
+
+.wrong{
+background:#E53935;
+color:white;
+}
+
+</style>
+</head>
+
+<body
+
+<h1>🎮 משחק ניחוש מילים</h1>
+
+<div id="scoreboard">
+נקודות: <span id="score">0</span>
+</div>
+
+<div id="wordHint">המילה מכילה 5 אותיות</div>
+
+<input type="text" id="guessInput" maxlength="5" placeholder="הכנס מילה">
+<button onclick="checkGuess()">בדוק</button>
+
+<div id="message"></div>
+<div id="attempts"></div>
+
+<script>
+
+let words = [
+"תפוח",
+"כדור",
+"שולחן",
+"חדרים",
+"חלום",
+"ילדים",
+"שדות",
+"ספרים",
+"חברים",
+"נעלים",
+"ברכה",
+"משחק",
+"חומה",
+"כתבה",
+"תמונה",
+"חידה",
+"ביתר",
+"אדמה",
+"שמחה",
+"שביל"
+];
+
+let word = "";
+let score = 0;
+
+function startGame(){
+newRound();
+}
+
+function newRound(){
+
+word = words[Math.floor(Math.random()*words.length)];
+
+document.getElementById("attempts").innerHTML="";
+document.getElementById("message").innerText="";
+document.getElementById("guessInput").value="";
+document.getElementById("guessInput").disabled=false;
+
+}
+
+function checkGuess(){
+
+let input=document.getElementById("guessInput");
+let guess=input.value.trim();
+
+if(guess.length!==5){
+document.getElementById("message").innerText="יש להכניס מילה עם 5 אותיות";
+return;
+}
+
+let row=document.createElement("div");
+row.className="row";
+
+for(let i=0;i<5;i++){
+
+let cell=document.createElement("span");
+cell.className="cell";
+cell.innerText=guess[i];
+
+if(guess[i]===word[i]){
+cell.classList.add("correct");
+}
+else if(word.includes(guess[i])){
+cell.classList.add("exists");
+}
+else{
+cell.classList.add("wrong");
+}
+
+row.appendChild(cell);
+
+}
+
+document.getElementById("attempts").appendChild(row);
+
+if(guess===word){
+
+score+=10;
+document.getElementById("score").innerText=score;
+
+document.getElementById("message").innerText="🎉 כל הכבוד! ניחשת נכון! המילה הייתה "+word;
+
+document.getElementById("guessInput").disabled=true;
+
+}
+
+input.value="";
+
+}
+
+startGame();
+
+</script>
+
+</body>
+</html>
