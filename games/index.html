@@ -7,59 +7,65 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #212121; /* צבע רקע תואם לתמונה */
+            background-color: #212121;
             color: white;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* מונע גלילה מיותרת של העמוד הראשי */
+            overflow-x: hidden;
         }
 
-        /* --- אזור התפריט --- */
         #menu-container {
             text-align: center;
-            padding: 50px;
-            display: block; /* מוצג כברירת מחדל */
+            padding: 50px 20px;
+            display: block;
         }
 
         h1 { color: #81c784; font-size: 2.5rem; margin-bottom: 5px;}
         .subtitle { margin-bottom: 30px; font-size: 1.2rem; }
 
+        /* --- שינוי לגריד רספונסיבי --- */
         .game-menu {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            display: grid;
+            /* יוצר עמודות ברוחב מינימלי של 220 פיקסלים שמתפרסות על כל הרוחב */
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto; /* מרכז את הגריד */
         }
 
         .game-btn {
             background-color: transparent;
             color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 20px;
-            width: 300px;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 18px;
             border: 2px solid #4CAF50;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
         }
 
         .game-btn:hover {
             background-color: #4CAF50;
             color: #212121;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
 
         .btn-disabled {
             border-color: #555;
             color: #aaa;
             cursor: not-allowed;
+            opacity: 0.6;
         }
-        .btn-disabled:hover { background-color: transparent; color: #aaa; }
 
-
-        /* --- אזור המשחק (המוסתר בהתחלה) --- */
+        /* --- אזור המשחק --- */
         #game-container {
-            display: none; /* מוסתר כברירת מחדל */
+            display: none;
             width: 100vw;
             height: 100vh;
             flex-direction: column;
@@ -72,7 +78,6 @@
             display: flex;
             align-items: center;
             padding: 0 20px;
-            box-sizing: border-box;
         }
 
         #back-btn {
@@ -82,21 +87,14 @@
             padding: 6px 15px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
             font-weight: bold;
-            transition: 0.3s;
-        }
-
-        #back-btn:hover { 
-            background-color: #ef5777; 
-            color: white;
         }
 
         #game-frame {
             width: 100%;
-            height: calc(100vh - 50px); /* ממלא את כל המסך פחות הפס העליון */
+            height: calc(100vh - 50px);
             border: none;
-            background-color: #1e272e; /* צבע רקע למקרה שהמשחק שקוף */
+            background-color: #1e272e;
         }
     </style>
 </head>
@@ -104,29 +102,21 @@
 
     <div id="menu-container">
         <h1>🎮 משחקים ופעילויות</h1>
-        <div class="subtitle">בחרו משחק מהרשימה כדי להתחיל:</div>
+        <div class="subtitle">המשחקים של BotLi (בסדר משתנה):</div>
 
-        <div class="game-menu">
-
-
-         <button class="game-btn" onclick="openGame('t7.html')">הג'ונגל</button>
-         <button class="game-btn" onclick="openGame('t3.html')">משחק הסרטים הגדול</button>
-<button class="game-btn" onclick="openGame('t6.html')">טריוויה</button>
-<button class="game-btn" onclick="openGame('t9.html')">משחק מילים</button>
-<button class="game-btn" onclick="openGame('t5.html')">ג'פרדי</button>
-<button class="game-btn" onclick="openGame('t4.html')">איש תלוי</button>
-<button class="game-btn" onclick="openGame('t8.html')">משחק הניחושים</button>
-<button class="game-btn" onclick="openGame('t2.html')">דאבל זיכרון</button>
-<button class="game-btn" onclick="openGame('t1.html')">משחק הזיכרון חיות</button>
-
-
-            
-            
+        <div class="game-menu" id="gameMenu">
+            <button class="game-btn" onclick="openGame('t7.html')">הג'ונגל</button>
+            <button class="game-btn" onclick="openGame('t3.html')">משחק הסרטים הגדול</button>
+            <button class="game-btn" onclick="openGame('t6.html')">טריוויה</button>
+            <button class="game-btn" onclick="openGame('t9.html')">משחק מילים</button>
+            <button class="game-btn" onclick="openGame('t5.html')">ג'פרדי</button>
+            <button class="game-btn" onclick="openGame('t4.html')">איש תלוי</button>
+            <button class="game-btn" onclick="openGame('t8.html')">משחק הניחושים</button>
+            <button class="game-btn" onclick="openGame('t2.html')">דאבל זיכרון</button>
+            <button class="game-btn" onclick="openGame('t1.html')">משחק הזיכרון חיות</button>
             <button class="game-btn" onclick="openGame('4digits.html')">בול פגיעה</button>
             <button class="game-btn" onclick="openGame('4inarow.html')">3-4 בשורה</button>
-
-            
-            <button class="game-btn btn-disabled">משחק נוסף (בקרוב)</button>
+            <button class="game-btn btn-disabled" disabled>משחק נוסף (בקרוב)</button>
         </div>
     </div>
 
@@ -138,21 +128,31 @@
     </div>
 
     <script>
+        // פונקציית ערבוב (Shuffle) בטעינת הדף
+        window.onload = function() {
+            const menu = document.getElementById('gameMenu');
+            const buttons = Array.from(menu.children);
+            
+            // אלגוריתם Fisher-Yates לערבוב מערך
+            for (let i = buttons.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [buttons[i], buttons[j]] = [buttons[j], buttons[i]];
+            }
+            
+            // ניקוי התפריט והוספת הכפתורים בסדר החדש
+            menu.innerHTML = '';
+            buttons.forEach(btn => menu.appendChild(btn));
+        };
+
         function openGame(fileName) {
-            // 1. מעלימים את התפריט
             document.getElementById('menu-container').style.display = 'none';
-            // 2. מציגים את אזור המשחק
             document.getElementById('game-container').style.display = 'flex';
-            // 3. טוענים את הכתובת של המשחק הנבחר לתוך החלון הפנימי
             document.getElementById('game-frame').src = fileName;
         }
 
         function closeGame() {
-            // 1. מרוקנים את החלון (כדי שהמשחק יעצור לגמרי והטיימרים שלו יתאפסו)
             document.getElementById('game-frame').src = "";
-            // 2. מעלימים את אזור המשחק
             document.getElementById('game-container').style.display = 'none';
-            // 3. מחזירים את התפריט
             document.getElementById('menu-container').style.display = 'block';
         }
     </script>
