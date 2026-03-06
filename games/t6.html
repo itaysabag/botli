@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>משחק שאלון כיתתי</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 6px 10px 4px;
+  }
+
+  /* ===== TITLE ===== */
+  h1 {
+    text-align: center;
+    font-size: 1.7rem;
+    text-shadow: 0 0 20px rgba(255,255,100,0.5);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 2px 0 4px;
+    user-select: none;
+    transition: text-shadow 0.2s;
+  }
+  h1:hover { text-shadow: 0 0 24px rgba(255,215,0,0.9); }
+  h1 .edit-hint { font-size: 0.6rem; opacity: 0.4; margin-right: 5px; vertical-align: middle; }
+
+  /* ===== BOARD ===== */
+  .board-area {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-shrink: 0;
+  }
+
+  .row-labels {
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+  }
+
+  .row-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.6);
+    min-height: 68px;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(5, 130px);
+    grid-template-rows: repeat(3, 68px);
+    gap: 6px;
+  }
+
+  .cell {
+    width: 130px;
+    height: 68px;
+    background: linear-gradient(145deg, #3a3a8a, #2a2a6a);
+    border: 2px solid #5555bb;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    user-select: none;
+  }
+  .cell:hover:not(.used) {
+    transform: scale(1.07);
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+  .cell.used {
+    background: linear-gradient(145deg, #1a1a3a, #111133);
+    border-color: #333;
+    color: #444;
+    cursor: default;
+  }
+  .cell.being-passed {
+    border-color: #ff9800;
+    box-shadow: 0 0 16px rgba(255,152,0,0.5);
+    animation: pulsePassed 0.8s infinite alternate;
+  }
+  @keyframes pulsePassed {
+    from { box-shadow: 0 0 8px rgba(255,152,0,0.3); }
+    to   { box-shadow: 0 0 22px rgba(255,152,0,0.8); }
+  }
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .cell:not(.used):not(.being-passed)::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 7px; height: 7px;
+    background: #ffd700;
+    border-radius: 50%;
+    animation: sparkle 2s infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, transparent);
+    margin: 5px 0;
+    flex-shrink: 0;
+  }
+
+  /* ===== BOTTOM AREA ===== */
+  .bottom-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .turn-box {
+    background: linear-gradient(145deg, #1e1e4e, #2a2a6a);
+    border: 2px solid #5555bb;
+    border-radius: 14px;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .turn-label { font-size: 1rem; opacity: 0.8; }
+  .turn-team { font-size: 1.3rem; font-weight: bold; padding: 5px 10px; border-radius: 10px; display: inline-block; }
+
+  /* Cars area */
+  .cars-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .car-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .car-score {
+    font-size: 1.3rem;
+    font-weight: bold;
+    min-width: 52px;
+    text-align: center;
+    text-shadow: 0 0 8px currentColor;
+    flex-shrink: 0;
+  }
+
+  .car-track {
+    flex: 1;
+    height: 44px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+  .car-row.active-turn .car-track {
+    border-color: #ffd700;
+    box-shadow: 0 0 16px rgba(255,215,0,0.3);
+  }
+  .car-row.active-turn .car-label { color: #ffd700; }
+
+  .road-lines {
+    position: absolute;
+    top: 50%; left: 0; right: 40px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0, rgba(255,255,255,0.15) 18px, transparent 18px, transparent 36px);
+  }
+
+  /* Finish line */
+  .finish-flag {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 38px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 3px dashed rgba(255,215,0,0.6);
+    font-size: 1.3rem;
+    background: rgba(255,215,0,0.04);
+  }
+  .finish-score-label {
+    position: absolute;
+    left: 0;
+    top: -16px;
+    font-size: 0.7rem;
+    color: #ffd700;
+    width: 38px;
+    text-align: center;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+
+  .car {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    transition: right 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+    z-index: 2;
+  }
+
+  .car-label {
+    font-size: 0.95rem;
+    font-weight: bold;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  /* ===== QUESTION BALLOON ===== */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .overlay.active { display: flex; }
+
+  .balloon {
+    background: linear-gradient(145deg, #ffffff, #e8e8ff);
+    color: #222;
+    border-radius: 24px;
+    padding: 36px 44px 26px;
+    max-width: 620px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    0%   { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  .points-badge {
+    position: absolute;
+    top: -16px; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #333;
+    padding: 5px 24px;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255,215,0,0.5);
+    white-space: nowrap;
+  }
+  .question-text {
+    font-size: 1.9rem;
+    margin: 18px 0 26px;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .btn-row { display: flex; justify-content: center; gap: 28px; }
+  .btn-answer {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: none;
+    font-size: 2.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-answer:hover { transform: scale(1.15); }
+  .btn-correct { background: linear-gradient(145deg, #4CAF50, #2E7D32); color: #fff; box-shadow: 0 6px 18px rgba(76,175,80,0.5); }
+  .btn-wrong   { background: linear-gradient(145deg, #f44336, #c62828); color: #fff; box-shadow: 0 6px 18px rgba(244,67,54,0.5); }
+
+  /* ===== PASS FLASH ===== */
+  .pass-flash {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: bold;
+    z-index: 200;
+    pointer-events: none;
+    text-shadow: 0 0 20px currentColor;
+    animation: passAnim 1.3s ease-out forwards;
+  }
+  @keyframes passAnim {
+    0%  { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+    75% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100%{ opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  }
+
+  /* ===== SCORE POPUP ===== */
+  .score-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    font-weight: bold;
+    z-index: 200;
+    pointer-events: none;
+    animation: scoreAnim 1.2s ease-out forwards;
+  }
+  @keyframes scoreAnim {
+    0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+    30%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+    100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+  }
+
+  /* ===== CONFETTI ===== */
+  .confetti-piece {
+    position: fixed;
+    z-index: 150;
+    pointer-events: none;
+    animation: confettiFall 1.5s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(400px) rotate(720deg); }
+  }
+
+  /* ===== WINNER SCREEN ===== */
+  .winner-screen {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 300;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .winner-screen.active { display: flex; }
+  .winner-screen h2 { font-size: 3.5rem; margin-bottom: 16px; animation: popIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
+  .winner-screen .winner-score { font-size: 2rem; opacity: 0.8; }
+  .restart-btn {
+    margin-top: 26px;
+    padding: 13px 36px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #333; font-size: 1.3rem; font-weight: bold;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .restart-btn:hover { transform: scale(1.08); }
+
+  /* ===== TITLE EDIT POPUP ===== */
+  .title-edit-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 55px;
+  }
+  .title-edit-overlay.active { display: flex; }
+
+  .title-edit-box {
+    background: #1e1e4e;
+    border: 2px solid #ffd700;
+    border-radius: 14px;
+    padding: 20px 26px;
+    min-width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    animation: popIn 0.25s ease-out;
+  }
+  .title-edit-box h3 { color: #ffd700; margin-bottom: 12px; font-size: 1.1rem; }
+  .title-edit-box label { display: block; font-size: 0.85rem; opacity: 0.75; margin-bottom: 3px; }
+  .title-edit-box input {
+    width: 100%; padding: 8px 12px;
+    border: 2px solid #5555bb; border-radius: 8px;
+    background: #2a2a6a; color: #fff; font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .title-edit-box input:focus { outline: none; border-color: #ffd700; }
+  .title-edit-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .title-edit-actions button {
+    flex: 1; padding: 8px;
+    border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .title-edit-actions button:first-child { background: linear-gradient(135deg,#4CAF50,#2E7D32); color:#fff; }
+  .title-edit-actions button:last-child  { background: rgba(255,255,255,0.1); color:#aaa; }
+  .title-edit-actions button:hover { transform: scale(1.04); }
+
+  /* ===== EDIT OVERLAY ===== */
+  .edit-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 400;
+    justify-content: center;
+    align-items: center;
+  }
+  .edit-overlay.active { display: flex; }
+
+  .edit-modal {
+    background: #1e1e4e;
+    border-radius: 18px;
+    padding: 22px 26px;
+    max-width: 720px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid #5555bb;
+  }
+  .edit-modal h2 { text-align: center; margin-bottom: 12px; color: #ffd700; font-size: 1.4rem; }
+
+  .preset-section h3 { font-size: 0.95rem; color: #aabbff; margin-bottom: 7px; }
+  .preset-btns { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .preset-btn {
+    padding: 6px 16px;
+    border: 2px solid #5555bb; border-radius: 8px;
+    background: rgba(85,85,187,0.2); color: #aabbff;
+    font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+  }
+  .preset-btn:hover { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.1); }
+
+  .questions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .edit-row {
+    background: rgba(255,255,255,0.05);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .edit-row label { display: block; font-size: 0.75rem; color: #ffd700; margin-bottom: 2px; }
+  .edit-row input {
+    width: 100%; padding: 5px 8px;
+    border: 2px solid #5555bb; border-radius: 6px;
+    background: #2a2a6a; color: #fff; font-size: 0.88rem;
+  }
+  .edit-row input:focus { outline: none; border-color: #ffd700; }
+
+  .edit-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .btn-save {
+    padding: 9px 32px;
+    border: none; border-radius: 9px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff; font-size: 1rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-save:hover { transform: scale(1.05); }
+  .btn-cancel {
+    padding: 9px 24px;
+    border: none; border-radius: 9px;
+    background: rgba(255,255,255,0.1); color: #aaa;
+    font-size: 1rem; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,0.18); }
+
+  /* Corner edit button */
+  .edit-btn-corner {
+    position: fixed;
+    top: 8px; left: 10px;
+    padding: 5px 14px;
+    border: 2px solid #5555bb; border-radius: 8px;
+    background: rgba(30,30,78,0.9); color: #aabbff;
+    font-size: 0.85rem; cursor: pointer;
+    z-index: 50; transition: all 0.2s;
+  }
+  .edit-btn-corner:hover { border-color: #ffd700; color: #ffd700; }
+</style>
+</head>
+<body>
+
+<button class="edit-btn-corner" onclick="openEditor()">&#9998; ערוך שאלות</button>
+
+<div id="app">
+  <h1 id="gameTitle" onclick="openTitleEdit()" title="לחץ לעריכת הכותרת">
+    <span id="titleText">שאלון כיתתי</span>
+    <span class="edit-hint">&#9998;</span>
+  </h1>
+
+  <div class="board-area">
+    <div class="row-labels" id="rowLabels"></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="bottom-area">
+    <div class="turn-box">
+      <div class="turn-label">עכשיו תור</div>
+      <div class="turn-team" id="turnTeam">קבוצה אדומה</div>
+    </div>
+    <div class="cars-area" id="carsArea"></div>
+  </div>
+</div>
+
+<!-- QUESTION OVERLAY -->
+<div class="overlay" id="questionOverlay">
+  <div class="balloon">
+    <div class="points-badge" id="balloonPoints"></div>
+    <div class="question-text" id="balloonQuestion"></div>
+    <div class="btn-row">
+      <button class="btn-answer btn-correct" onclick="answerCorrect()">&#10004;</button>
+      <button class="btn-answer btn-wrong"   onclick="answerWrong()">&#10008;</button>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER SCREEN -->
+<div class="winner-screen" id="winnerScreen">
+  <h2 id="winnerText"></h2>
+  <div class="winner-score" id="winnerScore"></div>
+  <button class="restart-btn" onclick="restartGame()">משחק חדש</button>
+</div>
+
+<!-- TITLE EDIT POPUP -->
+<div class="title-edit-overlay" id="titleEditOverlay" onclick="closeTitleEdit(event)">
+  <div class="title-edit-box" onclick="event.stopPropagation()">
+    <h3>&#9998; עריכת כותרת</h3>
+    <label>כותרת המשחק:</label>
+    <input type="text" id="titleInput" placeholder="כותרת...">
+    <label>שם תלמיד/ה (אופציונלי):</label>
+    <input type="text" id="studentInput" placeholder="שם...">
+    <div class="title-edit-actions">
+      <button onclick="saveTitleEdit()">&#10004; שמור</button>
+      <button onclick="closeTitleEdit()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT OVERLAY (questions only) -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <h2>&#9998; עריכת שאלות</h2>
+
+    <div class="preset-section">
+      <h3>טען סט שאלות מוכן:</h3>
+      <div class="preset-btns">
+        <button class="preset-btn" onclick="loadPreset('student')">&#128100; על תלמיד</button>
+        <button class="preset-btn" onclick="loadPreset('geo')">&#127758; גיאוגרפיה</button>
+        <button class="preset-btn" onclick="loadPreset('bible')">&#128218; תנ"ך</button>
+        <button class="preset-btn" onclick="loadPreset('literature')">&#9997; ספרות</button>
+        <button class="preset-btn" onclick="loadPreset('science')">&#128300; מדע וטבע</button>
+      </div>
+    </div>
+
+    <div id="editQuestions" class="questions-grid"></div>
+
+    <div class="edit-actions">
+      <button class="btn-save" onclick="saveQuestions()">&#10004; שמור והתחל</button>
+      <button class="btn-cancel" onclick="closeEditor()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const TEAMS = [
+  { name: 'אדומה', color: '#f44336', bg: 'rgba(244,67,54,0.25)' },
+  { name: 'כחולה', color: '#2196F3', bg: 'rgba(33,150,243,0.25)' },
+  { name: 'ירוקה', color: '#4CAF50', bg: 'rgba(76,175,80,0.25)' },
+  { name: 'סגולה', color: '#9C27B0', bg: 'rgba(156,39,176,0.25)' },
+];
+
+const ROWS = 3;
+const COLS = 5;
+const POINT_VALUES = [100, 200, 300];
+const CAR_EMOJIS = ['🚗', '🚙', '🚕', '🏎️'];
+const FINISH_SCORE = 1500;
+
+// ===== PRESETS =====
+const PRESETS = {
+  student: {
+    title: 'כמה אתם מכירים את',
+    questions: [
+      'מה החיה האהובה עליו/ה?','מה המאכל האהוב עליו/ה?','מה הצבע האהוב עליו/ה?',
+      'כמה אחים ואחיות יש לו/ה?','באיזה חודש יום ההולדת שלו/ה?',
+      'מה החלום שלו/ה כשיגדל/תגדל?','מה השיר האהוב עליו/ה?','מה הספר האהוב עליו/ה?',
+      'לאן הוא/היא הכי אוהב/ת לטייל?','מה התחביב האהוב עליו/ה?',
+      'מה הדבר שהכי מפחיד אותו/ה?','מה הזיכרון הכי יפה שלו/ה?',
+      'מה הדבר שהכי חשוב לו/ה בחבר/ה?','אם יכול/ה לקבל כוח-על, מה יבחר/ת?',
+      'מה המשפט שהוא/היא הכי אוהב/ת לומר?',
+    ]
+  },
+  geo: {
+    title: 'שאלות גיאוגרפיה',
+    questions: [
+      'מה בירת צרפת?','מה הנהר הארוך ביותר בעולם?','באיזה יבשת נמצאת אוסטרליה?',
+      'מה בירת ישראל?','כמה יבשות יש בעולם?',
+      'מהי המדינה הגדולה ביותר בעולם?','מה בירת יפן?','מה ההר הגבוה ביותר בעולם?',
+      'כמה מדינות יש בארצות הברית?','מה הים הגדול ביותר בעולם?',
+      'מה האוקיינוס הגדול ביותר?','מה בירת אוסטרליה?',
+      'מהי המדינה הקטנה ביותר בעולם?','מה המדבר הגדול ביותר בעולם?','מהי הבירה של קנדה?',
+    ]
+  },
+  bible: {
+    title: 'שאלות תנ"ך',
+    questions: [
+      'מי היה האדם הראשון?','כמה ימים ברא אלוהים את העולם?','מי בנה את התיבה?',
+      'מי הוציא את ישראל ממצרים?','כמה שבטים היו לישראל?',
+      'מי היה מלך ישראל הראשון?','מי כתב את ספר תהלים?','כמה ספרים יש בתורה?',
+      'מי פירש את חלומות פרעה?','מי בנה את בית המקדש הראשון?',
+      'כמה שנים חי מתושלח?','מה שם אמו של משה?',
+      'היכן קיבל משה את התורה?','מי הרג את גוליית?','מה שם אשת אברהם?',
+    ]
+  },
+  literature: {
+    title: 'שאלות ספרות',
+    questions: [
+      'מי כתב "הנסיך הקטן"?','מה שם הגיבור של "הארי פוטר"?','מי כתב "רומיאו ויוליה"?',
+      'מי כתב את "פינוקיו"?','מי כתב "עלי בארץ הפלאות"?',
+      'מי כתב "ההוביט"?','מי כתב "מסע גוליבר"?','מי כתב "20,000 מיל מתחת למים"?',
+      'מה שם הבלש המפורסם של קונן דויל?','מי כתב "מלחמה ושלום"?',
+      'מי כתב "הזקן והים"?','מי כתב "100 שנות בדידות"?',
+      'מה שם הסדרה של JK רולינג?','מי כתב "הנסיך"?','מי כתב "אנה קרנינה"?',
+    ]
+  },
+  science: {
+    title: 'מדע וטבע',
+    questions: [
+      'כמה רגליים לעכביש?','מה הגז השכיח ביותר באוויר?','כמה עצמות יש בגוף האדם?',
+      'מי המציא את הטלפון?','כמה שיניים לאדם בוגר?',
+      'מה מהירות האור?','כמה כוכבי לכת במערכת השמש?','מה החיה הגדולה ביותר בעולם?',
+      'כמה חדרים בלב האדם?','מה הסמל הכימי של זהב?',
+      'מי גילה את הכבידה?','כמה כרומוזומים לאדם?',
+      'מה הטמפרטורה שבה רותח מים?','מה הכוכב הקרוב ביותר לכדור הארץ?',
+      'כמה שנים לכדור הארץ לסובב את השמש?',
+    ]
+  }
+};
+
+// ===== STATE =====
+let masterQuestions = [...PRESETS.student.questions]; // source of truth, not shuffled
+let questions = [];                                    // shuffled copy used in-game
+let scores = [0, 0, 0, 0];
+let currentTurn = 0;
+let currentQuestionIndex = -1;
+let usedCells = new Set();
+let passChain = { idx: -1, count: 0 };
+let gameTitleValue = 'שאלון כיתתי';
+let studentNameValue = '';
+let pendingPresetTitle = null;
+
+// ===== SHUFFLE =====
+function shuffleWithinRows(arr) {
+  const result = [...arr];
+  for (let r = 0; r < ROWS; r++) {
+    const s = r * COLS, e = s + COLS;
+    const slice = result.slice(s, e);
+    for (let i = slice.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [slice[i], slice[j]] = [slice[j], slice[i]];
+    }
+    result.splice(s, COLS, ...slice);
+  }
+  return result;
+}
+
+// ===== BUILD BOARD =====
+function buildBoard() {
+  const board  = document.getElementById('board');
+  const labels = document.getElementById('rowLabels');
+  board.innerHTML = '';
+  labels.innerHTML = '';
+
+  for (let r = 0; r < ROWS; r++) {
+    const lbl = document.createElement('div');
+    lbl.className = 'row-label';
+    lbl.textContent = POINT_VALUES[r];
+    labels.appendChild(lbl);
+  }
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const idx = r * COLS + c;
+      const cell = document.createElement('div');
+      const isPassed = passChain.idx === idx && !usedCells.has(idx);
+      cell.className = 'cell' + (usedCells.has(idx) ? ' used' : isPassed ? ' being-passed' : '');
+      cell.style.setProperty('--delay', (Math.random() * 2).toFixed(1) + 's');
+      cell.innerHTML = usedCells.has(idx) ? '&ndash;' : '&#9733;';
+      cell.onclick = () => openQuestion(idx);
+      board.appendChild(cell);
+    }
+  }
+}
+
+// ===== BUILD CARS =====
+function buildCars() {
+  const area = document.getElementById('carsArea');
+  area.innerHTML = '';
+
+  TEAMS.forEach((team, i) => {
+    const row = document.createElement('div');
+    row.className = 'car-row' + (i === currentTurn ? ' active-turn' : '');
+    row.id = 'carRow' + i;
+
+    const label = document.createElement('div');
+    label.className = 'car-label';
+    label.style.color = team.color;
+    label.textContent = 'קבוצה ' + team.name;
+
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'car-score';
+    scoreEl.id = 'score' + i;
+    scoreEl.style.color = team.color;
+    scoreEl.textContent = scores[i];
+
+    const track = document.createElement('div');
+    track.className = 'car-track';
+    track.style.background = team.bg;
+
+    // Road lines (stop before finish flag)
+    const roadLines = document.createElement('div');
+    roadLines.className = 'road-lines';
+    track.appendChild(roadLines);
+
+    // Finish flag on left
+    const flag = document.createElement('div');
+    flag.className = 'finish-flag';
+    flag.textContent = '🏁';
+    const flagLabel = document.createElement('div');
+    flagLabel.className = 'finish-score-label';
+    flagLabel.textContent = FINISH_SCORE;
+    flag.appendChild(flagLabel);
+    track.appendChild(flag);
+
+    // Car
+    const car = document.createElement('div');
+    car.className = 'car';
+    car.id = 'car' + i;
+    car.textContent = CAR_EMOJIS[i];
+    track.appendChild(car);
+
+    row.appendChild(label);
+    row.appendChild(scoreEl);
+    row.appendChild(track);
+    area.appendChild(row);
+
+    updateCarPosition(i);
+  });
+}
+
+function updateCarPosition(i) {
+  const car = document.getElementById('car' + i);
+  if (!car) return;
+  const pct = Math.min(scores[i] / FINISH_SCORE, 1);
+  const tW  = car.parentElement.offsetWidth;
+  // right: 8 = start (right edge). Increases as car moves left toward finish flag (left side).
+  car.style.right = (8 + pct * (tW - 55)) + 'px';
+}
+
+// ===== TURN =====
+function updateTurnDisplay() {
+  const el   = document.getElementById('turnTeam');
+  const team = TEAMS[currentTurn];
+  el.textContent = 'קבוצה ' + team.name;
+  el.style.background = team.bg;
+  el.style.color = team.color;
+  el.style.border = '2px solid ' + team.color;
+  document.querySelectorAll('.car-row').forEach((row, i) => {
+    row.classList.toggle('active-turn', i === currentTurn);
+  });
+}
+
+function nextTurn() {
+  currentTurn = (currentTurn + 1) % TEAMS.length;
+  updateTurnDisplay();
+}
+
+// ===== QUESTION =====
+function openQuestion(idx) {
+  if (usedCells.has(idx)) return;
+  // Reset pass chain if this is a new question
+  if (passChain.idx !== idx) {
+    passChain = { idx: idx, count: 0 };
+  }
+  currentQuestionIndex = idx;
+  const row = Math.floor(idx / COLS);
+  document.getElementById('balloonPoints').textContent = POINT_VALUES[row] + ' נקודות';
+  document.getElementById('balloonQuestion').textContent = questions[idx];
+  document.getElementById('questionOverlay').classList.add('active');
+}
+
+function closeQuestion() {
+  document.getElementById('questionOverlay').classList.remove('active');
+}
+
+function answerCorrect() {
+  const idx     = currentQuestionIndex;
+  const row     = Math.floor(idx / COLS);
+  const pts     = POINT_VALUES[row];
+  const teamIdx = currentTurn;
+
+  passChain = { idx: -1, count: 0 };
+  scores[teamIdx] += pts;
+  usedCells.add(idx);
+  closeQuestion();
+  nextTurn();
+
+  showScorePopup('+' + pts, TEAMS[teamIdx].color);
+  spawnConfetti(TEAMS[teamIdx].color);
+
+  // Check finish line
+  if (scores[teamIdx] >= FINISH_SCORE) {
+    buildBoard();
+    buildCars();
+    updateTurnDisplay();
+    setTimeout(() => showWinner(teamIdx), 900);
+    return;
+  }
+
+  buildBoard();
+  buildCars();
+  updateTurnDisplay();
+
+  if (usedCells.size === ROWS * COLS) {
+    setTimeout(() => showWinner(), 1500);
+  }
+}
+
+function answerWrong() {
+  const idx = currentQuestionIndex;
+  closeQuestion();
+
+  passChain.count++;
+  const teamsLeft = TEAMS.length - passChain.count;
+
+  if (teamsLeft <= 0) {
+    // All teams failed
+    usedCells.add(idx);
+    passChain = { idx: -1, count: 0 };
+    buildBoard();
+    nextTurn();
+    buildCars();
+    updateTurnDisplay();
+    showNobodyKnew();
+    if (usedCells.size === ROWS * COLS) setTimeout(() => showWinner(), 1500);
+  } else {
+    // Pass to next team
+    nextTurn();
+    buildBoard();
+    buildCars();
+    updateTurnDisplay();
+    const nextTeam = TEAMS[currentTurn];
+    showPassFlash(nextTeam, () => openQuestion(idx));
+  }
+}
+
+// ===== EFFECTS =====
+function showPassFlash(team, callback) {
+  const el = document.createElement('div');
+  el.className = 'pass-flash';
+  el.style.color = team.color;
+  el.innerHTML =
+    '<div style="font-size:1.5rem">&#10008; שגוי!</div>' +
+    '<div style="font-size:1.2rem;margin-top:6px;color:#fff">&#8594; מעביר לקבוצה <span style="color:' + team.color + '">' + team.name + '</span></div>';
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.remove();
+    if (callback) callback();
+  }, 1350);
+}
+
+function showNobodyKnew() {
+  const el = document.createElement('div');
+  el.className = 'pass-flash';
+  el.style.color = '#aaa';
+  el.innerHTML = '<div style="font-size:2.5rem">&#128546;</div><div>אף קבוצה לא ידעה...</div>';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+function showScorePopup(text, color) {
+  const el = document.createElement('div');
+  el.className = 'score-popup';
+  el.textContent = text;
+  el.style.color = color;
+  el.style.textShadow = '0 0 30px ' + color;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+function spawnConfetti(color) {
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.top  = (Math.random() * 30 + 10) + 'vh';
+    c.style.background = i % 3 === 0 ? color : i % 3 === 1 ? '#ffd700' : '#fff';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.width  = (8 + Math.random() * 10) + 'px';
+    c.style.height = (8 + Math.random() * 10) + 'px';
+    c.style.animationDuration = (1 + Math.random()) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
+}
+
+// ===== WINNER =====
+function showWinner(forceIdx) {
+  let winnerIdx;
+  if (forceIdx !== undefined) {
+    winnerIdx = forceIdx;
+  } else {
+    const maxScore = Math.max(...scores);
+    winnerIdx = scores.indexOf(maxScore);
+  }
+  const team = TEAMS[winnerIdx];
+
+  document.getElementById('winnerText').textContent = 'הקבוצה ה' + team.name + ' ניצחה!';
+  document.getElementById('winnerText').style.color = team.color;
+  document.getElementById('winnerScore').textContent = 'עם ' + scores[winnerIdx] + ' נקודות!';
+  document.getElementById('winnerScreen').classList.add('active');
+
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => spawnConfetti(team.color), i * 350);
+  }
+}
+
+function restartGame() {
+  scores       = [0, 0, 0, 0];
+  currentTurn  = 0;
+  usedCells.clear();
+  passChain    = { idx: -1, count: 0 };
+  questions    = shuffleWithinRows(masterQuestions);
+  document.getElementById('winnerScreen').classList.remove('active');
+  buildBoard();
+  buildCars();
+  updateTurnDisplay();
+}
+
+// ===== TITLE EDIT =====
+function openTitleEdit() {
+  document.getElementById('titleInput').value   = gameTitleValue;
+  document.getElementById('studentInput').value = studentNameValue;
+  document.getElementById('titleEditOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('titleInput').focus(), 50);
+}
+
+function closeTitleEdit(e) {
+  if (e && e.target !== document.getElementById('titleEditOverlay')) return;
+  document.getElementById('titleEditOverlay').classList.remove('active');
+}
+
+function saveTitleEdit() {
+  gameTitleValue  = document.getElementById('titleInput').value.trim() || 'שאלון כיתתי';
+  studentNameValue = document.getElementById('studentInput').value.trim();
+  updateTitleDisplay();
+  document.getElementById('titleEditOverlay').classList.remove('active');
+}
+
+function updateTitleDisplay() {
+  let display = gameTitleValue;
+  if (studentNameValue) display += ' ' + studentNameValue;
+  document.getElementById('titleText').textContent = display;
+}
+
+// ===== EDITOR =====
+function openEditor() {
+  renderEditQuestions();
+  document.getElementById('editOverlay').classList.add('active');
+}
+
+function closeEditor() {
+  document.getElementById('editOverlay').classList.remove('active');
+  pendingPresetTitle = null;
+}
+
+function renderEditQuestions() {
+  const container = document.getElementById('editQuestions');
+  container.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const idx = r * COLS + c;
+      const div = document.createElement('div');
+      div.className = 'edit-row';
+      const lbl = document.createElement('label');
+      lbl.textContent = POINT_VALUES[r] + ' נק׳ · שאלה ' + (c + 1);
+      const inp = document.createElement('input');
+      inp.type  = 'text';
+      inp.id    = 'editQ' + idx;
+      inp.value = masterQuestions[idx];
+      div.appendChild(lbl);
+      div.appendChild(inp);
+      container.appendChild(div);
+    }
+  }
+}
+
+function loadPreset(key) {
+  const preset = PRESETS[key];
+  if (!preset) return;
+  masterQuestions    = [...preset.questions];
+  pendingPresetTitle = preset.title;
+  renderEditQuestions();
+}
+
+function saveQuestions() {
+  for (let i = 0; i < ROWS * COLS; i++) {
+    const inp = document.getElementById('editQ' + i);
+    if (inp) masterQuestions[i] = inp.value;
+  }
+
+  if (pendingPresetTitle !== null) {
+    gameTitleValue = pendingPresetTitle;
+    updateTitleDisplay();
+    pendingPresetTitle = null;
+  }
+
+  closeEditor();
+
+  // Restart with shuffled questions
+  scores      = [0, 0, 0, 0];
+  currentTurn = 0;
+  usedCells.clear();
+  passChain   = { idx: -1, count: 0 };
+  questions   = shuffleWithinRows(masterQuestions);
+  buildBoard();
+  buildCars();
+  updateTurnDisplay();
+}
+
+// ===== INIT =====
+questions = shuffleWithinRows(masterQuestions);
+buildBoard();
+buildCars();
+updateTurnDisplay();
+</script>
+</body>
+</html>
