@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jeopardy Game</title>
+
+<style>
+
+body{
+    background:black;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    color:gold;
+}
+
+#scores{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.score{
+    background:#222;
+    color:lime;
+    padding:10px 20px;
+    font-size:20px;
+    border:2px solid white;
+}
+
+#board{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+    width:900px;
+    margin:auto;
+}
+
+.category{
+    background:#082378;
+    color:white;
+    font-weight:bold;
+    padding:15px;
+}
+
+.tile{
+    background:#082378;
+    color:gold;
+    font-size:28px;
+    padding:25px;
+    cursor:pointer;
+    border:2px solid white;
+}
+
+.tile:hover{
+    background:#0f3fc2;
+}
+
+.tile.used{
+    background:black;
+    cursor:default;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<h1>JEOPARDY</h1>
+
+<div id="scores">
+<div class="score" id="team0">Team 1: 0</div>
+<div class="score" id="team1">Team 2: 0</div>
+<div class="score" id="team2">Team 3: 0</div>
+</div>
+
+<div id="board"></div>
+
+
+<script>
+
+const categories = [
+"Movies",
+"Science",
+"History",
+"Music",
+"Sports"
+];
+
+let scores=[0,0,0];
+
+const questions = {
+
+Movies:[
+
+[
+{q:"Who directed Inception?",a:"nolan"},
+{q:"Which movie features Elsa?",a:"frozen"},
+{q:"Which movie features Woody the cowboy?",a:"toy story"},
+{q:"Who is the main villain in The Lion King?",a:"scar"},
+{q:"Which movie features a clownfish named Nemo?",a:"finding nemo"},
+{q:"What color is the Hulk?",a:"green"},
+{q:"Which superhero lives in Gotham?",a:"batman"},
+{q:"Which wizard goes to Hogwarts?",a:"harry potter"},
+{q:"Which animated movie features Olaf?",a:"frozen"},
+{q:"Who is Iron Man?",a:"tony stark"}
+],
+
+[
+{q:"Which movie features Jack Sparrow?",a:"pirates"},
+{q:"Who directed Titanic?",a:"cameron"},
+{q:"Which film features dinosaurs in a theme park?",a:"jurassic park"},
+{q:"Which movie features Katniss Everdeen?",a:"hunger games"},
+{q:"Who directed Jaws?",a:"spielberg"},
+{q:"Which movie features the DeLorean time machine?",a:"back to the future"},
+{q:"Which film features the character Rocky Balboa?",a:"rocky"},
+{q:"Which movie stars Tom Hanks on a deserted island?",a:"cast away"},
+{q:"Which film features a ship called Black Pearl?",a:"pirates"},
+{q:"Which movie features Neo?",a:"matrix"}
+],
+
+[
+{q:"Which 2019 film won Best Picture?",a:"parasite"},
+{q:"Who directed Pulp Fiction?",a:"tarantino"},
+{q:"Which film stars Russell Crowe as a Roman general?",a:"gladiator"},
+{q:"Who directed Interstellar?",a:"nolan"},
+{q:"Which movie features a computer named HAL?",a:"2001"},
+{q:"Which movie stars Joaquin Phoenix as Joker?",a:"joker"},
+{q:"Which film is about Facebook's founder?",a:"social network"},
+{q:"Which movie features a hotel in the Alps run by Gustave?",a:"grand budapest"},
+{q:"Which film stars Keanu Reeves as an assassin?",a:"john wick"},
+{q:"Which movie features a desert planet called Arrakis?",a:"dune"}
+],
+
+[
+{q:"Who directed Mulholland Drive?",a:"lynch"},
+{q:"Who directed The Seventh Seal?",a:"bergman"},
+{q:"Which film stars Robert De Niro as Travis Bickle?",a:"taxi driver"},
+{q:"Which movie features Anton Chigurh?",a:"no country"},
+{q:"Who directed Seven Samurai?",a:"kurosawa"},
+{q:"Which film stars Daniel Day Lewis as an oil tycoon?",a:"there will be blood"},
+{q:"Who directed Persona?",a:"bergman"},
+{q:"Which film features a giant monolith?",a:"2001"},
+{q:"Who directed Bicycle Thieves?",a:"de sica"},
+{q:"Which film features Colonel Kurtz?",a:"apocalypse"}
+],
+
+[
+{q:"Who directed Stalker?",a:"tarkovsky"},
+{q:"Who directed Solaris (1972)?",a:"tarkovsky"},
+{q:"Which director made the Three Colours trilogy?",a:"kieslowski"},
+{q:"Who directed Breathless?",a:"godard"},
+{q:"Who directed L'Avventura?",a:"antonioni"},
+{q:"Who directed Andrei Rublev?",a:"tarkovsky"},
+{q:"Which film was Orson Welles debut?",a:"citizen kane"},
+{q:"Who directed The Mirror?",a:"tarkovsky"},
+{q:"Which Japanese director made Rashomon?",a:"kurosawa"},
+{q:"Who directed Metropolis?",a:"lang"}
+]
+
+],
+
+
+Science:[
+
+[
+{q:"What planet is closest to the sun?",a:"mercury"},
+{q:"What gas do plants absorb?",a:"carbon dioxide"},
+{q:"How many legs does an insect have?",a:"6"},
+{q:"What force pulls objects down?",a:"gravity"},
+{q:"What organ pumps blood?",a:"heart"},
+{q:"What star is at the center of our solar system?",a:"sun"},
+{q:"What do humans breathe in?",a:"oxygen"},
+{q:"Water freezes at what temperature Celsius?",a:"0"},
+{q:"What animal changes from caterpillar?",a:"butterfly"},
+{q:"What do bees produce?",a:"honey"}
+],
+
+[
+{q:"What is the chemical symbol for gold?",a:"au"},
+{q:"Which planet is called the Red Planet?",a:"mars"},
+{q:"What part of cell contains DNA?",a:"nucleus"},
+{q:"How many planets in solar system?",a:"8"},
+{q:"Which vitamin comes from sunlight?",a:"vitamin d"},
+{q:"What gas do humans exhale?",a:"carbon dioxide"},
+{q:"What tool measures temperature?",a:"thermometer"},
+{q:"What is H2O?",a:"water"},
+{q:"What blood cells fight infection?",a:"white"},
+{q:"Which organ filters blood?",a:"kidney"}
+],
+
+[
+{q:"Who developed relativity?",a:"einstein"},
+{q:"What particle is negative?",a:"electron"},
+{q:"What particle defines an element?",a:"proton"},
+{q:"What is the largest organ?",a:"skin"},
+{q:"What organelle makes energy?",a:"mitochondria"},
+{q:"Which scientist proposed evolution?",a:"darwin"},
+{q:"Which planet has rings?",a:"saturn"},
+{q:"What unit measures force?",a:"newton"},
+{q:"What is center of atom called?",a:"nucleus"},
+{q:"What bond shares electrons?",a:"covalent"}
+],
+
+[
+{q:"What particle has no charge?",a:"neutron"},
+{q:"What is pH of neutral substance?",a:"7"},
+{q:"Who discovered penicillin?",a:"fleming"},
+{q:"What brain part controls balance?",a:"cerebellum"},
+{q:"What is the speed of light unit?",a:"meters"},
+{q:"Which law states F=ma?",a:"newton"},
+{q:"What process makes plants food?",a:"photosynthesis"},
+{q:"What cell division creates identical cells?",a:"mitosis"},
+{q:"Which gas do humans need for respiration?",a:"oxygen"},
+{q:"What is hardest natural material?",a:"diamond"}
+],
+
+[
+{q:"What does DNA stand for?",a:"deoxyribo"},
+{q:"Who created uncertainty principle?",a:"heisenberg"},
+{q:"What law describes entropy increase?",a:"second"},
+{q:"Which organelle performs photosynthesis?",a:"chloroplast"},
+{q:"What particle carries electromagnetic force?",a:"photon"},
+{q:"What number is Avogadro constant approx?",a:"6"},
+{q:"Which scientist formulated motion laws?",a:"newton"},
+{q:"What galaxy do we live in?",a:"milky"},
+{q:"What constant equals energy times mass squared?",a:"einstein"},
+{q:"What theory explains gravity curvature?",a:"relativity"}
+]
+
+],
+
+
+History:[
+
+[
+{q:"Who was the first president of the United States?",a:"washington"},
+{q:"In which country were the pyramids built?",a:"egypt"},
+{q:"Who discovered America in 1492?",a:"columbus"},
+{q:"Which wall fell in Germany in 1989?",a:"berlin"},
+{q:"Which ship sank in 1912?",a:"titanic"},
+{q:"Who was the Egyptian boy king?",a:"tutankhamun"},
+{q:"Which civilization built the Colosseum?",a:"roman"},
+{q:"Which country used samurai warriors?",a:"japan"},
+{q:"Who was the first man on the moon?",a:"armstrong"},
+{q:"Which ancient wonder was in Egypt?",a:"pyramids"}
+],
+
+[
+{q:"In which year did World War II end?",a:"1945"},
+{q:"Who was the leader of Nazi Germany?",a:"hitler"},
+{q:"Which empire was ruled by Julius Caesar?",a:"roman"},
+{q:"Which war was fought between North and South US?",a:"civil"},
+{q:"Who was known as the Maid of Orleans?",a:"joan"},
+{q:"Which country gave the Statue of Liberty?",a:"france"},
+{q:"What trade route connected China and Europe?",a:"silk"},
+{q:"Which queen ruled England during Armada?",a:"elizabeth"},
+{q:"Which civilization built Machu Picchu?",a:"inca"},
+{q:"Which document begins 'We the People'?",a:"constitution"}
+],
+
+[
+{q:"Who was British PM during WWII?",a:"churchill"},
+{q:"What treaty ended WWI?",a:"versailles"},
+{q:"Who was Soviet leader during Cuban Missile Crisis?",a:"khrushchev"},
+{q:"Which French leader crowned himself emperor?",a:"napoleon"},
+{q:"When did American Revolution start?",a:"1775"},
+{q:"Who wrote Communist Manifesto?",a:"marx"},
+{q:"Which empire ruled much of Middle East?",a:"ottoman"},
+{q:"Who was assassinated in Sarajevo?",a:"ferdinand"},
+{q:"What movement fought for women's vote?",a:"suffrage"},
+{q:"Which battle ended Napoleon rule?",a:"waterloo"}
+],
+
+[
+{q:"Who was first Roman emperor?",a:"augustus"},
+{q:"Which dynasty built much Great Wall?",a:"ming"},
+{q:"Who led Soviet Union after Lenin?",a:"stalin"},
+{q:"Which treaty divided world Spain Portugal?",a:"tordesillas"},
+{q:"Which rebellion occurred in India 1857?",a:"sepoy"},
+{q:"Which general crossed Alps with elephants?",a:"hannibal"},
+{q:"Which scandal forced Nixon resignation?",a:"watergate"},
+{q:"Which document limited king in 1215?",a:"magna carta"},
+{q:"Who founded Mongol Empire?",a:"genghis"},
+{q:"Which war was called Great War?",a:"world war"}
+],
+
+[
+{q:"Which emperor codified Roman law?",a:"justinian"},
+{q:"Who led Haitian Revolution?",a:"toussaint"},
+{q:"Which battle in 1066 changed England?",a:"hastings"},
+{q:"What conference divided Africa colonies?",a:"berlin"},
+{q:"Who was last Russian tsar?",a:"nicholas"},
+{q:"Which Persian king fought Greeks?",a:"xerxes"},
+{q:"Who wrote The Prince?",a:"machiavelli"},
+{q:"Which agreement gave Germany Sudetenland?",a:"munich"},
+{q:"Which revolt ended at Masada?",a:"jewish"},
+{q:"Who became South Africa president 1994?",a:"mandela"}
+]
+
+],
+
+
+Music:[
+
+[
+{q:"Which band wrote Hey Jude?",a:"beatles"},
+{q:"Who is King of Pop?",a:"jackson"},
+{q:"How many strings guitar?",a:"6"},
+{q:"Which instrument has black white keys?",a:"piano"},
+{q:"Who sings Shape of You?",a:"sheeran"},
+{q:"Which singer Rolling in the Deep?",a:"adele"},
+{q:"Which family violin belongs?",a:"string"},
+{q:"Which singer Bad Romance?",a:"gaga"},
+{q:"What group singers called?",a:"choir"},
+{q:"Which singer Baby song?",a:"bieber"}
+],
+
+[
+{q:"Who composed 5th Symphony?",a:"beethoven"},
+{q:"Who released album 1989?",a:"swift"},
+{q:"Which band Bohemian Rhapsody?",a:"queen"},
+{q:"Which singer Nirvana?",a:"cobain"},
+{q:"Which instrument Armstrong played?",a:"trumpet"},
+{q:"Which singer Halo?",a:"beyonce"},
+{q:"What clef low notes?",a:"bass"},
+{q:"Which artist Thriller?",a:"jackson"},
+{q:"Which singer Firework?",a:"perry"},
+{q:"Which band Yellow song?",a:"coldplay"}
+],
+
+[
+{q:"Who composed Four Seasons?",a:"vivaldi"},
+{q:"Which band Dark Side Moon?",a:"pink"},
+{q:"Who wrote Magic Flute?",a:"mozart"},
+{q:"Which genre improvisation swing?",a:"jazz"},
+{q:"Who composed Swan Lake?",a:"tchaikovsky"},
+{q:"What speed music called?",a:"tempo"},
+{q:"Who wrote Someone Like You?",a:"adele"},
+{q:"Which singer Rolling Stones leader?",a:"jagger"},
+{q:"Who composed Moonlight Sonata?",a:"beethoven"},
+{q:"Which band Hotel California?",a:"eagles"}
+],
+
+[
+{q:"Who composed Carmen?",a:"bizet"},
+{q:"Which jazz musician Bird?",a:"parker"},
+{q:"Relative minor C major?",a:"a"},
+{q:"Which composer deaf later life?",a:"beethoven"},
+{q:"Who composed Valkyries ride?",a:"wagner"},
+{q:"Which singer Police band?",a:"sting"},
+{q:"Which pianist wrote nocturnes?",a:"chopin"},
+{q:"What means getting louder?",a:"crescendo"},
+{q:"Which rapper Illmatic?",a:"nas"},
+{q:"Which composer Messiah?",a:"handel"}
+],
+
+[
+{q:"Who composed Rite of Spring?",a:"stravinsky"},
+{q:"Which mode starts scale degree two?",a:"dorian"},
+{q:"Who wrote Well Tempered Clavier?",a:"bach"},
+{q:"Which composer leitmotif opera?",a:"wagner"},
+{q:"What interval three tones?",a:"tritone"},
+{q:"Which album Kind of Blue?",a:"davis"},
+{q:"Who composed Pierrot Lunaire?",a:"schoenberg"},
+{q:"Which term restart music?",a:"da capo"},
+{q:"Who composed Goldberg Variations?",a:"bach"},
+{q:"Italian term very soft?",a:"pianissimo"}
+]
+
+],
+
+Sports:[
+
+[
+{q:"who is the greatest sportsman of all time",a:"Lionel messi"},
+{q:"How many players basketball court?",a:"5"},
+{q:"Which country won 2018 World Cup?",a:"france"},
+{q:"Which team Jordan famous for?",a:"bulls"},
+{q:"Which sport uses bat bases?",a:"baseball"},
+{q:"Which sport uses shuttlecock?",a:"badminton"},
+{q:"Which card expels player?",a:"red"},
+{q:"Which sport touchdown?",a:"football"},
+{q:"Which sport Wimbledon?",a:"tennis"},
+{q:"Free throw points?",a:"1"}
+],
+
+[
+{q:"Which athlete Lightning Bolt?",a:"bolt"},
+{q:"Which sport Serena Williams?",a:"tennis"},
+{q:"Which country All Blacks?",a:"new"},
+{q:"Football match minutes?",a:"90"},
+{q:"Which sport birdie eagle?",a:"golf"},
+{q:"Which swimmer Olympic gold many?",a:"phelps"},
+{q:"Which apparatus uneven bars?",a:"gymnastics"},
+{q:"Which club Old Trafford?",a:"united"},
+{q:"Which sport Stanley Cup?",a:"hockey"},
+{q:"Which sport Tour de France?",a:"cycling"}
+],
+
+[
+{q:"Which sport slam dunk?",a:"basketball"},
+{q:"Which country won 2022 World Cup?",a:"argentina"},
+{q:"Which boxer The Greatest?",a:"ali"},
+{q:"Golf holes number?",a:"18"},
+{q:"Which tennis player record slams?",a:"djokovic"},
+{q:"Which country invented judo?",a:"japan"},
+{q:"Snooker maximum break?",a:"147"},
+{q:"Which sport Lombardi trophy?",a:"football"},
+{q:"Which sport puck ice?",a:"hockey"},
+{q:"Which sport ring ropes boxing?",a:"boxing"}
+],
+
+[
+{q:"Which tennis player King Clay?",a:"nadal"},
+{q:"Which country Euro 2016?",a:"portugal"},
+{q:"How many water polo players pool?",a:"7"},
+{q:"Which chess champion Norway?",a:"carlsen"},
+{q:"Which surface Roland Garros?",a:"clay"},
+{q:"Which country Rugby World Cup 2019?",a:"south"},
+{q:"Which decathlon champion Eaton?",a:"ashton"},
+{q:"Which race marathon km?",a:"42"},
+{q:"Which sport triple jump?",a:"athletics"},
+{q:"Which sport pommel horse?",a:"gymnastics"}
+],
+
+[
+{q:"Which country most World Cups?",a:"brazil"},
+{q:"What is LBW cricket?",a:"leg"},
+{q:"Which Olympics 2008 host?",a:"china"},
+{q:"What bowling turkey?",a:"three"},
+{q:"Which gymnast perfect 10?",a:"nadia"},
+{q:"What flag ends F1 race?",a:"checkered"},
+{q:"Which cyclist stripped titles?",a:"armstrong"},
+{q:"Which fencing weapon torso only?",a:"foil"},
+{q:"Which horse race triple crown?",a:"belmont"},
+{q:"Which Olympic distance marathon km?",a:"42"}
+]
+
+]
+};
+
+
+function updateScores(){
+for(let i=0;i<3;i++)
+document.getElementById("team"+i).innerText="Team "+(i+1)+": "+scores[i];
+}
+
+
+function getQuestion(cat,diff){
+
+let list=questions[cat][diff];
+if(list.length===0)return null;
+
+let index=Math.floor(Math.random()*list.length);
+return list.splice(index,1)[0];
+}
+
+
+
+function createBoard(){
+
+const board=document.getElementById("board");
+
+categories.forEach(cat=>{
+let div=document.createElement("div");
+div.className="category";
+div.innerText=cat;
+board.appendChild(div);
+});
+
+for(let row=0;row<5;row++){
+
+let value=(row+1)*100;
+
+for(let col=0;col<5;col++){
+
+let tile=document.createElement("div");
+tile.className="tile";
+tile.innerText="$"+value;
+
+let cat=categories[col];
+let diff=row;
+
+tile.onclick=function(){
+
+if(tile.classList.contains("used"))return;
+
+let q=getQuestion(cat,diff);
+
+if(!q){
+alert("No more questions");
+return;
+}
+
+let guess=prompt(q.q);
+
+if(guess===null)return;
+
+guess=guess.toLowerCase();
+
+let team=prompt("Which team answered? (1-3)");
+
+team=parseInt(team)-1;
+
+if(guess.includes(q.a)){
+scores[team]+=value;
+alert("Correct!");
+}
+else{
+alert("Wrong! Answer: "+q.a);
+}
+
+updateScores();
+
+tile.classList.add("used");
+tile.innerText="";
+
+};
+
+board.appendChild(tile);
+
+}
+
+}
+
+}
+
+
+createBoard();
+
+</script>
+
+</body>
+</html>
