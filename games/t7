@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌴 בריחה מהג'ונגל</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@300;400;600;700;800&display=swap');
+
+:root {
+  --bg:#061506;--surface:#0d230d;--surface2:#112811;--surface3:#183018;
+  --green:#22c55e;--green2:#16a34a;--gold:#f59e0b;--gold2:#fcd34d;
+  --red:#ef4444;--blue:#38bdf8;--purple:#a78bfa;
+  --text:#e8f5e8;--muted:#4a7a4a;--border:#1a361a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ══ INTRO ══ */
+#s-intro{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%, #0d2710 0%, #061506 100%);
+  gap:0;padding:24px;
+}
+#s-intro.hidden{display:none;}
+
+.intro-title{font-family:'Secular One',sans-serif;font-size:clamp(2.6rem,7vw,5rem);color:var(--green);
+  text-shadow:0 0 50px rgba(34,197,94,0.6),0 3px 0 #000;
+  animation:titlePop 0.9s cubic-bezier(.34,1.56,.64,1) both;line-height:1;}
+.intro-sub{font-size:1rem;color:var(--muted);margin:10px 0 28px;animation:fadeUp 0.5s 0.3s ease both;}
+.story-box{background:rgba(13,35,13,0.9);border:1px solid var(--border);border-radius:20px;
+  padding:22px 30px;max-width:580px;width:100%;text-align:right;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:fadeUp 0.5s 0.4s ease both;margin-bottom:24px;}
+.story-box p{font-size:0.97rem;line-height:1.8;color:#c8e8c8;}
+.story-box p+p{margin-top:8px;}
+.story-em{color:var(--gold2);font-weight:700;}
+
+@keyframes titlePop{from{opacity:0;transform:scale(0.5);}to{opacity:1;transform:scale(1);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══ WIN / LOSE ══ */
+#s-win,#s-lose{
+  position:fixed;inset:0;z-index:200;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(6,21,6,0.97);gap:18px;text-align:center;padding:24px;
+}
+#s-win.show,#s-lose.show{display:flex;}
+
+.win-title{font-family:'Secular One',sans-serif;font-size:clamp(2.4rem,6vw,4.5rem);color:var(--gold2);
+  text-shadow:0 0 40px rgba(252,211,77,0.6);animation:titlePop 0.7s ease both;}
+.lose-title{font-family:'Secular One',sans-serif;font-size:clamp(2rem,5vw,3.8rem);color:var(--red);
+  text-shadow:0 0 30px rgba(239,68,68,0.5);animation:titlePop 0.6s ease both;}
+
+.plane-scene{width:100%;max-width:560px;height:105px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#091628 0%,#1a3a5f 55%,#1a401a 100%);
+  border-radius:16px;border:1px solid var(--border);}
+.plane-el{position:absolute;font-size:2.6rem;animation:flyAcross 3s 0.4s cubic-bezier(.4,0,.2,1) both;}
+@keyframes flyAcross{0%{left:-80px;top:62px;}40%{top:16px;}100%{left:calc(100% + 20px);top:8px;}}
+.runway{position:absolute;bottom:0;left:0;right:0;height:30px;
+  background:linear-gradient(180deg,#1a401a,#0d270d);
+  display:flex;align-items:center;padding:0 16px;gap:8px;}
+.runway-line{flex:1;height:2px;background:rgba(252,211,77,0.35);border-radius:2px;}
+.runway-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:blink 0.5s ease infinite alternate;}
+@keyframes blink{from{opacity:1;}to{opacity:0.15;}}
+
+.win-stats{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:20px 30px;max-width:420px;width:100%;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--border);}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{color:var(--muted);font-size:0.88rem;}
+.stat-val{font-weight:800;color:var(--gold2);}
+
+/* ══════════════════════════════════════
+   FULLSCREEN MAP
+══════════════════════════════════════ */
+#map-wrap{
+  position:fixed;inset:0;z-index:1;
+  /* jungle background – layered gradients + texture */
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 80%, #0f3010 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 80% 20%, #0d2a0d 0%, transparent 55%),
+    radial-gradient(ellipse 70% 70% at 50% 50%, #102810 0%, #061506 100%);
+  overflow:hidden;
+}
+
+/* animated light rays */
+#map-wrap::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    conic-gradient(from 200deg at 15% 10%, transparent 0deg, rgba(34,197,94,0.04) 20deg, transparent 40deg),
+    conic-gradient(from 20deg at 85% 90%, transparent 0deg, rgba(34,197,94,0.03) 25deg, transparent 50deg);
+  animation:rays 8s ease-in-out infinite alternate;
+}
+@keyframes rays{from{opacity:0.5;}to{opacity:1;}}
+
+/* fog patches */
+#map-wrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 30% 20% at 10% 50%, rgba(34,197,94,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 25% 15% at 90% 60%, rgba(34,197,94,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 20% 10% at 50% 10%, rgba(255,255,255,0.02) 0%, transparent 70%);
+  animation:fog 12s ease-in-out infinite alternate;
+}
+@keyframes fog{from{transform:translateX(-10px);}to{transform:translateX(10px);}}
+
+/* fireflies */
+.fly{position:fixed;border-radius:50%;pointer-events:none;z-index:2;animation:flyMove linear infinite;}
+@keyframes flyMove{0%{opacity:0;transform:translate(0,0);}20%{opacity:1;}80%{opacity:0.8;}100%{opacity:0;transform:translate(var(--dx),var(--dy));}}
+
+/* SVG for paths */
+#map-svg{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;}
+.map-path{stroke:#2d5a2d;stroke-width:3;stroke-dasharray:10 6;fill:none;opacity:0.5;
+  filter:drop-shadow(0 0 3px rgba(34,197,94,0.2));}
+.map-path-done{stroke:var(--green);stroke-width:4;stroke-dasharray:none;opacity:0.7;
+  filter:drop-shadow(0 0 6px rgba(34,197,94,0.5));}
+
+/* decorative emojis on map */
+.map-deco{position:absolute;z-index:4;pointer-events:none;font-size:1.6rem;opacity:0.55;
+  animation:decoFloat ease-in-out infinite alternate;}
+@keyframes decoFloat{from{transform:translateY(0) rotate(-3deg);}to{transform:translateY(-6px) rotate(3deg);}}
+
+/* HUD overlay at top */
+.map-hud{
+  position:absolute;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;
+  background:linear-gradient(180deg, rgba(6,21,6,0.92) 0%, transparent 100%);
+}
+.hud-title{font-family:'Secular One',sans-serif;font-size:1.5rem;color:var(--green);
+  text-shadow:0 0 20px rgba(34,197,94,0.5);}
+.hud-right{display:flex;align-items:center;gap:14px;}
+.hud-lives{display:flex;gap:5px;}
+.life{font-size:1.2rem;transition:all 0.3s;}
+.life.lost{opacity:0.15;filter:grayscale(1);}
+.hud-prog-wrap{display:flex;align-items:center;gap:8px;
+  background:rgba(13,35,13,0.8);border:1px solid var(--border);border-radius:20px;padding:6px 14px;}
+.hud-prog-track{width:100px;height:8px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;}
+.hud-prog-fill{height:100%;background:linear-gradient(90deg,var(--green2),var(--green));
+  border-radius:99px;transition:width 0.8s ease;}
+.hud-prog-pct{font-size:0.78rem;font-weight:800;color:var(--green);min-width:28px;}
+
+/* LOCATION PINS */
+.map-loc{
+  position:absolute;z-index:8;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:transform 0.2s;
+}
+.map-loc:hover .loc-bubble{transform:scale(1.1);}
+
+.loc-bubble{
+  width:62px;height:62px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  position:relative;
+  transition:all 0.25s;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+}
+
+/* state styles */
+.map-loc.locked .loc-bubble{
+  background:radial-gradient(circle, #1a2a1a, #0d1a0d);
+  border:2px solid #2a3a2a;filter:grayscale(0.8) brightness(0.6);cursor:not-allowed;
+}
+.map-loc.available .loc-bubble{
+  background:radial-gradient(circle, #2a3a10, #1a2a08);
+  border:3px solid var(--gold);
+  animation:availPulse 1.8s ease-in-out infinite;
+  cursor:pointer;
+}
+@keyframes availPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.5),0 4px 20px rgba(0,0,0,0.5);}
+  50%{box-shadow:0 0 0 12px rgba(245,158,11,0),0 4px 20px rgba(0,0,0,0.5);}
+}
+.map-loc.done .loc-bubble{
+  background:radial-gradient(circle, #14532d, #0d3320);
+  border:3px solid var(--green);
+  box-shadow:0 0 20px rgba(34,197,94,0.4);
+}
+.map-loc.current .loc-bubble{
+  background:radial-gradient(circle, #1e3a5f, #0f2040);
+  border:3px solid var(--blue);
+  animation:availPulse2 1.2s ease-in-out infinite;
+}
+@keyframes availPulse2{
+  0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,0.5);}
+  50%{box-shadow:0 0 0 14px rgba(56,189,248,0);}
+}
+
+.done-badge{position:absolute;top:-3px;right:-3px;background:var(--green);
+  border-radius:50%;width:20px;height:20px;display:flex;align-items:center;
+  justify-content:center;font-size:0.65rem;font-weight:900;border:2px solid var(--bg);color:#fff;}
+.lock-badge{position:absolute;top:-3px;right:-3px;font-size:0.85rem;}
+
+.loc-label{
+  background:rgba(6,21,6,0.88);border:1px solid rgba(34,197,94,0.2);
+  border-radius:8px;padding:3px 9px;font-size:0.72rem;font-weight:700;
+  color:var(--text);white-space:nowrap;backdrop-filter:blur(6px);
+  text-shadow:0 1px 3px rgba(0,0,0,0.8);
+}
+.map-loc.done .loc-label{color:var(--green);border-color:rgba(34,197,94,0.4);}
+.map-loc.available .loc-label{color:var(--gold2);border-color:rgba(245,158,11,0.4);}
+
+/* challenge number badge */
+.loc-num{
+  position:absolute;bottom:-3px;left:-3px;
+  background:rgba(6,21,6,0.9);border:1px solid var(--border);
+  border-radius:50%;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:900;color:var(--muted);
+}
+
+/* ══ CHALLENGE MODAL ══ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);padding:16px;
+}
+.modal-overlay.open{display:flex;}
+
+.challenge-modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;width:100%;max-width:600px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(34,197,94,0.05);
+  animation:modalIn 0.4s cubic-bezier(.34,1.3,.64,1) both;
+  position:relative;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.85) translateY(24px);}to{opacity:1;transform:scale(1) translateY(0);}}
+
+.modal-topbar{height:5px;border-radius:24px 24px 0 0;overflow:hidden;}
+.modal-topbar-fill{height:100%;background:linear-gradient(90deg,var(--green2),var(--green));transition:width 1s linear;}
+
+.modal-inner{padding:28px 32px;}
+
+.modal-close{position:absolute;top:14px;left:14px;z-index:10;
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--muted);font-size:0.9rem;transition:all 0.2s;}
+.modal-close:hover{border-color:var(--red);color:var(--red);}
+
+.modal-timer-display{
+  display:none;align-items:center;justify-content:center;gap:6px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;margin-bottom:14px;
+}
+.modal-timer-display.show{display:flex;}
+.timer-num{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.timer-num.ok{color:var(--green);}
+.timer-num.warn{color:var(--gold);}
+.timer-num.danger{color:var(--red);animation:tpulse 0.3s ease infinite alternate;}
+@keyframes tpulse{from{opacity:1;}to{opacity:0.3;}}
+
+.ch-icon{font-size:2.6rem;text-align:center;display:block;margin-bottom:6px;}
+.ch-type{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:center;margin-bottom:4px;}
+.ch-title{font-family:'Secular One',sans-serif;font-size:1.55rem;color:var(--gold2);text-align:center;margin-bottom:16px;}
+.ch-desc{font-size:0.96rem;line-height:1.75;color:#c8e8c8;background:var(--surface2);
+  border-radius:12px;padding:14px 17px;border:1px solid var(--border);margin-bottom:16px;text-align:right;}
+.ch-desc strong{color:var(--gold2);}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.choice-btn{background:var(--surface2);border:2px solid var(--border);border-radius:11px;
+  padding:13px 15px;font-family:'Heebo',sans-serif;font-size:0.9rem;font-weight:600;
+  color:var(--text);cursor:pointer;text-align:right;transition:all 0.18s;line-height:1.4;}
+.choice-btn:not(:disabled):hover{border-color:var(--green);background:var(--surface3);color:var(--green);}
+.choice-btn.correct{border-color:var(--green)!important;background:rgba(34,197,94,0.15)!important;color:var(--green)!important;}
+.choice-btn.wrong{border-color:var(--red)!important;background:rgba(239,68,68,0.1)!important;color:var(--red)!important;}
+
+/* code */
+.code-row{display:flex;gap:10px;margin-bottom:16px;justify-content:center;flex-wrap:wrap;}
+.code-box{width:62px;height:70px;background:var(--surface2);border:2px solid var(--border);
+  border-radius:12px;font-size:1.8rem;font-weight:800;font-family:'Secular One',sans-serif;
+  color:var(--gold2);text-align:center;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.code-box:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,158,11,0.2);}
+
+/* text */
+.text-wrap{display:flex;gap:9px;margin-bottom:16px;}
+.text-ans{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:11px;
+  padding:12px 15px;font-size:1rem;font-family:'Heebo',sans-serif;color:var(--text);
+  outline:none;text-align:right;transition:border-color 0.2s,box-shadow 0.2s;}
+.text-ans:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,0.15);}
+
+/* order */
+.order-list{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.order-item{background:var(--surface2);border:2px solid var(--border);border-radius:10px;
+  padding:11px 14px;font-size:0.9rem;font-weight:600;cursor:grab;
+  display:flex;align-items:center;gap:10px;transition:all 0.2s;user-select:none;}
+.order-item:not(.disabled):hover{border-color:var(--green);background:var(--surface3);}
+.order-item.dragging{opacity:0.3;border-color:var(--gold);}
+.order-item.drag-over{border-color:var(--green);background:rgba(34,197,94,0.1);}
+.order-item.disabled{cursor:default;}
+.drag-handle{color:var(--muted);}
+.ord-num{background:var(--surface3);border:1px solid var(--border);border-radius:5px;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:800;color:var(--green);flex-shrink:0;}
+
+/* clues */
+.clues-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.clue-item{display:flex;align-items:flex-start;gap:9px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:9px;padding:9px 13px;}
+.clue-n{background:var(--green2);color:#fff;border-radius:50%;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;}
+.clue-t{font-size:0.88rem;line-height:1.5;color:#c8e8c8;}
+
+/* feedback */
+.feedback{display:none;border-radius:11px;padding:12px 16px;margin-bottom:14px;
+  font-size:0.93rem;font-weight:600;text-align:center;line-height:1.4;}
+.feedback.ok{display:block;background:rgba(34,197,94,0.14);border:1px solid var(--green);color:var(--green);}
+.feedback.bad{display:block;background:rgba(239,68,68,0.1);border:1px solid var(--red);color:var(--red);}
+
+.hint-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
+  border-radius:9px;padding:9px 13px;font-size:0.82rem;color:var(--gold2);margin-bottom:14px;display:none;}
+.hint-box.show{display:block;}
+
+.action-row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{border:none;border-radius:11px;padding:12px 26px;font-family:'Heebo',sans-serif;
+  font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.17s;box-shadow:0 3px 12px rgba(0,0,0,0.3);}
+.btn-green{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(34,197,94,0.4);}
+.btn-gold{background:linear-gradient(135deg,#b45309,#f59e0b);color:#000;}
+.btn-gold:hover{transform:translateY(-2px);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);}
+.btn:active{transform:scale(0.97);}
+.btn-xl{font-size:1.15rem;padding:16px 44px;border-radius:14px;}
+
+/* TEACHER PANEL */
+.teacher-panel{position:fixed;bottom:0;left:0;right:0;z-index:150;
+  background:rgba(6,21,6,0.97);border-top:1px solid var(--border);backdrop-filter:blur(14px);
+  padding:8px 16px;display:none;align-items:center;gap:8px;flex-wrap:wrap;}
+.tp-lbl{font-size:0.7rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+.tp-btn{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:6px 11px;font-family:'Heebo',sans-serif;font-size:0.76rem;font-weight:700;
+  color:var(--text);cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.tp-btn:hover{border-color:var(--green);color:var(--green);}
+.tp-btn.d:hover{border-color:var(--red);color:var(--red);}
+.tp-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;}
+
+/* confetti */
+.cp{position:fixed;pointer-events:none;z-index:300;animation:cfFall linear forwards;}
+@keyframes cfFall{0%{opacity:1;transform:translate(0,0) rotate(0);}100%{opacity:0;transform:translate(var(--cx),100vh) rotate(720deg);}}
+
+#toast{position:fixed;top:74px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:9px 20px;font-size:0.87rem;font-weight:700;z-index:400;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);transition:opacity 0.3s;opacity:0;pointer-events:none;}
+
+@media(max-width:560px){
+  .choices{grid-template-columns:1fr;}
+  .modal-inner{padding:20px 16px;}
+  .code-box{width:50px;height:60px;font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- fireflies -->
+<script>
+for(let i=0;i<22;i++){
+  const f=document.createElement('div');f.className='fly';
+  const s=1.5+Math.random()*3.5;
+  const c=['#22c55e','#86efac','#fcd34d','#fde68a','#a7f3d0'][Math.floor(Math.random()*5)];
+  f.style.cssText=`width:${s}px;height:${s}px;background:${c};left:${Math.random()*100}vw;top:${Math.random()*100}vh;--dx:${(Math.random()-.5)*250}px;--dy:${(Math.random()-.5)*250}px;animation-duration:${3+Math.random()*7}s;animation-delay:${Math.random()*6}s;box-shadow:0 0 5px ${c};`;
+  document.body.appendChild(f);
+}
+</script>
+
+<div id="toast"></div>
+
+<!-- ══ INTRO ══ -->
+<div id="s-intro">
+  <div class="intro-title">🌴 בריחה מהג'ונגל</div>
+  <div class="intro-sub">משחק כיתתי – כולכם יחד נגד הג'ונגל!</div>
+  <div class="story-box">
+    <p>הכיתה שלכם יצאה לטיול שדה <span class="story-em">עמוק בג'ונגל האמזוני</span> – ופתאום כולם אבדו! 🗺️</p>
+    <p>לחצו על <span class="story-em">6 מיקומים</span> במפה כדי לפתוח אתגרים. פתרו את כולם ו<span class="story-em">מטוס חילוץ</span> יגיע! ✈️</p>
+    <p>השאלות <span class="story-em">מתחלפות בכל משחק</span> – אין שתי מחזורים זהים!</p>
+  </div>
+  <button class="btn btn-green btn-xl" onclick="startGame()">🗺️ פתחו את המפה!</button>
+</div>
+
+<!-- ══ FULLSCREEN MAP ══ -->
+<div id="map-wrap">
+  <!-- HUD -->
+  <div class="map-hud">
+    <div class="hud-title">🌴 בריחה מהג'ונגל</div>
+    <div class="hud-right">
+      <div class="hud-lives" id="hud-lives"></div>
+      <div class="hud-prog-wrap">
+        <div class="hud-prog-track"><div class="hud-prog-fill" id="hud-prog" style="width:0%"></div></div>
+        <span class="hud-prog-pct" id="hud-pct">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative jungle emojis -->
+  <span class="map-deco" style="top:8%;left:4%;animation-duration:4s">🌴</span>
+  <span class="map-deco" style="top:5%;right:6%;animation-duration:5s;animation-delay:1s">🌴</span>
+  <span class="map-deco" style="top:20%;left:1%;animation-duration:6s;animation-delay:2s">🌿</span>
+  <span class="map-deco" style="top:18%;right:2%;animation-duration:4.5s;animation-delay:0.5s">🌿</span>
+  <span class="map-deco" style="top:40%;left:0.5%;animation-duration:5s;animation-delay:1.5s">🦜</span>
+  <span class="map-deco" style="top:55%;right:1%;animation-duration:6s;animation-delay:0.8s">🐍</span>
+  <span class="map-deco" style="bottom:15%;left:5%;animation-duration:4s;animation-delay:2s">🌴</span>
+  <span class="map-deco" style="bottom:12%;right:4%;animation-duration:5.5s;animation-delay:1s">🌴</span>
+  <span class="map-deco" style="bottom:30%;left:30%;animation-duration:7s;animation-delay:3s">🌊</span>
+  <span class="map-deco" style="top:38%;left:38%;animation-duration:8s;animation-delay:2s">☁️</span>
+  <span class="map-deco" style="top:10%;left:44%;animation-duration:6s">🌦️</span>
+  <span class="map-deco" style="bottom:22%;right:26%;animation-duration:5s;animation-delay:1.5s">🐘</span>
+  <span class="map-deco" style="top:60%;left:16%;animation-duration:4s;animation-delay:2.5s">🦋</span>
+  <span class="map-deco" style="top:30%;right:18%;animation-duration:6s;animation-delay:0.5s">🐒</span>
+  <span class="map-deco" style="top:70%;left:48%;animation-duration:5s;animation-delay:1s">🌺</span>
+  <span class="map-deco" style="top:15%;left:60%;animation-duration:7s;animation-delay:3s">🌸</span>
+  <span class="map-deco" style="bottom:8%;left:52%;animation-duration:4s;animation-delay:0.3s">🍃</span>
+
+  <!-- SVG paths -->
+  <svg id="map-svg"></svg>
+
+  <!-- Location pins (positioned by JS) -->
+  <div class="map-loc locked" id="pin-0" onclick="clickPin(0)">
+    <div class="loc-bubble" id="bubble-0">🚪<span class="loc-num">1</span></div>
+    <div class="loc-label">שער הכניסה</div>
+  </div>
+  <div class="map-loc locked" id="pin-1" onclick="clickPin(1)">
+    <div class="loc-bubble" id="bubble-1">🌉<span class="loc-num">2</span></div>
+    <div class="loc-label">גשר העצים</div>
+  </div>
+  <div class="map-loc locked" id="pin-2" onclick="clickPin(2)">
+    <div class="loc-bubble" id="bubble-2">🦜<span class="loc-num">3</span></div>
+    <div class="loc-label">תוכי העתיק</div>
+  </div>
+  <div class="map-loc locked" id="pin-3" onclick="clickPin(3)">
+    <div class="loc-bubble" id="bubble-3">🌊<span class="loc-num">4</span></div>
+    <div class="loc-label">נהר הפתלתן</div>
+  </div>
+  <div class="map-loc locked" id="pin-4" onclick="clickPin(4)">
+    <div class="loc-bubble" id="bubble-4">🏕️<span class="loc-num">5</span></div>
+    <div class="loc-label">מחנה האבוד</div>
+  </div>
+  <div class="map-loc locked" id="pin-5" onclick="clickPin(5)">
+    <div class="loc-bubble" id="bubble-5">✈️<span class="loc-num">6</span></div>
+    <div class="loc-label">כיכר ההצלה</div>
+  </div>
+</div>
+
+<!-- ══ CHALLENGE MODAL ══ -->
+<div class="modal-overlay" id="modal">
+  <div class="challenge-modal">
+    <div class="modal-topbar"><div class="modal-topbar-fill" id="topbar-fill" style="width:100%"></div></div>
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div class="modal-inner" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="s-win">
+  <div class="win-title">✈️ נמלטתם!</div>
+  <div style="color:var(--muted);font-size:1rem;">המטוס הגיע! כל הכיתה ניצחה! 🎉</div>
+  <div class="plane-scene">
+    <div class="plane-el" id="plane-el">✈️</div>
+    <div style="position:absolute;bottom:31px;right:16px;font-size:1.5rem;">🌴</div>
+    <div style="position:absolute;bottom:31px;left:22px;font-size:1.3rem;">🌴</div>
+    <div class="runway">
+      <div class="runway-dot" style="animation-delay:0s"></div><div class="runway-line"></div>
+      <div class="runway-dot" style="animation-delay:0.15s"></div><div class="runway-line"></div>
+      <div class="runway-dot" style="animation-delay:0.3s"></div><div class="runway-line"></div>
+      <div class="runway-dot" style="animation-delay:0.45s"></div>
+    </div>
+  </div>
+  <div class="win-stats" id="win-stats"></div>
+  <button class="btn btn-gold btn-xl" onclick="resetGame()">🔄 שחקו שוב</button>
+</div>
+
+<!-- ══ LOSE ══ -->
+<div id="s-lose">
+  <div style="font-size:4.5rem;">🐆</div>
+  <div class="lose-title">הג'ונגל ניצח...</div>
+  <div class="story-box" style="max-width:440px;">
+    <p style="text-align:center;">לא נורא! <span class="story-em">הפעם הבאה</span> תצליחו לברוח 💪</p>
+  </div>
+  <button class="btn btn-green btn-xl" onclick="resetGame()">🔄 ניסיון נוסף</button>
+</div>
+
+<!-- ══ TEACHER PANEL ══ -->
+<div class="teacher-panel" id="tp">
+  <span class="tp-lbl">🎓 מורה:</span>
+  <button class="tp-btn" onclick="tCorrect()">✅ נכון</button>
+  <button class="tp-btn" onclick="tWrong()">❌ שגוי</button>
+  <div class="tp-sep"></div>
+  <button class="tp-btn" onclick="tSkip()">⏭️ דלג</button>
+  <button class="tp-btn" onclick="tAddLife()">❤️+ חיים</button>
+  <button class="tp-btn" onclick="tOpen()">🔓 פתח נוכחי</button>
+  <div class="tp-sep"></div>
+  <button class="tp-btn d" onclick="resetGame()">🔄 אתחול</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  QUESTION DATABASE
+//  כל location יש לו בנק שאלות – המשחק בוחר אקראי
+// ══════════════════════════════════════════════════════
+const DB = {
+
+  // ── LOCATION 0: שער הכניסה – חידות קוד מספרי ──
+  gate: [
+    { kind:'code', codeLen:1, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>חידה:</strong> "אני גדל בג\'ונגל, יש לי עלים גדולים, ואני גבוה מאוד. מה אני?"<br><br>הקוד = <strong>מספר האותיות בתשובה</strong>.',
+      hint:'התשובה: "עץ" – 2 אותיות', answer:'2', explanation:'"עץ" = 2 אותיות → קוד: 2' },
+    { kind:'code', codeLen:1, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>חידה:</strong> "לי יש שיניים אבל לא נושך, בפה שלי יושב מה שאתה מכניס אליו. מה אני?"<br><br>הקוד = <strong>מספר הברות בתשובה</strong>.',
+      hint:'התשובה: "מסרק" – 3 הברות', answer:'3', explanation:'"מסרק" = 3 הברות → קוד: 3' },
+    { kind:'code', codeLen:2, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>חידה:</strong> "אני תמיד לפניך אבל לא ניתן לראות אותי. מה אני?"<br><br>הקוד = <strong>שנת 2024 מינוס 2000</strong>.',
+      hint:'2024 - 2000 = ?', answer:'24', explanation:'2024 - 2000 = 24 → קוד: 24' },
+    { kind:'code', codeLen:1, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>חידה:</strong> "לחוליה הראשונה בשרשרת יש 1 טבעת. לשנייה 2. לשלישית 4. כמה טבעות יש לחוליה הרביעית?"',
+      hint:'הכפל ב-2 בכל פעם: 1, 2, 4, ?', answer:'8', explanation:'1→2→4→8 (כפל ב-2) → קוד: 8' },
+    { kind:'code', codeLen:1, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>חידה:</strong> "בג\'ונגל יש 3 עצים. כל עץ נושא 4 ענפים. כל ענף נושא 2 פירות. כמה פירות בסך הכל?"',
+      hint:'3 × 4 × 2 = ?', answer:'24', explanation:'3 × 4 × 2 = 24 → אבל הקוד הוא הספרה הראשונה: 2' },
+    { kind:'code', codeLen:1, icon:'🚪', type_tag:'חידה מספרית',
+      desc:'<strong>שאלת חשיבה:</strong> נחש מטפס 3 מטר ביום ויורד 1 מטר בלילה. כמה ימים ייקח לו לטפס 5 מטר?',
+      hint:'יום 1: +2, יום 2: +2, יום 3 בבוקר הוא מגיע ל-5...', answer:'3', explanation:'לאחר 3 ימים הנחש מגיע ל-5 מטר → קוד: 3' },
+  ],
+
+  // ── LOCATION 1: גשר העצים – סידור וגרירה ──
+  bridge: [
+    { kind:'order', icon:'🌉', type_tag:'סדר נכון',
+      desc:'סדרו את <strong>הצמחים מהנמוך לגבוה:</strong>',
+      hint:'שתיל הכי נמוך, עץ ענק הכי גבוה.',
+      items:[{id:'a',text:'🌱 שתיל – 10 ס"מ'},{id:'b',text:'🌿 שיח – 80 ס"מ'},{id:'c',text:'🌲 עץ צעיר – 3 מ\''},{id:'d',text:'🌳 עץ ענק – 30 מ\''}],
+      correctOrder:['a','b','c','d'], explanation:'שתיל → שיח → עץ צעיר → עץ ענק ✅' },
+    { kind:'order', icon:'🌉', type_tag:'סדר היסטורי',
+      desc:'סדרו את <strong>האירועים ההיסטוריים</strong> מהמוקדם למאוחר:',
+      hint:'חשבו: מה קרה קודם בהיסטוריה?',
+      items:[{id:'a',text:'🏺 בניית הפירמידות'},{id:'b',text:'✝️ לידת ישו'},{id:'c',text:'🚀 עלייה לירח'},{id:'d',text:'📱 המצאת הסמארטפון'}],
+      correctOrder:['a','b','c','d'], explanation:'פירמידות → לידת ישו → ירח (1969) → סמארטפון (2007) ✅' },
+    { kind:'order', icon:'🌉', type_tag:'סדר מספרים',
+      desc:'סדרו את <strong>המספרים מהקטן לגדול:</strong>',
+      hint:'השוו את הערכים המספריים.',
+      items:[{id:'a',text:'🔢 מאה'},{id:'b',text:'🔢 מיליון'},{id:'c',text:'🔢 אלף'},{id:'d',text:'🔢 עשרה אלפים'}],
+      correctOrder:['a','c','d','b'], explanation:'100 → 1,000 → 10,000 → 1,000,000 ✅' },
+    { kind:'order', icon:'🌉', type_tag:'סדר אלפבית',
+      desc:'סדרו את <strong>בעלי החיים לפי סדר א-ב בעברית</strong> (מהראשון לאחרון):',
+      hint:'אות ראשונה: ג, כ, נ, ע',
+      items:[{id:'a',text:'🦁 נמר'},{id:'b',text:'🐘 פיל'},{id:'c',text:'🦒 ג\'ירף'},{id:'d',text:'🐊 כרישה'}],
+      correctOrder:['c','d','a','b'], explanation:'ג\'ירף (ג) → כרישה (כ) → נמר (נ) → פיל (פ) ✅' },
+    { kind:'order', icon:'🌉', type_tag:'סדר גדלים',
+      desc:'סדרו מהקטן לגדול <strong>לפי גודל ביחידות SI:</strong>',
+      hint:'מה הסדר המדעי: מילי, סנטי, קילו, מגה?',
+      items:[{id:'a',text:'📏 קילומטר'},{id:'b',text:'📏 מילימטר'},{id:'c',text:'📏 מגה-מטר'},{id:'d',text:'📏 סנטימטר'}],
+      correctOrder:['b','d','a','c'], explanation:'מ"מ (0.001) → ס"מ (0.01) → ק"מ (1000) → מגה (1,000,000) ✅' },
+  ],
+
+  // ── LOCATION 2: תוכי העתיק – ידע כללי ──
+  parrot: [
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>איזו יבשת היא הגדולה בעולם?</strong>"',
+      hint:'לא אמריקה ולא אפריקה...', choices:['🌎 אמריקה','🌍 אפריקה','🌏 אסיה','🌍 אירופה'], correct:2,
+      explanation:'אסיה – כ-44 מיליון קמ"ר! ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>כמה כוכבי לכת יש במערכת השמש?</strong>"',
+      hint:'פלוטו כבר לא נחשב...', choices:['6','7','8','9'], correct:2,
+      explanation:'8 כוכבי לכת (פלוטו הוצא ב-2006) ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>מה הצבע שנוצר מערבוב כחול וצהוב?</strong>"',
+      hint:'חשבו על עלים בצמחים...', choices:['כתום','סגול','ירוק','חום'], correct:2,
+      explanation:'כחול + צהוב = ירוק ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>מה הנהר הארוך ביותר בעולם?</strong>"',
+      hint:'הוא זורם באפריקה...', choices:['אמזונס','קונגו','ניל','ירדן'], correct:2,
+      explanation:'הניל – כ-6,650 ק"מ ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>כמה צלעות יש למשושה (הקסגון)?</strong>"',
+      hint:'HEX = שש ביוונית...', choices:['5','6','7','8'], correct:1,
+      explanation:'משושה = 6 צלעות ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>מי כתב את "רומיאו ויוליה"?</strong>"',
+      hint:'מחזאי אנגלי מהמאה ה-16...', choices:['צ\'ארלס דיקנס','ויליאם שייקספיר','ג\'יין אוסטן','מארק טוויין'], correct:1,
+      explanation:'ויליאם שייקספיר ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>מה הסמל הכימי של זהב?</strong>"',
+      hint:'מהמילה הלטינית Aurum...', choices:['Gl','Gd','Au','Go'], correct:2,
+      explanation:'Au – מהלטינית Aurum ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>באיזו שנה החלה מלחמת העולם הראשונה?</strong>"',
+      hint:'קרה בתחילת המאה ה-20...', choices:['1905','1912','1914','1918'], correct:2,
+      explanation:'1914 – מלחמת העולם הראשונה ✅' },
+    { kind:'choice', icon:'🦜', type_tag:'ידע כללי', timerSec:90,
+      desc:'"<strong>מה מהירות האור?</strong>"',
+      hint:'כ-300,000 ק"מ לשנייה...', choices:['150,000 ק"מ/שנייה','299,792 ק"מ/שנייה','400,000 ק"מ/שנייה','1,000,000 ק"מ/שנייה'], correct:1,
+      explanation:'299,792 ק"מ לשנייה ✅' },
+  ],
+
+  // ── LOCATION 3: נהר – חידות מילים ──
+  river: [
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'מהו <strong>גוף המים הגדול</strong> ביותר על פני כדור הארץ?<br><small style="color:var(--muted)">(כתבו מילה אחת)</small>',
+      hint:'מכסה יותר מ-70% מפני כדור הארץ...',
+      answer:'אוקיינוס', altAnswers:['ים','מים','אוקיינוסים'],
+      explanation:'"אוקיינוס" (או "ים") ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'מה <strong>ההפך</strong> של המילה "חשוך"?<br><small style="color:var(--muted)">(כתבו מילה אחת)</small>',
+      hint:'כשהשמש זורחת, זה...',
+      answer:'בהיר', altAnswers:['אור','מואר','בהירות','מאיר'],
+      explanation:'"בהיר" (ועוד תשובות תקינות) ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'<strong>ענן</strong> הוא ל<strong>גשם</strong> כמו שעץ הוא ל__________?<br><small style="color:var(--muted)">(כתבו מילה אחת)</small>',
+      hint:'מה נופל מעץ בסתיו?',
+      answer:'פרי', altAnswers:['עלה','פירות','תפוח','עלים'],
+      explanation:'"פרי" – ענן מייצר גשם, עץ מייצר פרי ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'כתבו מילה בעברית שמתחילה ב-<strong>א</strong> וסיומת <strong>ה</strong> ומשמעה חיה גדולה בעלת חדק:',
+      hint:'היא גרה בסוואנה האפריקאית...',
+      answer:'אריה', altAnswers:['אפשרות נוספת'],
+      explanation:'פיל מתחיל ב-פ... התשובה: "ארנבה" לא נכון. "אריה" ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'<strong>אנגרמה:</strong> סדרו מחדש את האותיות <strong>כ-ל-מ-ה</strong> כדי לקבל מילה שמשמעה "כמות":',
+      hint:'המילה מכילה את אותן האותיות...',
+      answer:'מלכה', altAnswers:['כמלה','כמהל'],
+      explanation:'כ-ל-מ-ה → "מלכה" ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'מה <strong>רבים</strong> של המילה "אש"?<br><small style="color:var(--muted)">(כתבו את צורת הרבים)</small>',
+      hint:'צורת הרבים לא נפוצה בשפה היומיומית...',
+      answer:'אשות', altAnswers:['אשים'],
+      explanation:'"אשות" היא צורת הרבים הנכונה של אש ✅' },
+    { kind:'text', icon:'🌊', type_tag:'חידת מילים',
+      desc:'השלימו: "<strong>כל העורבים... לבנים</strong>" – מה חסר?<br><small style="color:var(--muted)">(כתבו מילה אחת)</small>',
+      hint:'ביטוי שמשמעו "לא"...',
+      answer:'אינם', altAnswers:['לא','אינן'],
+      explanation:'"כל העורבים אינם לבנים" – פתגם ✅' },
+  ],
+
+  // ── LOCATION 4: מחנה – חשיבה לוגית ──
+  camp: [
+    { kind:'clues_choice', icon:'🏕️', type_tag:'ניתוח ראיות',
+      desc:'<strong>מי הותיר את המחנה?</strong> קראו את הראיות:',
+      hint:'מי מסוגל להניח אוכל על ענף בגובה 4 מטר?',
+      clues:['על ענף גבוה (4 מ\') נמצאה שארית בשר.','בקרקע עקבות עגולות ענקיות.','שקיות פלסטיק נשוכות וקרועות.','כל עץ שרוט בגובה כ-2 מ\'.'],
+      choices:['🦁 אריה','🐘 פיל','🐒 קוף ענק','🐊 תנין'], correct:1,
+      explanation:'פיל! עקבות עגולות + גובה השריטות + כוח ✅' },
+    { kind:'clues_choice', icon:'🏕️', type_tag:'ניתוח ראיות',
+      desc:'<strong>מה הבא בסדרה?</strong> קראו את הרמזים:',
+      hint:'מה הדפוס החוזר?',
+      clues:['⬤ ⬤ ◯ ⬤ ⬤ ◯ ⬤ ⬤ ?','הדפוס: שתי עיגולים מלאים, עיגול ריק.','הדפוס חוזר על עצמו כל 3.','מה הסמל השמיני בסדרה?'],
+      choices:['⬤ מלא','◯ ריק','▲ משולש','■ ריבוע'], correct:1,
+      explanation:'הסדרה: מלא, מלא, ריק – הסמל השמיני הוא ריק ✅' },
+    { kind:'clues_choice', icon:'🏕️', type_tag:'חשיבה לוגית',
+      desc:'<strong>פענחו:</strong> שלושה חברים יושבים בשורה. אבי לא יושב ראשון. בני יושב אחרי אבי. מי יושב ראשון?',
+      hint:'אם אבי לא ראשון, ובני אחריו...',
+      clues:['יש שלושה מקומות: ראשון, שני, שלישי.','אבי לא יושב ראשון.','בני יושב מיד אחרי אבי.','גל הוא האחר.'],
+      choices:['👦 אבי','👦 בני','👦 גל','😕 אי אפשר לדעת'], correct:2,
+      explanation:'גל ראשון, אבי שני, בני שלישי ✅' },
+    { kind:'clues_choice', icon:'🏕️', type_tag:'חשיבה לוגית',
+      desc:'<strong>חידת הדייג:</strong> אם 5 דייגים תופסים 5 דגים ב-5 דקות, כמה זמן יקח ל-50 דייגים לתפוס 50 דגים?',
+      hint:'כל דייג עובד באותה מהירות...',
+      clues:['5 דייגים → 5 דגים → 5 דקות.','כל דייג תופס דג אחד ב-5 דקות.','50 דייגים עובדים במקביל.','כמה דגים תפס כל דייג?'],
+      choices:['50 דקות','25 דקות','5 דקות','10 דקות'], correct:2,
+      explanation:'5 דקות! כל דייג עדיין תופס דג אחד ב-5 דקות, סה"כ 50 דגים במקביל ✅' },
+    { kind:'clues_choice', icon:'🏕️', type_tag:'חשיבה לוגית',
+      desc:'<strong>מי גונב את הפירות?</strong> אחד מ-4 חשודים אמר אמת:',
+      hint:'רק אחד מהם אומר אמת – מי זה?',
+      clues:['"אלי גנב" – אמר בני.', '"בני גנב" – אמר אלי.', '"לא גנבתי" – אמר גל.', '"אלי אמר אמת" – אמר דן.'],
+      choices:['🧑 אלי','🧑 בני','🧑 גל','🧑 דן'], correct:2,
+      explanation:'גל גנב! רק גל (שאמר "לא גנבתי") שיקר ← אם גל גנב, כל השאר אמרו אמת סתירה → פתרון: גל ✅' },
+  ],
+
+  // ── LOCATION 5: כיכר ההצלה – אתגר סיום ──
+  rescue: [
+    { kind:'code', codeLen:1, icon:'✈️', type_tag:'אתגר סיום', timerSec:60,
+      desc:'שלחו SOS! ספרו <strong>רק נקודות (•)</strong>:<br><div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:1.3rem;letter-spacing:0.2em;margin:10px 0;">• • •&nbsp;&nbsp;— — —&nbsp;&nbsp;• • •</div>',
+      hint:'ספרו עיגולים בלבד, לא קווים.', answer:'6', explanation:'3 + 3 = 6 נקודות → קוד: 6 ✅' },
+    { kind:'code', codeLen:2, icon:'✈️', type_tag:'אתגר סיום', timerSec:60,
+      desc:'קוד הרדיו הוא <strong>הפרש השנים</strong>:<br><br>מטוס ה-747 בנוי ב-<strong>1968</strong>. השנה <strong>2024</strong>.<br><br>מה ההפרש?',
+      hint:'2024 פחות 1968...', answer:'56', explanation:'2024 - 1968 = 56 ✅' },
+    { kind:'code', codeLen:2, icon:'✈️', type_tag:'אתגר סיום', timerSec:60,
+      desc:'קוד החילוץ: <strong>מספר מדינות G7</strong> כפול <strong>מספר יבשות</strong>:<br><br>G7 = 7 מדינות. יבשות = 7.<br><br>מה התוצאה?',
+      hint:'7 × 7 = ?', answer:'49', explanation:'7 × 7 = 49 → קוד: 49 ✅' },
+    { kind:'code', codeLen:1, icon:'✈️', type_tag:'אתגר סיום', timerSec:60,
+      desc:'קוד הסיום: <strong>כמה אותיות יש בשם "ג\'ונגל" בעברית?</strong><br><br>ג - ו - נ - ג - ל',
+      hint:'ספרו את האותיות...', answer:'5', explanation:'ג-ו-נ-ג-ל = 5 אותיות → קוד: 5 ✅' },
+    { kind:'code', codeLen:2, icon:'✈️', type_tag:'אתגר סיום', timerSec:60,
+      desc:'קוד החילוץ הסופי:<br><br><strong>הפרסת פרה יש לה 4 רגליים. כמה פרסות ל-9 פרות?</strong>',
+      hint:'4 פרסות לפרה... 9 פרות...', answer:'36', explanation:'4 × 9 = 36 → קוד: 36 ✅' },
+  ],
+};
+
+// ══════════════════════════════════════════════════════
+// PIN POSITIONS [leftPct, topPct]
+// ══════════════════════════════════════════════════════
+const PIN_POS = [
+  [12, 72],  // שער הכניסה
+  [30, 52],  // גשר העצים
+  [22, 28],  // תוכי העתיק
+  [52, 18],  // נהר הפתלתן
+  [70, 44],  // מחנה האבוד
+  [85, 18],  // כיכר ההצלה
+];
+
+const LOC_NAMES = ['gate','bridge','parrot','river','camp','rescue'];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let completed    = new Set();
+let usedIndexes  = {};  // {locName: Set of used question indexes}
+let lives        = 3;
+let wrongs       = 0;
+let startTime    = null;
+let timerInt     = null;
+let timerLeft    = 0;
+let timerTotal   = 0;
+let curIdx       = null;   // which location is open
+let curQ         = null;   // the chosen question object
+let modalLocked  = false;
+let dragSrc      = null;
+
+// ══════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════
+LOC_NAMES.forEach(n => usedIndexes[n] = new Set());
+
+// ══════════════════════════════════════════════════════
+// START
+// ══════════════════════════════════════════════════════
+function startGame(){
+  startTime = Date.now();
+  document.getElementById('s-intro').classList.add('hidden');
+  document.getElementById('tp').style.display = 'flex';
+  positionPins();
+  refreshPins();
+  buildPaths();
+}
+
+// ══════════════════════════════════════════════════════
+// PIN POSITIONING
+// ══════════════════════════════════════════════════════
+function positionPins(){
+  PIN_POS.forEach(([lp,tp], i)=>{
+    const el = document.getElementById(`pin-${i}`);
+    if(el){ el.style.left=lp+'%'; el.style.top=tp+'%'; }
+  });
+}
+
+function refreshPins(){
+  buildLives();
+  updateProgress();
+  for(let i=0;i<6;i++){
+    const pin=document.getElementById(`pin-${i}`);
+    const bub=document.getElementById(`bubble-${i}`);
+    if(!pin||!bub) continue;
+    // remove badges
+    bub.querySelectorAll('.done-badge,.lock-badge').forEach(e=>e.remove());
+    pin.classList.remove('locked','available','done','current');
+    if(completed.has(i)){
+      pin.classList.add('done');
+      const b=document.createElement('span');b.className='done-badge';b.textContent='✓';bub.appendChild(b);
+    } else if(i===0||completed.has(i-1)){
+      pin.classList.add('available');
+    } else {
+      pin.classList.add('locked');
+      const b=document.createElement('span');b.className='lock-badge';b.textContent='🔒';bub.appendChild(b);
+    }
+  }
+}
+
+function buildLives(){
+  const row=document.getElementById('hud-lives');
+  row.innerHTML='';
+  for(let i=0;i<3;i++){
+    const s=document.createElement('span');
+    s.className='life'+(i>=lives?' lost':'');
+    s.textContent='❤️';row.appendChild(s);
+  }
+}
+
+function updateProgress(){
+  const p=Math.round(completed.size/6*100);
+  document.getElementById('hud-prog').style.width=p+'%';
+  document.getElementById('hud-pct').textContent=p+'%';
+}
+
+function buildPaths(){
+  const svg=document.getElementById('map-svg');
+  svg.innerHTML='';
+  const W=window.innerWidth, H=window.innerHeight;
+  for(let i=0;i<PIN_POS.length-1;i++){
+    const [l1,t1]=PIN_POS[i],[l2,t2]=PIN_POS[i+1];
+    const x1=W*l1/100, y1=H*t1/100;
+    const x2=W*l2/100, y2=H*t2/100;
+    const cx=(x1+x2)/2, cy=Math.min(y1,y2)-40;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${x1},${y1} Q${cx},${cy} ${x2},${y2}`);
+    path.setAttribute('class',completed.has(i)?'map-path map-path-done':'map-path');
+    svg.appendChild(path);
+  }
+}
+
+window.addEventListener('resize',()=>{
+  positionPins();buildPaths();
+});
+
+// ══════════════════════════════════════════════════════
+// PIN CLICK
+// ══════════════════════════════════════════════════════
+function clickPin(idx){
+  const pin=document.getElementById(`pin-${idx}`);
+  if(pin.classList.contains('locked')){showToast('🔒 פתרו קודם את האתגר הקודם!');return;}
+  if(pin.classList.contains('done')){showToast('✅ כבר פתרתם את האתגר הזה!');return;}
+  openChallenge(idx);
+}
+
+// ══════════════════════════════════════════════════════
+// PICK QUESTION (no repeats)
+// ══════════════════════════════════════════════════════
+function pickQuestion(locIdx){
+  const name=LOC_NAMES[locIdx];
+  const pool=DB[name];
+  const used=usedIndexes[name];
+  // if all used, reset
+  if(used.size>=pool.length) used.clear();
+  let qi;
+  do{ qi=Math.floor(Math.random()*pool.length); }while(used.has(qi));
+  used.add(qi);
+  return pool[qi];
+}
+
+// ══════════════════════════════════════════════════════
+// OPEN CHALLENGE
+// ══════════════════════════════════════════════════════
+function openChallenge(idx){
+  curIdx=idx;
+  curQ=pickQuestion(idx);
+  modalLocked=false;
+  renderModal(curQ);
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){
+  if(modalLocked) return;
+  clearTimer();
+  document.getElementById('modal').classList.remove('open');
+}
+
+function closeModalOutside(e){
+  if(e.target===document.getElementById('modal')) closeModal();
+}
+document.getElementById('modal').addEventListener('click', closeModalOutside);
+
+// ══════════════════════════════════════════════════════
+// RENDER MODAL
+// ══════════════════════════════════════════════════════
+function renderModal(q){
+  clearTimer();
+  const title = ['שער הכניסה','גשר העצים','תוכי העתיק','נהר הפתלתן','מחנה האבוד','כיכר ההצלה'][curIdx];
+
+  let html=``;
+  if(q.timerSec){
+    html+=`<div class="modal-timer-display show" id="tmr-disp"><span>⏱️</span><span class="timer-num ok" id="tmr-num">--:--</span></div>`;
+  }
+  html+=`
+    <span class="ch-icon">${q.icon}</span>
+    <div class="ch-type">${q.type_tag}</div>
+    <div class="ch-title">${title}</div>
+    <div class="ch-desc">${q.desc}</div>
+    <div class="hint-box" id="hint-box">💡 ${q.hint}</div>
+  `;
+
+  if(q.kind==='code') html+=buildCodeHTML(q);
+  else if(q.kind==='choice') html+=buildChoicesHTML(q.choices);
+  else if(q.kind==='order'){ html+=buildOrderHTML(q); }
+  else if(q.kind==='text') html+=buildTextHTML();
+  else if(q.kind==='clues_choice') html+=buildCluesChoiceHTML(q);
+
+  html+=`<div class="feedback" id="fb"></div>
+    <div class="action-row" id="act-row">`;
+  if(q.kind==='order') html+=`<button class="btn btn-green" onclick="checkOrder()">✅ בדוק סדר</button>`;
+  html+=`<button class="btn btn-ghost" onclick="toggleHint()">💡 רמז</button></div>`;
+
+  document.getElementById('modal-body').innerHTML=html;
+
+  // wire up drag
+  if(q.kind==='order') wireDrag();
+
+  // timer bar
+  const tf=document.getElementById('topbar-fill');
+  tf.style.transition='none';tf.style.width='100%';
+  if(q.timerSec){
+    setTimeout(()=>{ tf.style.transition=`width ${q.timerSec}s linear`; tf.style.width='0%'; },50);
+    startTimer(q.timerSec);
+  }
+}
+
+// ── HTML builders ──
+function buildCodeHTML(q){
+  const len=q.codeLen||1;
+  let boxes='';
+  for(let i=0;i<len;i++)
+    boxes+=`<input class="code-box" id="cb${i}" maxlength="1" inputmode="numeric"
+      oninput="cbInput(this,${i},${len})" onkeydown="cbBack(event,${i})" autocomplete="off"/>`;
+  return `<div class="code-row">${boxes}</div>
+    <div class="action-row" style="margin-bottom:12px">
+      <button class="btn btn-green" onclick="checkCode()">✅ בדוק קוד</button></div>`;
+}
+
+function buildChoicesHTML(choices){
+  return `<div class="choices">${choices.map((c,i)=>
+    `<button class="choice-btn" id="ch${i}" onclick="checkChoice(${i})">${c}</button>`).join('')}</div>`;
+}
+
+function buildOrderHTML(q){
+  // shuffle items for display
+  const shuffled=[...q.items].sort(()=>Math.random()-0.5);
+  return `<div class="order-list" id="ord-list">${shuffled.map((it,i)=>`
+    <div class="order-item" id="oi-${it.id}" draggable="true" data-id="${it.id}">
+      <span class="drag-handle">⠿</span>
+      <span class="ord-num">${i+1}</span>
+      <span>${it.text}</span>
+    </div>`).join('')}</div>`;
+}
+
+function buildTextHTML(){
+  return `<div class="text-wrap">
+    <input class="text-ans" id="ta" type="text" placeholder="כתבו תשובה כאן..."
+      autocomplete="off" onkeydown="if(event.key==='Enter')checkText()"/>
+    <button class="btn btn-green" onclick="checkText()">✅</button>
+  </div>`;
+}
+
+function buildCluesChoiceHTML(q){
+  const clues=q.clues.map((c,i)=>`
+    <div class="clue-item">
+      <div class="clue-n">${i+1}</div>
+      <div class="clue-t">${c}</div>
+    </div>`).join('');
+  return `<div class="clues-list">${clues}</div>${buildChoicesHTML(q.choices)}`;
+}
+
+// ── input helpers ──
+function cbInput(el,idx,len){
+  el.value=el.value.replace(/[^0-9]/g,'').slice(-1);
+  if(el.value&&idx<len-1){ const n=document.getElementById(`cb${idx+1}`); if(n) n.focus(); }
+}
+function cbBack(e,idx){
+  if(e.key==='Backspace'&&!e.target.value&&idx>0){
+    const p=document.getElementById(`cb${idx-1}`); if(p){p.focus();p.value='';}
+  }
+}
+
+function wireDrag(){
+  const list=document.getElementById('ord-list');
+  if(!list) return;
+  list.querySelectorAll('.order-item').forEach(item=>{
+    item.addEventListener('dragstart',()=>{dragSrc=item;item.classList.add('dragging');});
+    item.addEventListener('dragend',()=>{item.classList.remove('dragging');dragSrc=null;reNumOrder();});
+    item.addEventListener('dragover',e=>{e.preventDefault();item.classList.add('drag-over');});
+    item.addEventListener('dragleave',()=>item.classList.remove('drag-over'));
+    item.addEventListener('drop',e=>{
+      e.preventDefault();item.classList.remove('drag-over');
+      if(dragSrc&&dragSrc!==item){
+        const all=[...list.querySelectorAll('.order-item')];
+        const si=all.indexOf(dragSrc),ti=all.indexOf(item);
+        if(si<ti) list.insertBefore(dragSrc,item.nextSibling);
+        else list.insertBefore(dragSrc,item);
+        reNumOrder();
+      }
+    });
+  });
+}
+function reNumOrder(){
+  document.querySelectorAll('.order-item').forEach((el,i)=>{
+    el.querySelector('.ord-num').textContent=i+1;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// CHECKS
+// ══════════════════════════════════════════════════════
+function checkCode(){
+  const len=curQ.codeLen||1;
+  const val=Array.from({length:len},(_,i)=>(document.getElementById(`cb${i}`)||{value:''}).value.trim()).join('');
+  if(val.length<len){showToast('מלאו את כל התיבות!');return;}
+  val===curQ.answer ? onCorrect() : onWrong();
+}
+
+function checkChoice(idx){
+  curQ.choices.forEach((_,i)=>{
+    const b=document.getElementById(`ch${i}`);
+    if(!b) return;
+    b.disabled=true;
+    if(i===curQ.correct) b.classList.add('correct');
+    else if(i===idx) b.classList.add('wrong');
+  });
+  idx===curQ.correct ? onCorrect() : onWrong();
+}
+
+function checkText(){
+  const inp=document.getElementById('ta');
+  const val=(inp?inp.value:'').trim();
+  if(!val){showToast('כתבו תשובה!');return;}
+  if(inp) inp.disabled=true;
+  const all=[curQ.answer,...(curQ.altAnswers||[])].map(a=>a.trim().toLowerCase());
+  all.includes(val.toLowerCase()) ? onCorrect() : onWrong();
+}
+
+function checkOrder(){
+  const list=document.getElementById('ord-list');
+  if(!list) return;
+  const curr=[...list.querySelectorAll('.order-item')].map(el=>el.dataset.id);
+  JSON.stringify(curr)===JSON.stringify(curQ.correctOrder) ? onCorrect() : onWrong();
+}
+
+// ══════════════════════════════════════════════════════
+// CORRECT / WRONG
+// ══════════════════════════════════════════════════════
+function onCorrect(){
+  clearTimer();
+  modalLocked=true;
+  setFB('ok','✅ נכון! '+curQ.explanation);
+  disableAll();
+  const ar=document.getElementById('act-row');
+  if(ar) ar.innerHTML=`<button class="btn btn-green" onclick="confirmOK()">▶ חזרו למפה</button>`;
+}
+
+function confirmOK(){
+  completed.add(curIdx);
+  modalLocked=false;
+  closeModal();
+  refreshPins();
+  buildPaths();
+  if(completed.size===6) setTimeout(winGame,500);
+}
+
+function onWrong(){
+  lives--; wrongs++;
+  buildLives();
+  if(lives<=0){
+    setFB('bad','💀 אין יותר חיים – הג\'ונגל ניצח!');
+    disableAll(); clearTimer(); modalLocked=true;
+    setTimeout(()=>{ closeModal(); loseGame(); },2000);
+  } else {
+    setFB('bad',`❌ לא נכון! נשארו ${lives} ❤️ – נסו שוב!`);
+    setTimeout(()=>{ const fb=document.getElementById('fb'); if(fb) fb.className='feedback'; },2400);
+  }
+}
+
+function setFB(cls,msg){
+  const fb=document.getElementById('fb');
+  if(fb){fb.className='feedback '+cls;fb.textContent=msg;}
+}
+
+function disableAll(){
+  document.querySelectorAll('.choice-btn,.code-box,.text-ans').forEach(e=>e.disabled=true);
+  document.querySelectorAll('.order-item').forEach(e=>{e.draggable=false;e.classList.add('disabled');});
+}
+
+// ══════════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════════
+function startTimer(sec){
+  clearTimer();
+  timerTotal=sec; timerLeft=sec;
+  updateTimerUI();
+  timerInt=setInterval(()=>{timerLeft--;updateTimerUI();if(timerLeft<=0){clearTimer();onWrong();}},1000);
+}
+function clearTimer(){clearInterval(timerInt);timerInt=null;}
+function updateTimerUI(){
+  const el=document.getElementById('tmr-num');
+  if(!el) return;
+  const m=Math.floor(timerLeft/60),s=timerLeft%60;
+  el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  el.className='timer-num '+(timerLeft<=10?'danger':timerLeft<=25?'warn':'ok');
+}
+
+// ══════════════════════════════════════════════════════
+// HINT
+// ══════════════════════════════════════════════════════
+function toggleHint(){
+  const h=document.getElementById('hint-box');
+  if(h) h.classList.toggle('show');
+}
+
+// ══════════════════════════════════════════════════════
+// TEACHER ACTIONS
+// ══════════════════════════════════════════════════════
+function tCorrect(){ if(curIdx===null){showToast('פתחו אתגר קודם');return;} onCorrect(); }
+function tWrong()  { if(curIdx===null){showToast('פתחו אתגר קודם');return;} onWrong(); }
+function tSkip(){
+  // find first uncompleted
+  let idx=curIdx;
+  if(idx===null){for(let i=0;i<6;i++){if(!completed.has(i)){idx=i;break;}}}
+  if(idx===null) return;
+  completed.add(idx);
+  clearTimer(); modalLocked=false;
+  document.getElementById('modal').classList.remove('open');
+  refreshPins(); buildPaths();
+  showToast('⏭️ אתגר נדלג!');
+  if(completed.size===6) setTimeout(winGame,400);
+}
+function tAddLife(){ if(lives<5){lives++;buildLives();showToast('❤️ נוסף חיים!');} }
+function tOpen(){
+  for(let i=0;i<6;i++){ if(!completed.has(i)){openChallenge(i);return;} }
+}
+
+// ══════════════════════════════════════════════════════
+// WIN / LOSE
+// ══════════════════════════════════════════════════════
+function winGame(){
+  clearTimer();
+  document.getElementById('tp').style.display='none';
+  const e=Math.round((Date.now()-startTime)/1000);
+  const m=Math.floor(e/60),s=e%60;
+  document.getElementById('win-stats').innerHTML=`
+    <div class="stat-row"><span class="stat-label">⏱️ זמן</span><span class="stat-val">${m}:${s.toString().padStart(2,'0')}</span></div>
+    <div class="stat-row"><span class="stat-label">❌ טעויות</span><span class="stat-val">${wrongs}</span></div>
+    <div class="stat-row"><span class="stat-label">❤️ נשאר</span><span class="stat-val">${lives}/3</span></div>
+    <div class="stat-row"><span class="stat-label">🏆 דירוג</span><span class="stat-val">${wrongs===0?'⭐⭐⭐ מושלם!':wrongs<=2?'⭐⭐ מצוין!':wrongs<=5?'⭐ טוב!':'💪 אמיצים!'}</span></div>`;
+  document.getElementById('s-win').classList.add('show');
+  const p=document.getElementById('plane-el');
+  p.style.animation='none';p.offsetHeight;p.style.animation='flyAcross 3s 0.4s cubic-bezier(.4,0,.2,1) both';
+  launchConfetti();
+}
+
+function loseGame(){
+  clearTimer();
+  document.getElementById('tp').style.display='none';
+  document.getElementById('s-lose').classList.add('show');
+}
+
+// ══════════════════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════════════════
+function resetGame(){
+  completed.clear(); lives=3; wrongs=0; startTime=null; curIdx=null; curQ=null;
+  LOC_NAMES.forEach(n=>usedIndexes[n]=new Set());
+  clearTimer(); modalLocked=false;
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('s-win').classList.remove('show');
+  document.getElementById('s-lose').classList.remove('show');
+  document.getElementById('tp').style.display='none';
+  document.getElementById('s-intro').classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._h);t._h=setTimeout(()=>t.style.opacity='0',2300);
+}
+
+function launchConfetti(){
+  const cols=['#22c55e','#fcd34d','#38bdf8','#f97316','#a78bfa','#86efac','#fde68a'];
+  for(let i=0;i<90;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');c.className='cp';
+      const sz=5+Math.random()*9;
+      c.style.cssText=`left:${Math.random()*100}vw;top:-12px;width:${sz}px;height:${sz}px;
+        background:${cols[Math.floor(Math.random()*cols.length)]};
+        border-radius:${Math.random()>.5?'50%':'2px'};
+        --cx:${(Math.random()-.5)*320}px;
+        animation-duration:${1.4+Math.random()*2.2}s;`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),4000);
+    },i*35);
+  }
+}
+</script>
+</body>
+</html>
