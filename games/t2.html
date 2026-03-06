@@ -1,1 +1,1441 @@
 
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>דאבל טריוויה - המהדורה הגדולה</title>
+    <style>
+      :root {
+        --bg-color: #f2f2f2;
+        --primary: #333333;
+        --card-bg: #46178f;
+        --card-flipped: #ffffff;
+        --ans-red: #e21b3c;
+        --ans-blue: #1368ce;
+        --ans-yellow: #d89e00;
+        --ans-green: #26890c;
+        --active-team: #ffb800;
+      }
+
+      /* מניעת גלילה במסך */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--primary);
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        margin: 5px 0;
+        font-size: 2vh;
+        text-align: center;
+      }
+
+      /* מסך פתיחה */
+      #start-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: white;
+        padding: 20px;
+        z-index: 10;
+      }
+
+      .settings-group {
+        margin: 15px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        text-align: center;
+      }
+
+      .settings-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+
+      .option-btn {
+        background-color: white;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        margin: 5px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .option-btn.selected {
+        background-color: var(--card-bg);
+        color: white;
+        border-color: var(--card-bg);
+        transform: scale(1.05);
+      }
+
+      .start-btn {
+        background-color: var(--ans-green);
+        color: white;
+        border: none;
+        padding: 15px 50px;
+        font-size: 1.8rem;
+        margin-top: 20px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 4px 0 #1b6308;
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s;
+      }
+
+      .start-btn:active {
+        transform: translateY(4px);
+        box-shadow: 0 0 0 #1b6308;
+      }
+
+      /* קונטיינר המשחק */
+      #game-container {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      /* לוח תוצאות */
+      #scoreboard {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 10vh;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        padding: 0 20px;
+      }
+
+      .team-score {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 5px 20px;
+        border-radius: 10px;
+        border: 4px solid transparent;
+        opacity: 0.5;
+        transition: all 0.3s ease;
+      }
+
+      .team-score.active {
+        border-color: var(--active-team);
+        opacity: 1;
+        transform: scale(1.1);
+        background-color: #fff9e6;
+      }
+
+      .team-score span {
+        display: block;
+        font-size: 2rem;
+        color: var(--card-bg);
+      }
+
+      /* לוח הקלפים */
+      #game-board {
+        display: grid;
+        flex: 1;
+        gap: 5px;
+        perspective: 1000px;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .card {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+      }
+
+      .card.flipped {
+        transform: rotateY(180deg);
+      }
+
+      /* קלפים שנפתרו - נשארים פתוחים ומוארים */
+      .card.solved {
+        transform: rotateY(180deg);
+        pointer-events: none;
+      }
+
+      .card.solved .card-back {
+        border: 4px solid var(--ans-green);
+        box-shadow: 0 0 15px rgba(38, 137, 12, 0.5);
+        background-color: #f0fdf4;
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: min(4vw, 5vh);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        user-select: none;
+      }
+
+      .card-front {
+        background-color: var(--card-bg);
+        color: white;
+        background-image:
+          radial-gradient(circle, #5b21b6 10%, transparent 20%),
+          radial-gradient(circle, #5b21b6 10%, transparent 20%);
+        background-size: 20px 20px;
+        background-position:
+          0 0,
+          10px 10px;
+      }
+
+      .card-back {
+        background-color: var(--card-flipped);
+        transform: rotateY(180deg);
+        border: 2px solid var(--card-bg);
+        transition: all 0.3s;
+      }
+
+      /* מודל הטריוויה */
+      #modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(242, 242, 242, 0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      #modal-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      #question-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 90%;
+        max-width: 1000px;
+        margin-bottom: 20px;
+      }
+
+      #question-text {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      /* טיימר */
+      #timer-container {
+        width: 100px;
+        height: 100px;
+        background: #46178f;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* כפתורי תשובות */
+      #answers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 15px;
+        width: 95%;
+        max-width: 1200px;
+        height: 40vh;
+      }
+
+      .mcq-btn {
+        border: none;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s,
+          opacity 0.3s;
+        display: flex;
+        align-items: center;
+        padding: 0 30px;
+        position: relative;
+      }
+
+      .mcq-btn:active:not(:disabled) {
+        transform: translateY(5px);
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+      }
+      .mcq-btn:disabled {
+        cursor: not-allowed;
+      }
+
+      #btn-0 {
+        background-color: var(--ans-red);
+      }
+      #btn-1 {
+        background-color: var(--ans-blue);
+      }
+      #btn-2 {
+        background-color: var(--ans-yellow);
+      }
+      #btn-3 {
+        background-color: var(--ans-green);
+      }
+
+      .mcq-btn::before {
+        content: "";
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin-left: 20px;
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      #btn-0::before {
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L22 20H2L12 2Z"/></svg>');
+      }
+      #btn-1::before {
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L22 12L12 22L2 12L12 2Z"/></svg>');
+      }
+      #btn-2::before {
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"/></svg>');
+      }
+      #btn-3::before {
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18"/></svg>');
+      }
+
+      .mcq-btn.wrong-ans {
+        opacity: 0.3;
+      }
+      .mcq-btn.correct-ans {
+        animation: pulse 1s infinite;
+        z-index: 10;
+      }
+
+      .btn-start {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        padding: 20px 40px;
+        font-size: 2rem;
+        font-weight: bold;
+      }
+
+      /* אנימציות משוב פופ-אפ (כל הכבוד / חבל) */
+      #feedback-anim {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 8rem;
+        font-weight: bold;
+        text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        pointer-events: none;
+        opacity: 0;
+        text-align: center;
+        width: 100%;
+      }
+
+      .anim-success {
+        color: var(--ans-green);
+        animation: popFeedback 2.5s forwards;
+      }
+      .anim-fail {
+        color: var(--ans-red);
+        animation: popFeedback 2.5s forwards;
+      }
+
+      @keyframes popFeedback {
+        0% {
+          transform: translate(-50%, -50%) scale(0) rotate(-10deg);
+          opacity: 0;
+        }
+        15% {
+          transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+          opacity: 1;
+        }
+        30% {
+          transform: translate(-50%, -50%) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+        85% {
+          transform: translate(-50%, -50%) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0;
+        }
+      }
+
+      /* מסך סיום חגיגי */
+      #end-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(70, 23, 143, 0.95); /* סגול קהוט שקוף */
+        color: white;
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1s;
+        text-align: center;
+      }
+
+      #end-screen.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      #winner-title {
+        font-size: 6rem;
+        margin-bottom: 20px;
+        text-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+        animation: pulse 2s infinite;
+      }
+      #winner-score {
+        font-size: 3rem;
+        margin-bottom: 40px;
+        color: var(--active-team);
+      }
+      .confetti-icon {
+        font-size: 5rem;
+        margin: 10px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes popScore {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.5);
+          color: var(--ans-green);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .pop-anim {
+        animation: popScore 0.8s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="start-screen">
+      <h1 style="font-size: 3rem; margin-bottom: 20px">דאבל טריוויה 🎯</h1>
+
+      <div class="settings-group">
+        <div class="settings-title">בחרו נושא מרכזי:</div>
+        <button
+          class="option-btn theme-option selected"
+          onclick="selectTheme('gen')"
+        >
+          🎲 ידע כללי
+        </button>
+        <button class="option-btn theme-option" onclick="selectTheme('geo')">
+          🌍 גיאוגרפיה ומדינות
+        </button>
+        <button class="option-btn theme-option" onclick="selectTheme('music')">
+          🎸 מוזיקה ותרבות
+        </button>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-title">כמות זוגות על הלוח:</div>
+        <button
+          class="option-btn pair-option selected"
+          onclick="selectPairs(20)"
+        >
+          20 זוגות (40 קלפים)
+        </button>
+        <button class="option-btn pair-option" onclick="selectPairs(30)">
+          30 זוגות (60 קלפים)
+        </button>
+        <button class="option-btn pair-option" onclick="selectPairs(40)">
+          40 זוגות (80 קלפים)
+        </button>
+        <button class="option-btn pair-option" onclick="selectPairs(50)">
+          50 זוגות (100 קלפים!)
+        </button>
+      </div>
+
+      <button class="start-btn" onclick="startGame()">התחל משחק!</button>
+    </div>
+
+    <div id="game-container">
+      <div id="scoreboard">
+        <div class="team-score active" id="team-1">
+          קבוצה 1 <span id="score-1">0</span>
+        </div>
+        <div class="team-score" id="team-2">
+          קבוצה 2 <span id="score-2">0</span>
+        </div>
+        <div class="team-score" id="team-3">
+          קבוצה 3 <span id="score-3">0</span>
+        </div>
+        <div class="team-score" id="team-4">
+          קבוצה 4 <span id="score-4">0</span>
+        </div>
+      </div>
+
+      <div id="game-board"></div>
+    </div>
+
+    <div id="modal-overlay">
+      <div id="start-q-box" style="text-align: center">
+        <h2 style="font-size: 3rem; color: #333">
+          זוג תואם! המורה, הפעילי את השאלה:
+        </h2>
+        <button id="btn-reveal" class="btn-start" onclick="revealQuestion()">
+          הצג שאלה והפעל טיימר
+        </button>
+      </div>
+
+      <div
+        id="question-content"
+        class="hidden"
+        style="
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        "
+      >
+        <div id="timer-container">15</div>
+        <div id="question-header">
+          <div id="question-text">כאן תופיע השאלה</div>
+        </div>
+
+        <div id="answers-grid">
+          <button class="mcq-btn" id="btn-0" onclick="checkAnswer(0)">
+            תשובה 1
+          </button>
+          <button class="mcq-btn" id="btn-1" onclick="checkAnswer(1)">
+            תשובה 2
+          </button>
+          <button class="mcq-btn" id="btn-2" onclick="checkAnswer(2)">
+            תשובה 3
+          </button>
+          <button class="mcq-btn" id="btn-3" onclick="checkAnswer(3)">
+            תשובה 4
+          </button>
+        </div>
+      </div>
+
+      <div id="feedback-anim"></div>
+    </div>
+
+    <div id="end-screen">
+      <div>
+        <span class="confetti-icon">🎊</span
+        ><span class="confetti-icon">🏆</span
+        ><span class="confetti-icon">🎊</span>
+      </div>
+      <h1 id="winner-title">קבוצה מנצחת</h1>
+      <div id="winner-score">עם X נקודות!</div>
+      <button
+        class="start-btn"
+        onclick="location.reload()"
+        style="background-color: var(--active-team); color: var(--primary)"
+      >
+        שחקו שוב
+      </button>
+    </div>
+
+    <script>
+      // מאגר השאלות
+      const db = {
+        gen: [
+          {
+            icon: "🐱",
+            qs: [
+              {
+                q: "איך נקרא חתול שפרוותו משלבת צבעי שחור, לבן וג'ינג'י?",
+                opts: ["קליקו", "סיאמי", "פרסי", "ספינקס"],
+                ans: 0,
+              },
+              {
+                q: "איזו חיה נחשבת לחיה המבויתת הפופולרית ביותר בעולם?",
+                opts: ["כלב", "חתול", "תוכי", "ארנב"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "☕",
+            qs: [
+              {
+                q: "איזו שפת תכנות מפורסמת קרויה על שם אי באינדונזיה?",
+                opts: ["פייתון", "ג'אווה", "רובי", "סי פלוס פלוס"],
+                ans: 1,
+              },
+              {
+                q: "איזו מדינה היא יצרנית הקפה הגדולה בעולם?",
+                opts: ["קולומביה", "ברזיל", "אתיופיה", "וייטנאם"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🏐",
+            qs: [
+              {
+                q: "כמה שחקנים מכל קבוצה נמצאים על המגרש בו זמנית בכדורעף?",
+                opts: ["5", "6", "7", "11"],
+                ans: 1,
+              },
+              {
+                q: "מה המטרה המרכזית במשחק כדורעף?",
+                opts: [
+                  "להכניס סל",
+                  "להפיל את הכדור בחלקת היריב",
+                  "לרוץ מסביב לבסיסים",
+                  "להפיל את הרשת",
+                ],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "💻",
+            qs: [
+              {
+                q: "מה הפירוש של קיצור המקשים Ctrl+Z?",
+                opts: ["העתק", "הדבק", "בטל פעולה אחרונה", "שמור"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🧠",
+            qs: [
+              {
+                q: "מה שם היחידה הצבאית המוכרת ביותר בתחום הסייבר והמודיעין הטכנולוגי?",
+                opts: ["שייטת 13", "8200", "דובדבן", "שלדג"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🍎",
+            qs: [
+              {
+                q: "מי גילה את כוח המשיכה כשתפוח נפל על ראשו (לפי האגדה)?",
+                opts: ["איינשטיין", "ניוטון", "גלילאו", "טסלה"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🎬",
+            qs: [
+              {
+                q: "איזה סרט הוא הקופתי ביותר בכל הזמנים?",
+                opts: ["טיטניק", "הנוקמים", "אווטאר", "מלך האריות"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🚗",
+            qs: [
+              {
+                q: "איזו חברה מייצרת את מכונית ה'מוסטנג'?",
+                opts: ["פורד", "שברולט", "פרארי", "טויוטה"],
+                ans: 0,
+              },
+            ],
+          },
+          {
+            icon: "🎨",
+            qs: [
+              {
+                q: "מי צייר את המונה ליזה?",
+                opts: ["ואן גוך", "פיקאסו", "דה וינצ'י", "רמברנדט"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🍔",
+            qs: [
+              {
+                q: "מאיזו מדינה מגיע במקור ההמבורגר?",
+                opts: ['ארה"ב', "גרמניה", "איטליה", "צרפת"],
+                ans: 1,
+              },
+            ],
+          },
+          ...[
+            "🚀",
+            "🎭",
+            "🎲",
+            "⚽",
+            "🍕",
+            "🧬",
+            "🔭",
+            "⚡",
+            "🪐",
+            "🧪",
+            "🔋",
+            "📡",
+            "🦠",
+            "🧲",
+            "🧸",
+            "📚",
+            "🔥",
+            "💎",
+            "🧩",
+            "⏰",
+            "🏆",
+            "📸",
+            "🚲",
+            "⚓",
+            "🎈",
+            "🪄",
+            "📱",
+            "💡",
+            "💸",
+            "⏳",
+            "⚙️",
+            "🛡️",
+            "🔑",
+            "🛒",
+            "🎁",
+            "✉️",
+            "✂️",
+            "🗑️",
+            "📌",
+            "📏",
+          ].map((icon) => ({
+            icon: icon,
+            qs: [
+              {
+                q: "שאלת ידע כללי: מהו היסוד הנפוץ ביקום?",
+                opts: ["חמצן", "מימן", "פחמן", "ברזל"],
+                ans: 1,
+              },
+              { q: "כמה צלעות יש למשושה?", opts: ["5", "6", "7", "8"], ans: 1 },
+            ],
+          })),
+        ],
+        geo: [
+          {
+            icon: "🗽",
+            qs: [
+              {
+                q: "באיזו עיר נמצא פסל החירות?",
+                opts: ["ניו יורק", "לוס אנג'לס", "וושינגטון", "שיקגו"],
+                ans: 0,
+              },
+              {
+                q: 'איזו מדינה העניקה לארה"ב את פסל החירות?',
+                opts: ["בריטניה", "צרפת", "ספרד", "רוסיה"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🗼",
+            qs: [
+              {
+                q: "מאיזה חומר עשוי מגדל אייפל?",
+                opts: ["ברזל", "ברונזה", "פלדה", "עץ"],
+                ans: 0,
+              },
+              {
+                q: "באיזו עיר נמצא מגדל אייפל?",
+                opts: ["לונדון", "ברלין", "פריז", "רומא"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🗻",
+            qs: [
+              {
+                q: "מהו ההר הגבוה ביותר ביפן?",
+                opts: ["קילימנג'רו", "פוג'י", "אוורסט", "אלפים"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🐫",
+            qs: [
+              {
+                q: "באיזו מדינה נמצאות הפירמידות של גיזה?",
+                opts: ["מרוקו", "מצרים", "ירדן", "סעודיה"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🦘",
+            qs: [
+              {
+                q: "באיזו יבשת חיות חיות כיס כמו הקנגורו בטבע?",
+                opts: ["אפריקה", "דרום אמריקה", "אוסטרליה", "אסיה"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🍁",
+            qs: [
+              {
+                q: "עלה של איזה עץ מופיע על דגל קנדה?",
+                opts: ["אלון", "אורן", "אדר (מייפל)", "זית"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🍣",
+            qs: [
+              {
+                q: "מאיזו מדינה הגיע הסושי?",
+                opts: ["סין", "יפן", "קוריאה", "תאילנד"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🏔️",
+            qs: [
+              {
+                q: "מהו ההר הגבוה ביותר בעולם?",
+                opts: ["K2", "המון בלאן", "האוורסט", "החרמון"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🧊",
+            qs: [
+              {
+                q: "איזו יבשת היא הקרה ביותר, הגבוהה ביותר והיבשה ביותר?",
+                opts: ["אנטארקטיקה", "אירופה", "אסיה", "אמריקה הצפונית"],
+                ans: 0,
+              },
+            ],
+          },
+          {
+            icon: "🌮",
+            qs: [
+              {
+                q: 'איזו מדינה גובלת בארה"ב מדרום?',
+                opts: ["קנדה", "ברזיל", "מקסיקו", "פנמה"],
+                ans: 2,
+              },
+            ],
+          },
+          ...[
+            "🗺️",
+            "🏝️",
+            "⛩️",
+            "🏰",
+            "🗿",
+            "🏜️",
+            "🌋",
+            "🦁",
+            "🐼",
+            "🐊",
+            "🏄",
+            "☕",
+            "🐘",
+            "🌴",
+            "🌍",
+            "🌎",
+            "🌏",
+            "✈️",
+            "🚢",
+            "🚉",
+            "⛺",
+            "🏕️",
+            "🏖️",
+            "🏙️",
+            "🌃",
+            "🌉",
+            "🛣️",
+            "🛤️",
+            "🌅",
+            "🌄",
+            "🌠",
+            "🎇",
+            "🎆",
+            "🌈",
+            "⛅",
+            "🌧️",
+            "❄️",
+            "⛄",
+            "🌀",
+            "🌊",
+          ].map((icon) => ({
+            icon: icon,
+            qs: [
+              {
+                q: "מהי היבשת הגדולה ביותר בעולם?",
+                opts: ["אפריקה", "אסיה", "אירופה", "אמריקה"],
+                ans: 1,
+              },
+              {
+                q: "מהי בירת אנגליה?",
+                opts: ["פריז", "לונדון", "מדריד", "רומא"],
+                ans: 1,
+              },
+            ],
+          })),
+        ],
+        music: [
+          {
+            icon: "🎸",
+            qs: [
+              {
+                q: "כמה מיתרים יש בגיטרה קלאסית רגילה?",
+                opts: ["4", "5", "6", "8"],
+                ans: 2,
+              },
+              {
+                q: "מי נחשב לגדול נגני הגיטרה החשמלית בכל הזמנים?",
+                opts: ["ג'ימי הנדריקס", "אלביס פרסלי", "מוצרט", "בטהובן"],
+                ans: 0,
+              },
+            ],
+          },
+          {
+            icon: "🎹",
+            qs: [
+              {
+                q: "כמה קלידים יש בפסנתר סטנדרטי?",
+                opts: ["64", "76", "88", "100"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🎤",
+            qs: [
+              {
+                q: "איזה זמר זכה לכינוי 'מלך הפופ'?",
+                opts: [
+                  "אלביס פרסלי",
+                  "מייקל ג'קסון",
+                  "פרנק סינטרה",
+                  "פרדי מרקורי",
+                ],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🥁",
+            qs: [
+              {
+                q: "איזה חלק במערכת התופים מופעל על ידי הרגל?",
+                opts: ["מצילה", "תוף סנר", "תוף בס (Kick)", "טמטם"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🎻",
+            qs: [
+              {
+                q: "איזה מהכלים הבאים הוא כלי קשת?",
+                opts: ["גיטרה", "כינור", "נבל", "פסנתר"],
+                ans: 1,
+              },
+            ],
+          },
+          {
+            icon: "🎺",
+            qs: [
+              {
+                q: "איזה סגנון מוזיקלי מזוהה מאוד עם העיר ניו אורלינס וכלי נשיפה?",
+                opts: ["רוק", "קלאסי", "ג'אז", "היפ הופ"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "🎧",
+            qs: [
+              {
+                q: "איזה צמד דיג'יים אלקטרוניים צרפתיים נהגו להופיע עם קסדות רובוט?",
+                opts: [
+                  "דאפט פאנק",
+                  "הכמיקל בראדרס",
+                  "צ'יינסמוקרס",
+                  "מייג'ור לייזר",
+                ],
+                ans: 0,
+              },
+            ],
+          },
+          {
+            icon: "🎼",
+            qs: [
+              {
+                q: "כמה קווים יש בחמשה מוזיקלית סטנדרטית?",
+                opts: ["3", "4", "5", "6"],
+                ans: 2,
+              },
+            ],
+          },
+          {
+            icon: "👑",
+            qs: [
+              {
+                q: "איזו להקה בריטית הונהגה על ידי פרדי מרקורי?",
+                opts: ["קווין", "הביטלס", "האבנים המתגלגלות", "פינק פלויד"],
+                ans: 0,
+              },
+            ],
+          },
+          {
+            icon: "🍏",
+            qs: [
+              {
+                q: "איזו להקה שרה את השירים 'Let It Be' ו-'Hey Jude'?",
+                opts: ["קווין", "הביטלס", "U2", "קולדפליי"],
+                ans: 1,
+              },
+            ],
+          },
+          ...[
+            "📻",
+            "🎷",
+            "🎵",
+            "🎶",
+            "🪕",
+            "🎙️",
+            "🎚️",
+            "🎛️",
+            "📼",
+            "💿",
+            "📀",
+            "📣",
+            "🔔",
+            "🔕",
+            "📱",
+            "🕺",
+            "💃",
+            "👯",
+            "🎉",
+            "🎊",
+            "🎫",
+            "🎟️",
+            "🎪",
+            "🎭",
+            "🎬",
+            "📽️",
+            "🎥",
+            "📼",
+            "📺",
+            "📸",
+            "📹",
+            "📼",
+            "🔈",
+            "🔉",
+            "🔊",
+            "📢",
+            "📣",
+            "📯",
+            "🎹",
+            "🎸",
+          ].map((icon) => ({
+            icon: icon,
+            qs: [
+              {
+                q: "מי הלחין את 'אליז' (Für Elise)?",
+                opts: ["מוצרט", "בטהובן", "באך", "שופן"],
+                ans: 1,
+              },
+              {
+                q: "איזה מהבאים הוא כלי הקשה?",
+                opts: ["חליל", "קסילופון", "כינור", "גיטרה"],
+                ans: 1,
+              },
+            ],
+          })),
+        ],
+      };
+
+      let activeTeamId = 1;
+      let cards = [];
+      let flippedCards = [];
+      let activePair = [];
+      let timerInterval;
+      let timeLeft = 15;
+      let currentQuestionObj = null;
+      let gamePairsState = {};
+      let matchedPairsCount = 0; // סופר כמה זוגות פתרנו כדי לדעת מתי נגמר המשחק
+
+      function selectTheme(theme) {
+        document
+          .querySelectorAll(".theme-option")
+          .forEach((btn) => btn.classList.remove("selected"));
+        event.target.classList.add("selected");
+        window.selectedTheme = theme;
+      }
+
+      function selectPairs(num) {
+        document
+          .querySelectorAll(".pair-option")
+          .forEach((btn) => btn.classList.remove("selected"));
+        event.target.classList.add("selected");
+        window.selectedPairs = num;
+      }
+
+      function startGame() {
+        if (!window.selectedTheme) window.selectedTheme = "gen";
+        if (!window.selectedPairs) window.selectedPairs = 20;
+
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("game-container").style.display = "flex";
+
+        const board = document.getElementById("game-board");
+        let cols, rows;
+        if (window.selectedPairs === 20) {
+          cols = 8;
+          rows = 5;
+        } else if (window.selectedPairs === 30) {
+          cols = 10;
+          rows = 6;
+        } else if (window.selectedPairs === 40) {
+          cols = 10;
+          rows = 8;
+        } else if (window.selectedPairs === 50) {
+          cols = 10;
+          rows = 10;
+        }
+
+        board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+        const themeData = db[window.selectedTheme];
+        const selectedItems = themeData.slice(0, window.selectedPairs);
+
+        cards = [];
+        selectedItems.forEach((item) => {
+          cards.push(item);
+          cards.push(item);
+          gamePairsState[item.icon] = 0;
+        });
+
+        shuffle(cards);
+        renderBoard();
+      }
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function renderBoard() {
+        const board = document.getElementById("game-board");
+        board.innerHTML = "";
+        cards.forEach((item, index) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.dataset.icon = item.icon;
+          card.dataset.id = index;
+          card.innerHTML = `
+                    <div class="card-face card-front"></div>
+                    <div class="card-face card-back">${item.icon}</div>
+                `;
+          card.addEventListener("click", flipCard);
+          board.appendChild(card);
+        });
+      }
+
+      function flipCard() {
+        if (
+          flippedCards.length < 2 &&
+          !this.classList.contains("flipped") &&
+          !this.classList.contains("solved")
+        ) {
+          this.classList.add("flipped");
+          flippedCards.push(this);
+
+          if (flippedCards.length === 2) {
+            setTimeout(checkMatch, 600);
+          }
+        }
+      }
+
+      function checkMatch() {
+        const [c1, c2] = flippedCards;
+        if (c1.dataset.icon === c2.dataset.icon) {
+          activePair = [c1, c2];
+          openTriviaModal(c1.dataset.icon);
+        } else {
+          c1.classList.remove("flipped");
+          c2.classList.remove("flipped");
+          flippedCards = [];
+          nextTeam();
+        }
+      }
+
+      function nextTeam() {
+        activeTeamId = (activeTeamId % 4) + 1;
+        document
+          .querySelectorAll(".team-score")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(`team-${activeTeamId}`).classList.add("active");
+      }
+
+      function openTriviaModal(icon) {
+        const modal = document.getElementById("modal-overlay");
+        document.getElementById("start-q-box").classList.remove("hidden");
+        document.getElementById("question-content").classList.add("hidden");
+
+        const themeData = db[window.selectedTheme];
+        const itemData = themeData.find((i) => i.icon === icon);
+        const qIndex = gamePairsState[icon] % itemData.qs.length;
+        currentQuestionObj = itemData.qs[qIndex];
+
+        for (let i = 0; i < 4; i++) {
+          const btn = document.getElementById(`btn-${i}`);
+          btn.className = "mcq-btn";
+          btn.disabled = false;
+          btn.innerText = currentQuestionObj.opts[i];
+        }
+
+        document.getElementById("question-text").innerText =
+          currentQuestionObj.q;
+        modal.classList.add("show");
+      }
+
+      function revealQuestion() {
+        document.getElementById("start-q-box").classList.add("hidden");
+        const qContent = document.getElementById("question-content");
+        qContent.classList.remove("hidden");
+
+        timeLeft = 15;
+        document.getElementById("timer-container").innerText = timeLeft;
+        document.getElementById("timer-container").style.backgroundColor =
+          "#46178f";
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("timer-container").innerText = timeLeft;
+
+          if (timeLeft <= 5)
+            document.getElementById("timer-container").style.backgroundColor =
+              "var(--ans-red)";
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleTimeOut();
+          }
+        }, 1000);
+      }
+
+      function checkAnswer(selectedIndex) {
+        if (timeLeft <= 0) return;
+        clearInterval(timerInterval);
+        lockButtons();
+
+        const correctIndex = currentQuestionObj.ans;
+        const isCorrect = selectedIndex === correctIndex;
+
+        if (isCorrect) {
+          document
+            .getElementById(`btn-${selectedIndex}`)
+            .classList.add("correct-ans");
+          successQuestion();
+        } else {
+          document
+            .getElementById(`btn-${selectedIndex}`)
+            .classList.add("wrong-ans");
+          document
+            .getElementById(`btn-${correctIndex}`)
+            .classList.add("correct-ans");
+          failQuestion();
+        }
+      }
+
+      function handleTimeOut() {
+        lockButtons();
+        const correctIndex = currentQuestionObj.ans;
+        document
+          .getElementById(`btn-${correctIndex}`)
+          .classList.add("correct-ans");
+        failQuestion();
+      }
+
+      function lockButtons() {
+        for (let i = 0; i < 4; i++) {
+          document.getElementById(`btn-${i}`).disabled = true;
+          if (i !== currentQuestionObj.ans)
+            document.getElementById(`btn-${i}`).classList.add("wrong-ans");
+        }
+      }
+
+      function showFeedbackAnim(isSuccess) {
+        const animEl = document.getElementById("feedback-anim");
+        animEl.className = "";
+        void animEl.offsetWidth; // טריק לאיפוס האנימציה
+
+        if (isSuccess) {
+          animEl.innerText = "🎉 כל הכבוד! 🎉";
+          animEl.classList.add("anim-success");
+        } else {
+          animEl.innerText = "❌ חבל... ❌";
+          animEl.classList.add("anim-fail");
+        }
+      }
+
+      function successQuestion() {
+        showFeedbackAnim(true);
+
+        const scoreSpan = document.getElementById(`score-${activeTeamId}`);
+        scoreSpan.innerText = parseInt(scoreSpan.innerText) + 1;
+        scoreSpan.classList.add("pop-anim");
+        setTimeout(() => scoreSpan.classList.remove("pop-anim"), 800);
+
+        // הפעלת מחלקה שמשאירה את הקלפים פתוחים ויפים
+        activePair[0].classList.add("solved");
+        activePair[1].classList.add("solved");
+
+        matchedPairsCount++; // מעלה את ספירת הזוגות שנפתרו
+
+        setTimeout(() => {
+          closeModal();
+          checkEndGame(); // בודק אם הלוח הסתיים
+        }, 2500);
+      }
+
+      function failQuestion() {
+        showFeedbackAnim(false);
+
+        const icon = activePair[0].dataset.icon;
+        gamePairsState[icon]++;
+
+        setTimeout(() => {
+          activePair[0].classList.remove("flipped");
+          activePair[1].classList.remove("flipped");
+          closeModal();
+          nextTeam();
+        }, 3000); // נותן להם זמן לראות את האנימציה ואת התשובה הנכונה
+      }
+
+      function closeModal() {
+        document.getElementById("modal-overlay").classList.remove("show");
+        flippedCards = [];
+        activePair = [];
+      }
+
+      function checkEndGame() {
+        if (matchedPairsCount >= window.selectedPairs) {
+          setTimeout(showEndScreen, 1000);
+        } else {
+          nextTeam(); // מעביר תור רק אם המשחק ממשיך
+        }
+      }
+
+      function showEndScreen() {
+        let scores = [
+          parseInt(document.getElementById("score-1").innerText),
+          parseInt(document.getElementById("score-2").innerText),
+          parseInt(document.getElementById("score-3").innerText),
+          parseInt(document.getElementById("score-4").innerText),
+        ];
+
+        let maxScore = Math.max(...scores);
+        let winningTeams = [];
+
+        for (let i = 0; i < 4; i++) {
+          if (scores[i] === maxScore) winningTeams.push(i + 1);
+        }
+
+        let titleText = "";
+        if (winningTeams.length > 1) {
+          titleText = `🏆 תיקו בין קבוצות ${winningTeams.join(" ו-")}! 🏆`;
+        } else {
+          titleText = `🏆 קבוצה ${winningTeams[0]} מנצחת! 🏆`;
+        }
+
+        document.getElementById("winner-title").innerText = titleText;
+        document.getElementById("winner-score").innerText =
+          `עם ${maxScore} נקודות האלופים סיימו את הלוח!`;
+
+        document.getElementById("end-screen").classList.add("show");
+      }
+    </script>
+  </body>
+</html>
