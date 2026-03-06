@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>משחק ציר זמן - סרטים וסדרות</title>
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#1e293b;
+      --panel:#111827cc;
+      --card:#1f2937;
+      --accent:#38bdf8;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --gold:#facc15;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, #1d4ed8 0%, transparent 22%),
+        radial-gradient(circle at top left, #059669 0%, transparent 18%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width:1400px;
+      margin:0 auto;
+      padding:18px;
+    }
+
+    .title{
+      text-align:center;
+      margin-bottom:14px;
+      animation:floatIn .8s ease;
+    }
+
+    .title h1{
+      margin:0;
+      font-size:clamp(28px, 4vw, 52px);
+      line-height:1.05;
+      text-shadow:0 3px 12px rgba(0,0,0,.25);
+    }
+
+    .title p{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:clamp(14px, 1.6vw, 22px);
+    }
+
+    .direction-hint{
+      text-align:center;
+      margin:8px 0 16px;
+      color:#cbd5e1;
+      font-size:14px;
+      font-weight:700;
+      opacity:.95;
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr 1.1fr;
+      gap:16px;
+      align-items:stretch;
+      margin-bottom:16px;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:16px;
+      backdrop-filter:blur(10px);
+      animation:floatIn .7s ease;
+    }
+
+    .turn-box{
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:10px;
+      min-height:160px;
+    }
+
+    .turn-now{
+      font-size:clamp(22px, 2.2vw, 34px);
+      font-weight:900;
+      color:#fff;
+    }
+
+    .timer-shell{
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      height:24px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .timer-bar{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, var(--accent2), var(--gold), var(--danger));
+      transition:width 1s linear;
+    }
+
+    .timer-text{
+      font-size:clamp(24px, 3vw, 42px);
+      font-weight:900;
+      letter-spacing:1px;
+    }
+
+    .score-box{
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:8px;
+    }
+
+    .team-name{
+      font-size:clamp(22px, 2.5vw, 34px);
+      font-weight:900;
+    }
+
+    .score{
+      font-size:clamp(42px, 5vw, 68px);
+      font-weight:900;
+      color:var(--gold);
+      line-height:1;
+      text-shadow:0 2px 10px rgba(0,0,0,.28);
+    }
+
+    .mini{
+      color:var(--muted);
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .small-controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:center;
+      align-items:center;
+    }
+
+    button{
+      border:none;
+      border-radius:16px;
+      padding:14px 18px;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease, background .2s ease;
+      box-shadow:0 8px 20px rgba(0,0,0,.18);
+    }
+
+    button:hover{ transform:translateY(-2px) scale(1.02); }
+    button:active{ transform:translateY(1px) scale(.99); }
+
+    .small-controls button{
+      padding:10px 12px;
+      font-size:16px;
+      border-radius:12px;
+    }
+
+    .btn-primary{ background:linear-gradient(135deg, #38bdf8, #2563eb); color:white; }
+    .btn-success{ background:linear-gradient(135deg, #22c55e, #16a34a); color:white; }
+    .btn-warning{ background:linear-gradient(135deg, #f59e0b, #d97706); color:white; }
+    .btn-danger{ background:linear-gradient(135deg, #ef4444, #dc2626); color:white; }
+    .btn-dark{ background:linear-gradient(135deg, #475569, #334155); color:white; }
+
+    .candidate-area{
+      margin-bottom:18px;
+      animation:floatIn .9s ease;
+    }
+
+    .candidate-box{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:16px;
+      align-items:center;
+    }
+
+    .candidate-card{
+      background:linear-gradient(135deg, #312e81, #1d4ed8);
+      border-radius:24px;
+      padding:22px;
+      min-height:120px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      box-shadow:0 12px 26px rgba(0,0,0,.25);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .candidate-card::before{
+      content:"";
+      position:absolute;
+      inset:-60% auto auto -10%;
+      width:220px;
+      height:220px;
+      background:rgba(255,255,255,.08);
+      border-radius:50%;
+      filter:blur(8px);
+      animation:shine 5s linear infinite;
+    }
+
+    .candidate-label{
+      color:#dbeafe;
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:8px;
+      position:relative;
+      z-index:1;
+    }
+
+    .candidate-title{
+      font-size:clamp(28px, 3vw, 48px);
+      font-weight:900;
+      line-height:1.1;
+      position:relative;
+      z-index:1;
+    }
+
+    .candidate-sub{
+      margin-top:8px;
+      color:#bfdbfe;
+      font-size:18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .candidate-actions{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width:220px;
+    }
+
+    .message{
+      min-height:62px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-size:clamp(22px,2vw,30px);
+      font-weight:900;
+      padding:10px 14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:18px;
+      transition:all .25s ease;
+    }
+
+    .message.good{ background:rgba(34,197,94,.18); color:#dcfce7; }
+    .message.bad{ background:rgba(239,68,68,.18); color:#fee2e2; }
+    .message.info{ background:rgba(56,189,248,.16); color:#e0f2fe; }
+    .message.win{ background:rgba(250,204,21,.18); color:#fef9c3; }
+
+    .timelines{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .timelines.single-view{
+      grid-template-columns:1fr;
+    }
+
+    .team-panel{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      animation:floatIn 1s ease;
+      position:relative;
+    }
+
+    .team-panel.hidden-panel{
+      display:none;
+    }
+
+    .team-panel.active{
+      outline:3px solid rgba(56,189,248,.65);
+      box-shadow:0 0 0 8px rgba(56,189,248,.10), var(--shadow);
+    }
+
+    .team-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+
+    .goal{
+      background:rgba(255,255,255,.08);
+      border-radius:999px;
+      padding:10px 16px;
+      font-size:18px;
+      font-weight:800;
+      color:var(--muted);
+    }
+
+    /* חשוב: הציר עצמו ב-LTR כדי שהגלילה תעבוד יציב */
+    .timeline-track{
+      direction:ltr;
+      display:flex;
+      align-items:stretch;
+      gap:10px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:10px 2px 14px;
+      scrollbar-width:thin;
+      scroll-behavior:smooth;
+    }
+
+    .timeline-nav{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    .scroll-btn{
+      width:54px;
+      min-width:54px;
+      height:44px;
+      padding:0;
+      border-radius:14px;
+      font-size:24px;
+      font-weight:900;
+      background:linear-gradient(135deg, #475569, #334155);
+      color:white;
+    }
+
+    .timeline-scroll{
+      width:100%;
+      height:28px;
+      appearance:none;
+      background:transparent;
+      cursor:pointer;
+    }
+
+    .timeline-scroll::-webkit-slider-runnable-track{
+      height:12px;
+      background:rgba(255,255,255,.14);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .timeline-scroll::-webkit-slider-thumb{
+      appearance:none;
+      width:34px;
+      height:20px;
+      border-radius:999px;
+      background:linear-gradient(135deg, #38bdf8, #2563eb);
+      margin-top:-5px;
+      box-shadow:0 4px 12px rgba(0,0,0,.28);
+    }
+
+    .timeline-scroll::-moz-range-track{
+      height:12px;
+      background:rgba(255,255,255,.14);
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .timeline-scroll::-moz-range-thumb{
+      width:34px;
+      height:20px;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg, #38bdf8, #2563eb);
+      box-shadow:0 4px 12px rgba(0,0,0,.28);
+    }
+
+    .timeline-scroll-label{
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      margin-top:4px;
+    }
+
+    .gap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:96px;
+      animation:fadeIn .25s ease;
+      flex:0 0 auto;
+    }
+
+    .insert-btn{
+      width:96px;
+      min-height:102px;
+      border-radius:18px;
+      font-size:16px;
+      font-weight:900;
+      background:linear-gradient(135deg, #0ea5e9, #2563eb);
+      color:white;
+      opacity:.95;
+    }
+
+    .insert-btn:disabled{
+      opacity:.28;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .item{
+      min-width:210px;
+      max-width:210px;
+      background:linear-gradient(180deg, #1f2937, #0f172a);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:22px;
+      padding:16px 14px;
+      box-shadow:0 10px 18px rgba(0,0,0,.22);
+      position:relative;
+      animation:pop .35s ease;
+      flex:0 0 auto;
+      text-align:center;
+    }
+
+    .item-year{
+      display:inline-block;
+      background:linear-gradient(135deg, #22c55e, #16a34a);
+      color:white;
+      border-radius:999px;
+      padding:6px 12px;
+      font-size:18px;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+
+    .item-title{
+      font-size:22px;
+      font-weight:900;
+      line-height:1.15;
+      direction:ltr;
+    }
+
+    .item-type{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:16px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      text-align:center;
+      margin-top:16px;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .winner-badge{
+      display:inline-block;
+      margin-right:10px;
+      background:linear-gradient(135deg, #facc15, #eab308);
+      color:#3f3200;
+      padding:8px 14px;
+      border-radius:999px;
+      font-weight:900;
+      animation:pulse 1.2s infinite;
+    }
+
+    @keyframes floatIn{
+      from{ opacity:0; transform:translateY(14px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes pop{
+      0%{ transform:scale(.85); opacity:0; }
+      70%{ transform:scale(1.04); opacity:1; }
+      100%{ transform:scale(1); }
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:scale(.9);}
+      to{opacity:1; transform:scale(1);}
+    }
+
+    @keyframes pulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.06); }
+    }
+
+    @keyframes shine{
+      0%{ transform:translateX(-10px) translateY(0); }
+      50%{ transform:translateX(280px) translateY(20px); }
+      100%{ transform:translateX(560px) translateY(0); }
+    }
+
+    @media (max-width: 1100px){
+      .topbar{ grid-template-columns:1fr; }
+      .candidate-box{ grid-template-columns:1fr; }
+      .candidate-actions{ min-width:unset; flex-direction:row; flex-wrap:wrap; }
+      .timelines{ grid-template-columns:1fr; }
+    }
+
+    @media (max-width: 640px){
+      button{ font-size:18px; padding:12px 14px; }
+      .item{ min-width:180px; max-width:180px; }
+      .insert-btn{ min-width:78px; width:78px; min-height:90px; font-size:14px; }
+      .gap{ min-width:78px; }
+      .scroll-btn{ width:46px; min-width:46px; height:40px; font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <h1>🎬 משחק ציר זמן: סרטים וסדרות</h1>
+      <p>המורה משתף מסך, הכיתה מחליטה, והמורה לוחץ. הקבוצה הראשונה שמגיעה ל־7 פריטים נכונים מנצחת.</p>
+    </div>
+
+    <div class="direction-hint">שמאל = לפני &nbsp;&nbsp;|&nbsp;&nbsp; ימין = אחרי</div>
+
+    <div class="topbar">
+      <div class="panel score-box">
+        <div class="team-name" id="team1NameTop">קבוצה 1</div>
+        <div class="score" id="team1Score">1 / 7</div>
+        <div class="mini">מספר פריטים על הציר</div>
+        <div class="small-controls">
+          <button class="btn-dark" onclick="renameTeam(0)">שנה שם</button>
+        </div>
+      </div>
+
+      <div class="panel turn-box">
+        <div class="turn-now" id="turnNow">יש ללחוץ על "התחל משחק"</div>
+        <div class="timer-text" id="timerText">60</div>
+        <div class="timer-shell">
+          <div class="timer-bar" id="timerBar"></div>
+        </div>
+        <div class="small-controls">
+          <button class="btn-primary" onclick="startGame()">התחל משחק</button>
+          <button class="btn-warning" onclick="toggleTimer()">השהה / המשך</button>
+          <button class="btn-danger" onclick="resetGame()">איפוס</button>
+        </div>
+      </div>
+
+      <div class="panel score-box">
+        <div class="team-name" id="team2NameTop">קבוצה 2</div>
+        <div class="score" id="team2Score">1 / 7</div>
+        <div class="mini">מספר פריטים על הציר</div>
+        <div class="small-controls">
+          <button class="btn-dark" onclick="renameTeam(1)">שנה שם</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="candidate-area">
+      <div class="panel candidate-box">
+        <div class="candidate-card">
+          <div class="candidate-label">הפריט הנוכחי למיקום</div>
+          <div class="candidate-title" id="candidateTitle">עדיין לא התחיל משחק</div>
+          <div class="candidate-sub" id="candidateSub">לחצו על "התחל משחק" כדי לחלק סרט/סדרה ראשוניים ולהתחיל.</div>
+        </div>
+        <div class="candidate-actions">
+          <button class="btn-success" onclick="handlePass()">דלג / הזמן נגמר</button>
+          <button class="btn-dark" onclick="showRules()">כללים</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="message info" id="messageBox">ברגע שהמשחק יתחיל, כל קבוצה תקבל פריט ראשון לציר שלה.</div>
+
+    <div class="timelines" id="timelinesWrap">
+      <div class="team-panel" id="teamPanel0">
+        <div class="team-header">
+          <div class="team-name" id="team1NameMain">קבוצה 1</div>
+          <div class="goal">יעד: 7 פריטים</div>
+        </div>
+        <div class="timeline-track" id="timeline0"></div>
+        <div class="timeline-nav">
+          <button class="scroll-btn" type="button" onclick="scrollTimelineBy(0, -260)">◀</button>
+          <input type="range" min="0" max="0" value="0" class="timeline-scroll" id="timelineScroll0">
+          <button class="scroll-btn" type="button" onclick="scrollTimelineBy(0, 260)">▶</button>
+        </div>
+        <div class="timeline-scroll-label">הזזה על הציר</div>
+      </div>
+
+      <div class="team-panel" id="teamPanel1">
+        <div class="team-header">
+          <div class="team-name" id="team2NameMain">קבוצה 2</div>
+          <div class="goal">יעד: 7 פריטים</div>
+        </div>
+        <div class="timeline-track" id="timeline1"></div>
+        <div class="timeline-nav">
+          <button class="scroll-btn" type="button" onclick="scrollTimelineBy(1, -260)">◀</button>
+          <input type="range" min="0" max="0" value="0" class="timeline-scroll" id="timelineScroll1">
+          <button class="scroll-btn" type="button" onclick="scrollTimelineBy(1, 260)">▶</button>
+        </div>
+        <div class="timeline-scroll-label">הזזה על הציר</div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      המאגר כולל כ־20 סרטים/סדרות מוכרים. השנה הנכונה נחשפת רק אחרי מיקום מוצלח.
+    </div>
+  </div>
+
+  <script>
+    const MASTER_POOL = [
+      { title: "Friends", year: 1994, type: "סדרה" },
+      { title: "Titanic", year: 1997, type: "סרט" },
+      { title: "The Matrix", year: 1999, type: "סרט" },
+      { title: "Harry Potter and the Sorcerer's Stone", year: 2001, type: "סרט" },
+      { title: "The Lord of the Rings: The Fellowship of the Ring", year: 2001, type: "סרט" },
+      { title: "Pirates of the Caribbean: The Curse of the Black Pearl", year: 2003, type: "סרט" },
+      { title: "Lost", year: 2004, type: "סדרה" },
+      { title: "How I Met Your Mother", year: 2005, type: "סדרה" },
+      { title: "Breaking Bad", year: 2008, type: "סדרה" },
+      { title: "Avatar", year: 2009, type: "סרט" },
+      { title: "Game of Thrones", year: 2011, type: "סדרה" },
+      { title: "Frozen", year: 2013, type: "סרט" },
+      { title: "Interstellar", year: 2014, type: "סרט" },
+      { title: "Stranger Things", year: 2016, type: "סדרה" },
+      { title: "La La Land", year: 2016, type: "סרט" },
+      { title: "Money Heist", year: 2017, type: "סדרה" },
+      { title: "The Witcher", year: 2019, type: "סדרה" },
+      { title: "Wednesday", year: 2022, type: "סדרה" },
+      { title: "Barbie", year: 2023, type: "סרט" },
+      { title: "Oppenheimer", year: 2023, type: "סרט" }
+    ];
+
+    let teams = [];
+    let availablePool = [];
+    let currentTeam = 0;
+    let currentCandidate = null;
+    let gameStarted = false;
+    let timer = 60;
+    let timerInterval = null;
+    let timerPaused = false;
+    let winner = null;
+    let bonusTurn = false;
+
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function initState(){
+      teams = [
+        { name: "קבוצה 1", timeline: [] },
+        { name: "קבוצה 2", timeline: [] }
+      ];
+      availablePool = shuffle(MASTER_POOL);
+      currentTeam = 0;
+      currentCandidate = null;
+      gameStarted = false;
+      timer = 60;
+      winner = null;
+      bonusTurn = false;
+      stopTimer();
+      timerPaused = false;
+      updateTopNames();
+      renderAll();
+      setMessage('לחצו על "התחל משחק" כדי להתחיל.', 'info');
+      setCandidate("עדיין לא התחיל משחק", "לחצו על \"התחל משחק\" כדי לחלק פריט ראשון לכל קבוצה.");
+      updateTurnText("יש ללחוץ על \"התחל משחק\"");
+    }
+
+    function startGame(){
+      if(gameStarted) return;
+
+      teams[0].timeline = [drawItem()];
+      teams[1].timeline = [drawItem()];
+      sortTimeline(teams[0].timeline);
+      sortTimeline(teams[1].timeline);
+
+      gameStarted = true;
+      currentTeam = Math.random() < 0.5 ? 0 : 1;
+      currentCandidate = drawItem();
+      bonusTurn = false;
+
+      renderAll();
+      setMessage(`${teams[currentTeam].name} מתחילה! מקמו את הפריט החדש על הציר.`, 'info');
+      prepareTurn();
+    }
+
+    function resetGame(){
+      if(!confirm("לאפס את המשחק?")) return;
+      initState();
+    }
+
+    function drawItem(){
+      if(availablePool.length === 0){
+        const usedTitles = new Set([
+          ...teams[0].timeline.map(x=>x.title),
+          ...teams[1].timeline.map(x=>x.title)
+        ]);
+        const refill = shuffle(MASTER_POOL.filter(x => !usedTitles.has(x.title)));
+        availablePool = refill;
+      }
+      return availablePool.shift();
+    }
+
+    function sortTimeline(timeline){
+      timeline.sort((a,b)=>a.year-b.year || a.title.localeCompare(b.title));
+    }
+
+    function updateTopNames(){
+      document.getElementById("team1NameTop").textContent = teams[0].name;
+      document.getElementById("team2NameTop").textContent = teams[1].name;
+      document.getElementById("team1NameMain").textContent = teams[0].name;
+      document.getElementById("team2NameMain").textContent = teams[1].name;
+    }
+
+    function getTrack(teamIndex){
+      return document.getElementById(`timeline${teamIndex}`);
+    }
+
+    function getSlider(teamIndex){
+      return document.getElementById(`timelineScroll${teamIndex}`);
+    }
+
+    function setupTimelineScroller(teamIndex){
+      const track = getTrack(teamIndex);
+      const slider = getSlider(teamIndex);
+      if(!track || !slider) return;
+
+      const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+      slider.max = maxScroll;
+      slider.value = Math.min(track.scrollLeft, maxScroll);
+
+      slider.oninput = () => {
+        track.scrollLeft = Number(slider.value);
+      };
+
+      track.onscroll = () => {
+        slider.value = Math.min(track.scrollLeft, maxScroll);
+      };
+    }
+
+    function scrollTimelineBy(teamIndex, delta){
+      const track = getTrack(teamIndex);
+      if(!track) return;
+      track.scrollBy({ left: delta, behavior: "smooth" });
+      setTimeout(() => setupTimelineScroller(teamIndex), 220);
+    }
+
+    function scrollActiveTimelineToStart(){
+      if(!gameStarted || winner !== null) return;
+      const track = getTrack(currentTeam);
+      if(!track) return;
+      track.scrollTo({ left: 0, behavior: "smooth" });
+      setTimeout(() => setupTimelineScroller(currentTeam), 220);
+    }
+
+    function renderAll(){
+      updateTopNames();
+      renderTimeline(0);
+      renderTimeline(1);
+      updateScores();
+      updateVisibleTimeline();
+      highlightCurrentTeam();
+
+      requestAnimationFrame(() => {
+        setupTimelineScroller(0);
+        setupTimelineScroller(1);
+      });
+    }
+
+    function updateVisibleTimeline(){
+      const wrap = document.getElementById("timelinesWrap");
+      const panel0 = document.getElementById("teamPanel0");
+      const panel1 = document.getElementById("teamPanel1");
+
+      if(!gameStarted || winner !== null){
+        wrap.classList.remove("single-view");
+        panel0.classList.remove("hidden-panel");
+        panel1.classList.remove("hidden-panel");
+        return;
+      }
+
+      wrap.classList.add("single-view");
+
+      if(currentTeam === 0){
+        panel0.classList.remove("hidden-panel");
+        panel1.classList.add("hidden-panel");
+      } else {
+        panel1.classList.remove("hidden-panel");
+        panel0.classList.add("hidden-panel");
+      }
+    }
+
+    function renderTimeline(teamIndex){
+      const track = getTrack(teamIndex);
+      const team = teams[teamIndex];
+      track.innerHTML = "";
+
+      const showInsertButtons = gameStarted && currentCandidate && currentTeam === teamIndex && winner === null;
+
+      for(let i=0; i<=team.timeline.length; i++){
+        const gap = document.createElement("div");
+        gap.className = "gap";
+
+        const btn = document.createElement("button");
+        btn.className = "insert-btn";
+        btn.textContent = "הכנס כאן";
+        btn.disabled = !showInsertButtons;
+        btn.onclick = () => attemptInsert(teamIndex, i);
+        gap.appendChild(btn);
+        track.appendChild(gap);
+
+        if(i < team.timeline.length){
+          const item = team.timeline[i];
+          const card = document.createElement("div");
+          card.className = "item";
+          card.innerHTML = `
+            <div class="item-year">${item.year}</div>
+            <div class="item-title">${escapeHtml(item.title)}</div>
+            <div class="item-type">${item.type}</div>
+          `;
+          track.appendChild(card);
+        }
+      }
+    }
+
+    function updateScores(){
+      document.getElementById("team1Score").textContent = `${teams[0].timeline.length} / 7`;
+      document.getElementById("team2Score").textContent = `${teams[1].timeline.length} / 7`;
+    }
+
+    function highlightCurrentTeam(){
+      document.getElementById("teamPanel0").classList.toggle("active", currentTeam === 0 && gameStarted && winner === null);
+      document.getElementById("teamPanel1").classList.toggle("active", currentTeam === 1 && gameStarted && winner === null);
+    }
+
+    function updateTurnText(text){
+      document.getElementById("turnNow").textContent = text;
+    }
+
+    function setCandidate(title, sub){
+      document.getElementById("candidateTitle").textContent = title;
+      document.getElementById("candidateSub").textContent = sub;
+    }
+
+    function setMessage(text, type="info"){
+      const box = document.getElementById("messageBox");
+      box.className = `message ${type}`;
+      box.innerHTML = text;
+    }
+
+    function prepareTurn(){
+      if(winner !== null) return;
+      timer = 60;
+      timerPaused = false;
+      updateTimerUI();
+
+      const turnLabel = bonusTurn ? `התור של ${teams[currentTeam].name} (בונוס)` : `התור של ${teams[currentTeam].name}`;
+      updateTurnText(turnLabel);
+
+      setCandidate(
+        currentCandidate.title,
+        `סוג: ${currentCandidate.type}. בחרו איפה להכניס אותו על הציר של ${teams[currentTeam].name}.`
+      );
+
+      renderAll();
+
+      requestAnimationFrame(() => {
+        scrollActiveTimelineToStart();
+      });
+
+      startTimer();
+    }
+
+    function startTimer(){
+      stopTimer();
+      timerInterval = setInterval(() => {
+        if(timerPaused || winner !== null) return;
+        timer--;
+        updateTimerUI();
+        if(timer <= 0){
+          handlePass(true);
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      if(timerInterval){
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function toggleTimer(){
+      if(!gameStarted || winner !== null) return;
+      timerPaused = !timerPaused;
+      setMessage(timerPaused ? "הטיימר הושהה." : "הטיימר ממשיך.", "info");
+    }
+
+    function updateTimerUI(){
+      document.getElementById("timerText").textContent = timer;
+      document.getElementById("timerBar").style.width = `${(timer/60)*100}%`;
+    }
+
+    function isValidPlacement(teamIndex, insertPos, item){
+      const arr = teams[teamIndex].timeline;
+      const left = arr[insertPos - 1];
+      const right = arr[insertPos];
+
+      if(left && item.year < left.year) return false;
+      if(right && item.year > right.year) return false;
+
+      return true;
+    }
+
+    function attemptInsert(teamIndex, insertPos){
+      if(!gameStarted || winner !== null) return;
+      if(teamIndex !== currentTeam) return;
+
+      stopTimer();
+
+      const ok = isValidPlacement(teamIndex, insertPos, currentCandidate);
+
+      if(ok){
+        const wasBonusTurn = bonusTurn;
+
+        teams[teamIndex].timeline.splice(insertPos, 0, currentCandidate);
+        sortTimeline(teams[teamIndex].timeline);
+
+        setMessage(
+          `✅ נכון! <b>${escapeHtml(currentCandidate.title)}</b> הוא משנת <b>${currentCandidate.year}</b>.`,
+          "good"
+        );
+
+        if(teams[teamIndex].timeline.length >= 7){
+          winner = teamIndex;
+          renderAll();
+          setCandidate("המשחק הסתיים", `${teams[teamIndex].name} ניצחה!`);
+          updateTurnText(`${teams[teamIndex].name} ניצחה!`);
+          setMessage(
+            `🏆 <span class="winner-badge">מנצחים</span>${teams[teamIndex].name} השלימה ציר זמן נכון של 7 פריטים!`,
+            "win"
+          );
+          stopTimer();
+          return;
+        }
+
+        currentCandidate = drawItem();
+
+        if(wasBonusTurn){
+          bonusTurn = false;
+          setMessage(
+            `✅ נכון! זה היה תור בונוס מוצלח, ולכן ${teams[currentTeam].name} ממשיכה לעוד תור רגיל.`,
+            "good"
+          );
+        } else {
+          currentTeam = 1 - currentTeam;
+          bonusTurn = false;
+        }
+
+        renderAll();
+        prepareTurn();
+      } else {
+        currentTeam = 1 - currentTeam;
+        bonusTurn = true;
+
+        setMessage(
+          `❌ לא נכון. <b>${escapeHtml(currentCandidate.title)}</b> לא מתאים למיקום הזה. התור עובר ל־<b>${teams[currentTeam].name}</b> כתור בונוס עם אותו הפריט.`,
+          "bad"
+        );
+
+        renderAll();
+        prepareTurn();
+      }
+    }
+
+    function handlePass(fromTimeout = false){
+      if(!gameStarted || winner !== null || !currentCandidate) return;
+      stopTimer();
+
+      const prev = currentTeam;
+      currentTeam = 1 - currentTeam;
+      bonusTurn = true;
+
+      renderAll();
+
+      if(fromTimeout){
+        setMessage(
+          `⏰ הזמן של ${teams[prev].name} נגמר. אותו הפריט עובר ל־${teams[currentTeam].name} כתור בונוס.`,
+          "bad"
+        );
+      } else {
+        setMessage(
+          `⏭️ התור של ${teams[prev].name} דולג. אותו הפריט עובר ל־${teams[currentTeam].name} כתור בונוס.`,
+          "info"
+        );
+      }
+
+      prepareTurn();
+    }
+
+    function renameTeam(teamIndex){
+      const newName = prompt("שם חדש לקבוצה:", teams[teamIndex].name);
+      if(newName && newName.trim()){
+        teams[teamIndex].name = newName.trim();
+        updateTopNames();
+        renderAll();
+        if(gameStarted && winner === null){
+          const turnLabel = bonusTurn ? `התור של ${teams[currentTeam].name} (בונוס)` : `התור של ${teams[currentTeam].name}`;
+          updateTurnText(turnLabel);
+          if(currentCandidate){
+            setCandidate(
+              currentCandidate.title,
+              `סוג: ${currentCandidate.type}. בחרו איפה להכניס אותו על הציר של ${teams[currentTeam].name}.`
+            );
+          }
+        }
+      }
+    }
+
+    function showRules(){
+      alert(
+`כללי המשחק:
+1. יש 2 קבוצות.
+2. בתחילת המשחק כל קבוצה מקבלת סרט/סדרה ראשוני לציר שלה.
+3. בכל תור הקבוצה מקבלת פריט חדש וצריכה להכניס אותו במקום הנכון על ציר הזמן שלה.
+4. אם המיקום נכון בתור רגיל - הפריט נכנס לציר והתור עובר לקבוצה השנייה.
+5. אם קבוצה טועה - הקבוצה השנייה מקבלת את אותו פריט כתור בונוס.
+6. אם הקבוצה השנייה מצליחה בתור הבונוס - היא נשארת לעוד תור רגיל.
+7. לכל תור יש 60 שניות.
+8. אפשר להזיז את הציר עם הפס או עם החיצים.
+9. הקבוצה הראשונה שמגיעה ל-7 פריטים נכונים מנצחת.`
+      );
+    }
+
+    function escapeHtml(str){
+      return str
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    initState();
+  </script>
+</body>
+</html>
