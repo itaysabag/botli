@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>איש תלוי - משחק תורות</title>
+  <style>
+    :root{
+      --bg1:#0b1324;
+      --bg2:#1e293b;
+      --panel:rgba(255,255,255,0.08);
+      --panel2:rgba(255,255,255,0.05);
+      --border:rgba(255,255,255,0.12);
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --blue:#38bdf8;
+      --green:#22c55e;
+      --red:#ef4444;
+      --key:#d9dee7;
+      --shadow:0 8px 24px rgba(0,0,0,.22);
+      --radius:18px;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html,body{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(56,189,248,.14), transparent 22%),
+        radial-gradient(circle at top left, rgba(34,197,94,.10), transparent 22%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color:var(--text);
+    }
+
+    body{
+      padding:8px;
+    }
+
+    .app{
+      width:100%;
+      height:calc(100vh - 16px);
+      max-width:1700px;
+      margin:0 auto;
+      display:grid;
+      grid-template-rows: 76px 98px 1fr;
+      gap:8px;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(8px);
+      min-height:0;
+    }
+
+    .header{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:8px 12px;
+    }
+
+    .header h1{
+      font-size:clamp(24px,2.5vw,42px);
+      line-height:1.05;
+      margin-bottom:2px;
+    }
+
+    .header p{
+      font-size:clamp(12px,1vw,17px);
+      color:var(--muted);
+    }
+
+    .top{
+      display:grid;
+      grid-template-columns: 1fr 0.9fr 1fr;
+      gap:8px;
+      min-height:0;
+    }
+
+    .topBox{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px;
+      min-height:0;
+    }
+
+    .scoreWrap{
+      width:100%;
+      height:100%;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+
+    .teamCard{
+      border-radius:16px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-height:0;
+    }
+
+    .teamCard.active{
+      outline:2px solid var(--blue);
+      background:rgba(56,189,248,0.10);
+    }
+
+    .teamName{
+      font-size:clamp(16px,1.4vw,26px);
+      font-weight:bold;
+      margin-bottom:2px;
+    }
+
+    .teamScore{
+      font-size:clamp(28px,2.8vw,50px);
+      font-weight:bold;
+      line-height:1;
+    }
+
+    .turnContent{
+      width:100%;
+      text-align:center;
+      line-height:1.05;
+    }
+
+    .turnTitle{
+      font-size:clamp(15px,1vw,22px);
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+
+    .currentTeam{
+      font-size:clamp(26px,2.2vw,38px);
+      font-weight:bold;
+      color:#7dd3fc;
+      margin-bottom:4px;
+    }
+
+    .timer{
+      font-size:clamp(30px,2.4vw,46px);
+      font-weight:bold;
+      line-height:1;
+    }
+
+    .controls{
+      width:100%;
+      height:100%;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+
+    button{
+      border:none;
+      border-radius:14px;
+      font-size:clamp(15px,0.95vw,19px);
+      font-weight:bold;
+      cursor:pointer;
+      transition:.18s;
+      min-height:42px;
+      padding:8px 10px;
+    }
+
+    button:hover{ transform:translateY(-1px); }
+    button:active{ transform:translateY(1px); }
+
+    .btn-green{ background:var(--green); color:#052e16; }
+    .btn-blue{ background:var(--blue); color:#062033; }
+    .btn-red{ background:var(--red); color:white; }
+    .btn-white{ background:#e5eaf2; color:#0f172a; }
+
+    .main{
+      display:grid;
+      grid-template-columns: 275px 1fr;
+      gap:8px;
+      min-height:0;
+    }
+
+    .leftPanel{
+      display:grid;
+      grid-template-rows: 54px 1fr 90px;
+      gap:8px;
+      padding:8px;
+      min-height:0;
+    }
+
+    .centerPanel{
+      display:grid;
+      grid-template-rows: 58px 1fr 1.05fr;
+      gap:8px;
+      padding:8px;
+      min-height:0;
+    }
+
+    .status,
+    .category,
+    .wrongTitle{
+      border-radius:16px;
+      background:var(--panel2);
+      border:1px solid rgba(255,255,255,0.09);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-weight:bold;
+      padding:8px;
+    }
+
+    .status{
+      font-size:clamp(16px,1vw,21px);
+    }
+
+    .category,
+    .wrongTitle{
+      font-size:clamp(17px,1.05vw,22px);
+    }
+
+    .hangmanWrap,
+    .wordWrap,
+    .keyboardWrap,
+    .wrongWrap{
+      border-radius:18px;
+      background:var(--panel2);
+      border:1px solid rgba(255,255,255,0.09);
+      min-height:0;
+    }
+
+    .hangmanWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px;
+    }
+
+    svg{
+      width:100%;
+      height:100%;
+      max-width:210px;
+      max-height:245px;
+    }
+
+    .part{
+      opacity:0;
+      transition:opacity .22s ease;
+    }
+
+    .part.show{
+      opacity:1;
+    }
+
+    .wrongWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:10px;
+    }
+
+    .wrongLetters{
+      font-size:clamp(20px,1.35vw,28px);
+      color:#fecaca;
+      line-height:1.4;
+      word-break:break-word;
+    }
+
+    .wordWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:10px 14px;
+      overflow:hidden;
+    }
+
+    .letterBox{
+      width:54px;
+      height:72px;
+      border-radius:14px;
+      border:2px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px;
+      font-weight:bold;
+      line-height:1;
+    }
+
+    .letterBox.space{
+      width:18px;
+      border:none;
+      background:transparent;
+    }
+
+    .keyboardWrap{
+      padding:8px;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .keyboard{
+      width:100%;
+      max-width:1050px;
+      display:grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap:8px;
+      align-content:start;
+    }
+
+    .key{
+      background:var(--key);
+      color:#0f172a;
+      min-height:52px;
+      padding:0;
+      font-size:28px;
+      border-radius:14px;
+    }
+
+    .key.correct{
+      background:var(--green);
+      color:#052e16;
+    }
+
+    .key.wrong{
+      background:var(--red);
+      color:#fff;
+    }
+
+    .key:disabled{
+      opacity:0.98;
+      cursor:not-allowed;
+    }
+
+    @media (max-width: 1400px){
+      .main{
+        grid-template-columns: 245px 1fr;
+      }
+
+      .letterBox{
+        width:48px;
+        height:66px;
+        font-size:30px;
+      }
+
+      .key{
+        min-height:48px;
+        font-size:24px;
+      }
+    }
+
+    @media (max-width: 1100px){
+      .app{
+        grid-template-rows: 72px 135px 1fr;
+      }
+
+      .top{
+        grid-template-columns: 1fr;
+      }
+
+      .main{
+        grid-template-columns: 220px 1fr;
+      }
+
+      .controls{
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .keyboard{
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .key{
+        font-size:22px;
+        min-height:44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel header">
+      <h1>🎯 איש תלוי - משחק תורות</h1>
+      <p>2 קבוצות • 2 דקות לכל תור • נקודה אוטומטית על הצלחה</p>
+    </div>
+
+    <div class="top">
+      <div class="panel topBox">
+        <div class="scoreWrap">
+          <div class="teamCard active" id="teamCard1">
+            <div class="teamName">קבוצה א</div>
+            <div class="teamScore" id="score1">0</div>
+          </div>
+          <div class="teamCard" id="teamCard2">
+            <div class="teamName">קבוצה ב</div>
+            <div class="teamScore" id="score2">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel topBox">
+        <div class="turnContent">
+          <div class="turnTitle">התור של</div>
+          <div class="currentTeam" id="currentTeamLabel">קבוצה א</div>
+          <div class="timer" id="timerDisplay">02:00</div>
+        </div>
+      </div>
+
+      <div class="panel topBox">
+        <div class="controls">
+          <button class="btn-green" onclick="startNewTurn()">התחל תור</button>
+          <button class="btn-blue" onclick="nextTurn()">דלג לקבוצה הבאה</button>
+          <button class="btn-white" onclick="revealLetter()">גלה אות</button>
+          <button class="btn-red" onclick="resetMatch()">איפוס משחק</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="panel leftPanel">
+        <div class="status" id="statusMessage">לחצו על "התחל תור"</div>
+
+        <div class="hangmanWrap">
+          <svg viewBox="0 0 300 320" aria-label="איש תלוי">
+            <line x1="35" y1="290" x2="135" y2="290" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>
+            <line x1="70" y1="290" x2="70" y2="35" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>
+            <line x1="70" y1="35" x2="200" y2="35" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>
+            <line x1="200" y1="35" x2="200" y2="65" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>
+
+            <circle id="part1" class="part" cx="200" cy="92" r="27" fill="none" stroke="#f8fafc" stroke-width="7"/>
+            <line id="part2" class="part" x1="200" y1="120" x2="200" y2="190" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+            <line id="part3" class="part" x1="200" y1="140" x2="165" y2="168" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+            <line id="part4" class="part" x1="200" y1="140" x2="235" y2="168" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+            <line id="part5" class="part" x1="200" y1="190" x2="170" y2="235" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+            <line id="part6" class="part" x1="200" y1="190" x2="230" y2="235" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="wrongWrap">
+          <div class="wrongLetters" id="wrongLetters">—</div>
+        </div>
+      </div>
+
+      <div class="panel centerPanel">
+        <div class="category" id="categoryDisplay">קטגוריה: —</div>
+
+        <div class="wordWrap" id="wordDisplay"></div>
+
+        <div class="keyboardWrap">
+          <div class="keyboard" id="keyboard"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LETTERS = [
+      'א','ב','ג','ד','ה','ו',
+      'ז','ח','ט','י','כ','ל',
+      'מ','נ','ס','ע','פ','צ',
+      'ק','ר','ש','ת'
+    ];
+
+    const WORD_BANK = [
+      { word: 'איראן', category: 'ביטחון' },
+      { word: 'טיל', category: 'ביטחון' },
+      { word: 'אזעקה', category: 'ביטחון' },
+      { word: 'מקלט', category: 'ביטחון' },
+      { word: 'יירוט', category: 'ביטחון' },
+      { word: 'כטבם', category: 'ביטחון' },
+      { word: 'ממד', category: 'ביטחון' },
+      { word: 'התגוננות', category: 'ביטחון' },
+      { word: 'פיקוד העורף', category: 'ביטחון' },
+      { word: 'התרעה', category: 'ביטחון' },
+      { word: 'חיל האוויר', category: 'ביטחון' },
+      { word: 'גבול', category: 'ביטחון' },
+      { word: 'מבצע', category: 'ביטחון' },
+      { word: 'רחפן', category: 'ביטחון' },
+
+      { word: 'אבטיח', category: 'רגיל' },
+      { word: 'גלידה', category: 'רגיל' },
+      { word: 'בית ספר', category: 'רגיל' },
+      { word: 'מחשב', category: 'רגיל' },
+      { word: 'שולחן', category: 'רגיל' },
+      { word: 'משפחה', category: 'רגיל' },
+      { word: 'צילום', category: 'רגיל' },
+      { word: 'כדורגל', category: 'רגיל' },
+      { word: 'אופניים', category: 'רגיל' },
+      { word: 'פסנתר', category: 'רגיל' }
+    ];
+
+    const TURN_SECONDS = 120;
+    const MAX_WRONG = 6;
+
+    let currentTeam = 1;
+    let score1 = 0;
+    let score2 = 0;
+
+    let selectedWord = '';
+    let selectedCategory = '';
+    let guessedLetters = [];
+    let wrongLetters = [];
+    let gameActive = false;
+
+    let timeLeft = TURN_SECONDS;
+    let timerInterval = null;
+
+    const score1El = document.getElementById('score1');
+    const score2El = document.getElementById('score2');
+    const currentTeamLabel = document.getElementById('currentTeamLabel');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const statusMessage = document.getElementById('statusMessage');
+    const categoryDisplay = document.getElementById('categoryDisplay');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const keyboard = document.getElementById('keyboard');
+    const wrongLettersEl = document.getElementById('wrongLetters');
+    const teamCard1 = document.getElementById('teamCard1');
+    const teamCard2 = document.getElementById('teamCard2');
+
+    function updateTeamUI(){
+      currentTeamLabel.textContent = currentTeam === 1 ? 'קבוצה א' : 'קבוצה ב';
+      teamCard1.classList.toggle('active', currentTeam === 1);
+      teamCard2.classList.toggle('active', currentTeam === 2);
+    }
+
+    function setStatus(text){
+      statusMessage.textContent = text;
+    }
+
+    function formatTime(seconds){
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateTimerUI(){
+      timerDisplay.textContent = formatTime(timeLeft);
+
+      if(timeLeft <= 10){
+        timerDisplay.style.color = '#fecaca';
+      } else if(timeLeft <= 30){
+        timerDisplay.style.color = '#fde68a';
+      } else {
+        timerDisplay.style.color = '#ffffff';
+      }
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function startTimer(){
+      stopTimer();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerUI();
+
+        if(timeLeft <= 0){
+          stopTimer();
+          gameActive = false;
+          disableAllKeys();
+          renderWord();
+          setStatus('הזמן נגמר! אין נקודה.');
+        }
+      }, 1000);
+    }
+
+    function pickRandomWord(){
+      const item = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+      selectedWord = item.word;
+      selectedCategory = item.category;
+    }
+
+    function buildKeyboard(){
+      keyboard.innerHTML = '';
+
+      LETTERS.forEach(letter => {
+        const btn = document.createElement('button');
+        btn.className = 'key';
+        btn.textContent = letter;
+        btn.id = 'key-' + letter;
+        btn.onclick = () => guessLetter(letter);
+        keyboard.appendChild(btn);
+      });
+    }
+
+    function renderWord(){
+      wordDisplay.innerHTML = '';
+
+      for(const ch of selectedWord){
+        const box = document.createElement('div');
+
+        if(ch === ' '){
+          box.className = 'letterBox space';
+          box.textContent = '';
+        } else {
+          box.className = 'letterBox';
+          box.textContent = guessedLetters.includes(ch) || !gameActive ? ch : '';
+        }
+
+        wordDisplay.appendChild(box);
+      }
+    }
+
+    function updateCategory(){
+      categoryDisplay.textContent = 'קטגוריה: ' + selectedCategory;
+    }
+
+    function updateWrongLetters(){
+      wrongLettersEl.textContent = wrongLetters.length ? wrongLetters.join(' , ') : '—';
+    }
+
+    function updateHangman(){
+      for(let i = 1; i <= 6; i++){
+        document.getElementById('part' + i).classList.toggle('show', i <= wrongLetters.length);
+      }
+    }
+
+    function disableAllKeys(){
+      document.querySelectorAll('.key').forEach(btn => {
+        btn.disabled = true;
+      });
+    }
+
+    function resetRoundState(){
+      guessedLetters = [];
+      wrongLetters = [];
+      timeLeft = TURN_SECONDS;
+      gameActive = true;
+
+      updateTimerUI();
+      updateWrongLetters();
+      updateHangman();
+      buildKeyboard();
+      renderWord();
+      updateCategory();
+    }
+
+    function awardPointToCurrentTeam(){
+      if(currentTeam === 1){
+        score1++;
+        score1El.textContent = score1;
+      } else {
+        score2++;
+        score2El.textContent = score2;
+      }
+    }
+
+    function isSolved(){
+      const needed = [...new Set(selectedWord.replace(/\s/g, '').split(''))];
+      return needed.every(letter => guessedLetters.includes(letter));
+    }
+
+    function startNewTurn(){
+      pickRandomWord();
+      resetRoundState();
+      updateTeamUI();
+      startTimer();
+      setStatus('התור של ' + (currentTeam === 1 ? 'קבוצה א' : 'קבוצה ב') + ' התחיל');
+    }
+
+    function nextTurn(){
+      stopTimer();
+      currentTeam = currentTeam === 1 ? 2 : 1;
+      startNewTurn();
+    }
+
+    function guessLetter(letter){
+      if(!gameActive) return;
+      if(guessedLetters.includes(letter) || wrongLetters.includes(letter)) return;
+
+      const btn = document.getElementById('key-' + letter);
+
+      if(selectedWord.includes(letter)){
+        guessedLetters.push(letter);
+        btn.classList.add('correct');
+        btn.disabled = true;
+        renderWord();
+
+        if(isSolved()){
+          gameActive = false;
+          stopTimer();
+          awardPointToCurrentTeam();
+          disableAllKeys();
+          renderWord();
+          setStatus((currentTeam === 1 ? 'קבוצה א' : 'קבוצה ב') + ' הצליחה וקיבלה נקודה!');
+        } else {
+          setStatus('נכון');
+        }
+      } else {
+        wrongLetters.push(letter);
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        updateWrongLetters();
+        updateHangman();
+
+        if(wrongLetters.length >= MAX_WRONG){
+          gameActive = false;
+          stopTimer();
+          disableAllKeys();
+          renderWord();
+          setStatus('נפסלתם בסיבוב הזה');
+        } else {
+          setStatus('טעות');
+        }
+      }
+    }
+
+    function revealLetter(){
+      if(!gameActive) return;
+
+      const hidden = [...new Set(
+        selectedWord
+          .replace(/\s/g, '')
+          .split('')
+          .filter(ch => !guessedLetters.includes(ch))
+      )];
+
+      if(!hidden.length) return;
+
+      const randomLetter = hidden[Math.floor(Math.random() * hidden.length)];
+      guessLetter(randomLetter);
+    }
+
+    function resetMatch(){
+      stopTimer();
+      currentTeam = 1;
+      score1 = 0;
+      score2 = 0;
+      selectedWord = '';
+      selectedCategory = '';
+      guessedLetters = [];
+      wrongLetters = [];
+      gameActive = false;
+      timeLeft = TURN_SECONDS;
+
+      score1El.textContent = '0';
+      score2El.textContent = '0';
+      updateTeamUI();
+      updateTimerUI();
+      updateWrongLetters();
+      updateHangman();
+
+      categoryDisplay.textContent = 'קטגוריה: —';
+      wordDisplay.innerHTML = '';
+      buildKeyboard();
+      disableAllKeys();
+      setStatus('המשחק אופס. לחצו על "התחל תור"');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+
+      if(/^[א-ת]$/.test(key)){
+        guessLetter(key);
+      }
+
+      if(e.key === ' '){
+        e.preventDefault();
+        revealLetter();
+      }
+    });
+
+    updateTeamUI();
+    updateTimerUI();
+    buildKeyboard();
+    disableAllKeys();
+    updateWrongLetters();
+    updateHangman();
+  </script>
+</body>
+</html>
