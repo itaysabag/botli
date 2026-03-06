@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="he">
+  <head>
+    <meta charset="UTF-8" />
+    <title>משחק בניית מילים</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      #layout {
+        display: grid;
+        grid-template-columns: 220px 1fr 260px;
+        height: 100vh;
+        align-items: center;
+      }
+
+      /* ניקוד */
+
+      #teams {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .team {
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        font-size: 20px;
+        width: 160px;
+        text-align: center;
+      }
+
+      .active {
+        outline: 3px solid yellow;
+      }
+
+      /* מרכז המשחק */
+
+      #center {
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 28px;
+        margin: 5px;
+      }
+
+      #timer {
+        font-size: 28px;
+        margin: 8px;
+      }
+
+      .last10 {
+        font-size: 50px;
+        color: #ff5252;
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.3);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      #word {
+        font-size: 34px;
+        letter-spacing: 10px;
+        min-height: 40px;
+      }
+
+      /* לוח האותיות */
+
+      #board {
+        display: grid;
+        grid-template-columns: repeat(6, 90px);
+        gap: 12px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .letter {
+        background: white;
+        color: #222;
+        font-size: 38px;
+        font-weight: bold;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        animation: drop 0.4s ease;
+      }
+
+      @keyframes drop {
+        from {
+          transform: translateY(-80px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .letter:hover {
+        transform: scale(1.1);
+        background: #ffe082;
+      }
+
+      .used {
+        background: #777;
+        color: #ddd;
+        cursor: not-allowed;
+        transform: scale(0.85);
+      }
+
+      /* צד ימין */
+
+      #rightPanel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #instructions {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 14px;
+        width: 200px;
+        line-height: 1.5;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 10px;
+        width: 160px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #ffd54f;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      /* הודעת תור */
+
+      #turnMessage {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 60px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 20px 40px;
+        border-radius: 15px;
+        display: none;
+      }
+
+      /* ניקוד קופץ */
+
+      #scorePopup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 60px;
+        color: #4caf50;
+        display: none;
+        animation: popScore 1s ease;
+      }
+
+      @keyframes popScore {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.4);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="turnMessage"></div>
+    <div id="scorePopup"></div>
+
+    <div id="layout">
+      <!-- ניקוד -->
+
+      <div id="teams">
+        <div id="team1" class="team active">
+          קבוצה א<br />
+          נקודות: <span id="score1">0</span>
+        </div>
+
+        <div id="team2" class="team">
+          קבוצה ב<br />
+          נקודות: <span id="score2">5</span>
+        </div>
+      </div>
+
+      <!-- מרכז המשחק -->
+
+      <div id="center">
+        <h1>משחק בניית מילים</h1>
+
+        <div id="timer">לחצו התחל סיבוב</div>
+
+        <div id="word"></div>
+
+        <div id="board"></div>
+      </div>
+
+      <!-- צד ימין -->
+
+      <div id="rightPanel">
+        <div id="instructions" dir="rtl">
+          איך משחקים: 1. לחצו התחל סיבוב 2. הקבוצה בתור אומרת מילה 3. המורה לוחץ
+          על האותיות 4. לחצו אשר מילה 5. נקודות לפי מספר האותיות 6. הזמן נגמר →
+          התור מתחלף
+        </div>
+
+        <button onclick="startRound()">התחל סיבוב</button>
+        <button onclick="confirmWord()">אשר מילה</button>
+        <button onclick="clearWord()">נקה</button>
+        <button onclick="newLetters()">אותיות חדשות</button>
+      </div>
+    </div>
+
+    <script>
+      const letters = [
+        "א",
+        "א",
+        "א",
+        "א",
+        "ה",
+        "ה",
+        "ה",
+        "ה",
+        "ו",
+        "ו",
+        "ו",
+        "ו",
+        "י",
+        "י",
+        "י",
+        "י",
+        "מ",
+        "מ",
+        "ל",
+        "ל",
+        "ש",
+        "ש",
+        "ת",
+        "ת",
+        "ר",
+        "ר",
+        "נ",
+        "נ",
+        "ב",
+        "ב",
+        "כ",
+        "כ",
+        "ג",
+        "ד",
+        "ק",
+        "פ",
+        "צ",
+        "ט",
+        "ח",
+        "ס",
+        "ע",
+      ];
+
+      let board = document.getElementById("board");
+      let wordDisplay = document.getElementById("word");
+
+      let currentWord = "";
+      let usedLetters = [];
+
+      let score1 = 0;
+      let score2 = 5;
+
+      let currentTeam = 1;
+
+      let time = 90;
+      let timerInterval;
+      let timerRunning = false;
+
+      function randomLetter() {
+        return letters[Math.floor(Math.random() * letters.length)];
+      }
+
+      function generateBoard() {
+        board.innerHTML = "";
+        usedLetters = [];
+
+        for (let i = 0; i < 30; i++) {
+          let letter = randomLetter();
+
+          let div = document.createElement("div");
+          div.className = "letter";
+          div.innerText = letter;
+
+          div.onclick = function () {
+            selectLetter(div, letter);
+          };
+
+          board.appendChild(div);
+        }
+      }
+
+      function selectLetter(div, letter) {
+        if (div.classList.contains("used") || !timerRunning) return;
+
+        div.classList.add("used");
+
+        currentWord += letter;
+        usedLetters.push(div);
+
+        wordDisplay.innerText = currentWord;
+      }
+
+      function clearWord() {
+        for (let l of usedLetters) {
+          l.classList.remove("used");
+        }
+
+        usedLetters = [];
+        currentWord = "";
+        wordDisplay.innerText = "";
+      }
+
+      function confirmWord() {
+        let points = currentWord.length;
+        if (points == 0) return;
+
+        /* ניקוד קופץ */
+
+        let popup = document.getElementById("scorePopup");
+        popup.innerText = "+" + points;
+        popup.style.display = "block";
+
+        setTimeout(() => (popup.style.display = "none"), 1000);
+
+        if (currentTeam == 1) {
+          score1 += points;
+          document.getElementById("score1").innerText = score1;
+          currentTeam = 2;
+        } else {
+          score2 += points;
+          document.getElementById("score2").innerText = score2;
+          currentTeam = 1;
+        }
+
+        switchTurn();
+
+        clearWord();
+      }
+
+      function switchTurn() {
+        document.getElementById("team1").classList.remove("active");
+        document.getElementById("team2").classList.remove("active");
+
+        if (currentTeam == 1) {
+          document.getElementById("team1").classList.add("active");
+          showTurn("התור של קבוצה א");
+        } else {
+          document.getElementById("team2").classList.add("active");
+          showTurn("התור של קבוצה ב");
+        }
+      }
+
+      function showTurn(text) {
+        let msg = document.getElementById("turnMessage");
+        msg.innerText = text;
+        msg.style.display = "block";
+
+        setTimeout(() => (msg.style.display = "none"), 2000);
+      }
+
+      function newLetters() {
+        generateBoard();
+      }
+
+      function startRound() {
+        generateBoard();
+        showTurn("המשחק התחיל!");
+        startTimer();
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+
+        time = 90;
+        timerRunning = true;
+
+        updateTimer();
+
+        timerInterval = setInterval(function () {
+          time--;
+          updateTimer();
+
+          if (time <= 0) {
+            currentTeam = currentTeam === 1 ? 2 : 1;
+            switchTurn();
+
+            time = 90;
+          }
+        }, 1000);
+      }
+
+      function updateTimer() {
+        let timer = document.getElementById("timer");
+
+        timer.innerText = "זמן: " + time;
+
+        if (time <= 10) {
+          timer.classList.add("last10");
+        } else {
+          timer.classList.remove("last10");
+        }
+      }
+    </script>
+  </body>
+</html>
