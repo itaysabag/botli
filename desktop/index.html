@@ -3,223 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotLi Desktop</title>
+    <title>BotLi OS - Desktop Experience</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --taskbar-bg: rgba(0, 0, 0, 0.6);
-            --text-color: #ffffff;
-            --accent-color: #00a2ff;
+            --bg-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070');
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-heavy: rgba(0, 0, 0, 0.7);
+            --accent: #00a2ff;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-image) no-repeat center center fixed;
             background-size: cover;
             height: 100vh;
             overflow: hidden;
-            color: var(--text-color);
+            user-select: none;
         }
 
-        /* שולחן העבודה - סידור האייקונים */
-        .desktop-container {
+        /* שולחן העבודה */
+        #desktop {
+            width: 100%;
+            height: calc(100vh - 50px);
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            grid-template-rows: repeat(auto-fill, minmax(110px, 1fr));
-            grid-auto-flow: column; /* סידור כמו בווינדוס מצד לצד או מלמעלה למטה */
-            gap: 15px;
-            height: calc(100vh - 60px);
+            grid-template-columns: repeat(auto-fill, 100px);
+            grid-template-rows: repeat(auto-fill, 110px);
+            grid-auto-flow: column;
+            gap: 10px;
         }
 
-        .shortcut {
+        .icon {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100px;
+            width: 90px;
             height: 100px;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .icon:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
+        .icon i { font-size: 2.5rem; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .icon span { font-size: 0.8rem; text-align: center; font-weight: 500; text-shadow: 0 1px 2px black; }
+
+        /* מערכת החלונות */
+        .window {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            background: rgba(28, 28, 28, 0.9);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .window-header {
+            background: rgba(255,255,255,0.05);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            cursor: move;
+        }
+
+        .window-title { flex-grow: 1; font-size: 0.9rem; color: #ddd; }
+        
+        .window-controls { display: flex; gap: 10px; }
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+
+        .window-content {
+            flex-grow: 1;
+            background: white;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* התראת iframe חסום */
+        .iframe-blocker-notice {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #222;
             color: white;
             text-align: center;
-            border: 1px solid transparent;
+            padding: 20px;
+            z-index: 1;
         }
 
-        .shortcut:hover {
-            background: var(--glass-bg);
-            backdrop-filter: blur(8px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .btn-link {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
         }
 
-        .shortcut i {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-
-        .shortcut span {
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            width: 90%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* שורת המשימות (Taskbar) */
+        /* שורת משימות */
         .taskbar {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: var(--taskbar-bg);
-            backdrop-filter: blur(20px);
+            bottom: 0; width: 100%; height: 50px;
+            background: var(--glass-heavy);
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             padding: 0 15px;
             z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .start-menu-btn {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-            color: var(--accent-color);
-        }
-
-        .start-menu-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .taskbar-divider {
-            width: 1px;
-            height: 25px;
-            background: rgba(255,255,255,0.2);
-            margin: 0 15px;
-        }
-
-        .running-apps {
-            display: flex;
-            gap: 10px;
-            flex-grow: 1;
-        }
-
-        .system-tray {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 0.85rem;
-            padding: 0 10px;
-        }
-
-        #clock-container {
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        /* אפקטים של Gmail ספציפי כדי שייראה טוב */
-        .fa-envelope { color: #ea4335; } /* Gmail Red */
-        .fa-code { color: #00f2fe; }     /* Java Blue */
-        .fa-folder-open { color: #ffca28; } /* Folder Yellow */
+        #clock { color: white; margin-right: auto; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-    <div class="desktop-container" id="desktop">
-        </div>
+<div id="desktop"></div>
 
-    <nav class="taskbar">
-        <div class="start-menu-btn">
-            <i class="fas fa-th-large"></i>
-        </div>
-        <div class="taskbar-divider"></div>
-        <div class="running-apps" id="taskbar-icons">
-            </div>
-        <div class="system-tray">
-            <i class="fas fa-wifi"></i>
-            <i class="fas fa-volume-up"></i>
-            <div id="clock-container">
-                <div id="time"></div>
-                <div id="date" style="font-size: 0.7rem;"></div>
-            </div>
-        </div>
-    </nav>
+<nav class="taskbar">
+    <i class="fas fa-th-large" style="color: var(--accent); font-size: 1.5rem; cursor: pointer;"></i>
+    <div id="active-apps" style="margin-right: 20px; display: flex; gap: 10px;"></div>
+    <div id="clock"></div>
+</nav>
 
-    <script>
-        /**
-         * הגדרת האפליקציות והקישורים שלך
-         * path: יכול להיות קובץ מקומי (למשל index.html) או קישור מלא (http...)
-         * icon: שם הקלאס מ-Font Awesome (חפש ב-fontawesome.com/icons)
-         **/
-        const myApps = [
-            { name: "BotLi IDE", path: "editor.html", icon: "fas fa-code" },
-            { name: "Gmail", path: "https://mail.google.com", icon: "fas fa-envelope" },
-            { name: "מערכי שיעור", path: "lessons/math.html", icon: "fas fa-book-open" },
-            { name: "GitHub Repo", path: "https://github.com/yourusername", icon: "fab fa-github" },
-            { name: "Docs", path: "https://docs.google.com", icon: "fas fa-file-alt" },
-            { name: "הגדרות", path: "settings.html", icon: "fas fa-cog" }
-        ];
+<script>
+    const apps = [
+        { name: "BotLi IDE", path: "editor.html", icon: "fas fa-code", color: "#00f2fe" },
+        { name: "Gmail", path: "https://mail.google.com", icon: "fas fa-envelope", color: "#ea4335", restricted: true },
+        { name: "Math Lessons", path: "lessons.html", icon: "fas fa-calculator", color: "#ffca28" },
+        { name: "YouTube", path: "https://www.youtube.com/embed/dQw4w9WgXcQ", icon: "fab fa-youtube", color: "#ff0000" }
+    ];
 
-        function initDesktop() {
-            const desktop = document.getElementById('desktop');
-            
-            myApps.forEach(app => {
-                const shortcut = document.createElement('a');
-                shortcut.className = 'shortcut';
-                shortcut.href = app.path;
+    let zIndexCounter = 100;
 
-                // בדיקה אם זה קישור חיצוני (מתחיל ב-http)
-                if (app.path.startsWith('http')) {
-                    shortcut.target = "_blank"; // פתיחה בטאב חדש לקישורים חיצוניים
-                }
-
-                shortcut.innerHTML = `
-                    <i class="${app.icon}"></i>
-                    <span>${app.name}</span>
-                `;
-
-                desktop.appendChild(shortcut);
-            });
-        }
-
-        // עדכון שעון ותאריך סטייל ווינדוס
-        function updateClock() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-            const dateStr = now.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            
-            document.getElementById('time').textContent = timeStr;
-            document.getElementById('date').textContent = dateStr;
-        }
-
-        // הפעלה
-        initDesktop();
-        setInterval(updateClock, 1000);
+    function init() {
+        const desktop = document.getElementById('desktop');
+        apps.forEach(app => {
+            const icon = document.createElement('div');
+            icon.className = 'icon';
+            icon.innerHTML = `<i class="${app.icon}" style="color: ${app.color}"></i><span>${app.name}</span>`;
+            icon.onclick = () => createWindow(app);
+            desktop.appendChild(icon);
+        });
         updateClock();
-    </script>
+        setInterval(updateClock, 1000);
+    }
+
+    function createWindow(app) {
+        zIndexCounter++;
+        const win = document.createElement('div');
+        win.className = 'window';
+        win.style.left = (50 + (zIndexCounter % 10) * 20) + 'px';
+        win.style.top = (50 + (zIndexCounter % 10) * 20) + 'px';
+        win.style.zIndex = zIndexCounter;
+
+        // אם האתר חסום ב-iframe (כמו ג'ימייל), נשים הודעה עם כפתור
+        const content = app.restricted 
+            ? `<div class="iframe-blocker-notice">
+                <i class="fas fa-shield-alt" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                <p>האתר הזה חוסם תצוגה בתוך חלון פנימי.</p>
+                <a href="${app.path}" target="_blank" class="btn-link">פתח בטאב חדש</a>
+               </div>`
+            : `<iframe src="${app.path}"></iframe>`;
+
+        win.innerHTML = `
+            <div class="window-header">
+                <span class="window-title">${app.name}</span>
+                <div class="window-controls">
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                    <div class="control-btn close"></div>
+                </div>
+            </div>
+            <div class="window-content">${content}</div>
+        `;
+
+        // סגירה
+        win.querySelector('.close').onclick = () => win.remove();
+        
+        // גרירה
+        makeDraggable(win);
+        
+        // פוקוס בלחיצה
+        win.onmousedown = () => win.style.zIndex = ++zIndexCounter;
+
+        document.body.appendChild(win);
+    }
+
+    function makeDraggable(el) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        const header = el.querySelector('.window-header');
+        header.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            el.style.zIndex = ++zIndexCounter;
+        }
+
+        function elementDrag(e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            el.style.top = (el.offsetTop - pos2) + "px";
+            el.style.left = (el.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerHTML = now.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}) + '<br>' + now.toLocaleDateString('he-IL');
+    }
+
+    init();
+</script>
+
 </body>
 </html>
