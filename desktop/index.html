@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BotLi OS</title>
+  <title>BotLi Desktop</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -11,23 +11,21 @@
   <style>
     :root {
       --taskbar-height: 58px;
-      --accent: #4cc2ff;
-      --accent-2: #1f6feb;
-      --glass: rgba(18, 22, 30, 0.56);
+      --glass: rgba(20, 25, 34, 0.58);
       --glass-strong: rgba(16, 20, 28, 0.78);
-      --panel: rgba(255, 255, 255, 0.72);
-      --panel-dark: rgba(20, 24, 31, 0.72);
-      --win-bg: rgba(250, 252, 255, 0.82);
-      --win-border: rgba(255, 255, 255, 0.42);
-      --text: #101820;
-      --text-soft: #475467;
-      --shadow: 0 14px 50px rgba(0, 0, 0, 0.24);
-      --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.18);
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-border: rgba(255, 255, 255, 0.32);
+      --win-bg: rgba(250, 252, 255, 0.88);
+      --win-border: rgba(255,255,255,0.38);
+      --text: #0f172a;
+      --text-soft: #64748b;
+      --accent: #38bdf8;
+      --shadow: 0 12px 40px rgba(0,0,0,0.22);
+      --shadow-soft: 0 8px 22px rgba(0,0,0,0.14);
       --radius-xl: 20px;
       --radius-lg: 16px;
       --radius-md: 12px;
-      --radius-sm: 8px;
-      --transition: 180ms ease;
+      --transition: 160ms ease;
     }
 
     * {
@@ -42,16 +40,15 @@
       height: 100%;
       overflow: hidden;
       font-family: 'Assistant', sans-serif;
-      color: white;
       user-select: none;
     }
 
     body {
       background:
-        radial-gradient(circle at 18% 18%, rgba(76, 194, 255, 0.33), transparent 26%),
-        radial-gradient(circle at 78% 20%, rgba(108, 99, 255, 0.22), transparent 28%),
-        radial-gradient(circle at 85% 85%, rgba(31, 111, 235, 0.18), transparent 32%),
-        linear-gradient(135deg, #0a1020 0%, #0d1830 22%, #122341 44%, #0f2d52 66%, #12385e 100%);
+        radial-gradient(circle at 18% 18%, rgba(76, 194, 255, 0.24), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(120, 119, 255, 0.15), transparent 26%),
+        linear-gradient(135deg, #0c1324 0%, #10203d 38%, #12345a 70%, #11466b 100%);
+      color: white;
       position: relative;
     }
 
@@ -60,11 +57,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(125deg, rgba(255,255,255,0.06), transparent 22%, transparent 78%, rgba(255,255,255,0.03)),
-        radial-gradient(circle at center, transparent 0 58%, rgba(255,255,255,0.025) 59%, transparent 60%),
-        radial-gradient(circle at center, transparent 0 72%, rgba(255,255,255,0.02) 73%, transparent 74%);
+        linear-gradient(140deg, rgba(255,255,255,0.05), transparent 26%, transparent 74%, rgba(255,255,255,0.03));
       pointer-events: none;
-      opacity: .85;
     }
 
     #desktop {
@@ -80,16 +74,6 @@
       z-index: 1;
     }
 
-    .desktop-selection {
-      position: absolute;
-      border: 1px solid rgba(255,255,255,0.55);
-      background: rgba(120, 185, 255, 0.16);
-      backdrop-filter: blur(2px);
-      display: none;
-      z-index: 2;
-      pointer-events: none;
-    }
-
     .shortcut {
       width: 88px;
       height: 100px;
@@ -100,20 +84,19 @@
       gap: 8px;
       border-radius: 12px;
       cursor: pointer;
-      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      transition: background var(--transition), transform var(--transition);
       text-align: center;
       position: relative;
-      z-index: 1;
     }
 
     .shortcut:hover {
       background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
     }
 
     .shortcut.selected {
       background: rgba(255,255,255,0.16);
-      outline: 1px solid rgba(255,255,255,0.2);
+      outline: 1px solid rgba(255,255,255,0.18);
     }
 
     .shortcut:active {
@@ -127,17 +110,17 @@
       display: grid;
       place-items: center;
       font-size: 22px;
-      box-shadow: 0 10px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.26);
-      border: 1px solid rgba(255,255,255,0.18);
       color: white;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.16);
     }
 
     .shortcut span {
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.15;
       max-width: 82px;
-      text-shadow: 0 1px 6px rgba(0,0,0,.7);
-      font-weight: 600;
+      font-weight: 700;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
     }
 
     .taskbar {
@@ -149,9 +132,9 @@
       height: calc(var(--taskbar-height) - 8px);
       border-radius: 18px;
       background: var(--glass);
-      border: 1px solid rgba(255,255,255,0.18);
-      backdrop-filter: blur(24px) saturate(140%);
-      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
       box-shadow: var(--shadow);
       display: flex;
       align-items: center;
@@ -164,7 +147,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
       pointer-events: none;
     }
 
@@ -172,7 +155,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      height: 100%;
       z-index: 1;
     }
 
@@ -185,44 +167,21 @@
       z-index: 1;
     }
 
-    .taskbar-pill {
-      height: 40px;
-      padding: 0 10px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: white;
-      background: rgba(255,255,255,0.08);
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .taskbar-pill:hover {
-      background: rgba(255,255,255,0.14);
-    }
-
-    .taskbar-icon,
     .start-btn,
-    .search-btn {
+    .taskbar-icon {
       width: 44px;
       height: 44px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      color: white;
       cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
       position: relative;
+      transition: background var(--transition);
     }
 
-    .taskbar-icon:hover,
     .start-btn:hover,
-    .search-btn:hover {
+    .taskbar-icon:hover {
       background: rgba(255,255,255,0.12);
     }
 
@@ -235,7 +194,6 @@
       height: 3px;
       border-radius: 999px;
       background: #8bdcff;
-      box-shadow: 0 0 12px rgba(139, 220, 255, 0.6);
     }
 
     .start-logo {
@@ -249,7 +207,22 @@
     .start-logo div {
       background: linear-gradient(180deg, #8edcff, #38a9ff);
       border-radius: 2px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+    .clock-pill {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .clock-pill:hover {
+      background: rgba(255,255,255,0.14);
     }
 
     .clock-block {
@@ -266,16 +239,16 @@
 
     .clock-date {
       font-size: 12px;
-      opacity: .82;
+      opacity: .8;
     }
 
     .panel {
       position: fixed;
       bottom: 74px;
-      background: rgba(20, 24, 31, 0.7);
+      background: rgba(20, 24, 31, 0.74);
       color: white;
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(28px) saturate(150%);
       -webkit-backdrop-filter: blur(28px) saturate(150%);
@@ -294,8 +267,7 @@
     }
 
     .start-menu {
-      width: 640px;
-      height: 620px;
+      width: 520px;
       left: 50%;
       transform: translateX(-50%) translateY(12px) scale(.98);
       padding: 18px;
@@ -305,24 +277,17 @@
       transform: translateX(-50%) translateY(0) scale(1);
     }
 
-    .start-top {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
     .search-box {
-      flex: 1;
       height: 50px;
       border-radius: 16px;
       background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 0 16px;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.92);
+      margin-bottom: 16px;
     }
 
     .search-box input {
@@ -341,8 +306,8 @@
 
     .section-title {
       font-size: 14px;
-      color: rgba(255,255,255,0.78);
-      margin: 14px 4px 12px;
+      color: rgba(255,255,255,0.8);
+      margin: 10px 4px 12px;
       font-weight: 700;
     }
 
@@ -389,199 +354,53 @@
       font-weight: 700;
     }
 
-    .start-lower {
-      display: grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 14px;
-      margin-top: 16px;
-      height: 300px;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 18px;
-      padding: 14px;
-      overflow: hidden;
-    }
-
-    .recent-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .recent-item {
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.06);
+    .start-footer {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .recent-item:hover {
-      background: rgba(255,255,255,0.12);
-    }
-
-    .recent-item small {
-      opacity: .7;
+      gap: 10px;
     }
 
     .user-box {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.07);
-      margin-top: auto;
     }
 
     .avatar {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: grid;
       place-items: center;
       font-weight: 800;
       color: white;
       background: linear-gradient(135deg, #3498ff, #6c63ff);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
-    }
-
-    .start-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 14px;
-      padding: 12px 6px 2px;
-    }
-
-    .power-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: rgba(255,255,255,0.08);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .power-btn:hover {
-      background: rgba(255,255,255,0.16);
-    }
-
-    .quick-panel {
-      left: 12px;
-      width: 360px;
-      padding: 16px;
-    }
-
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .quick-toggle {
-      border-radius: 16px;
-      min-height: 74px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 6px;
-      padding: 12px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
-    }
-
-    .quick-toggle:hover {
-      background: rgba(255,255,255,0.14);
-    }
-
-    .quick-toggle.active {
-      background: linear-gradient(180deg, rgba(76,194,255,0.3), rgba(76,194,255,0.18));
-      border-color: rgba(76,194,255,0.35);
-    }
-
-    .slider-box {
-      background: rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-
-    .slider-box label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 8px;
-      color: rgba(255,255,255,0.82);
-    }
-
-    .slider-box input[type="range"] {
-      width: 100%;
-      accent-color: #7fd5ff;
-      cursor: pointer;
-    }
-
-    .notification-center {
-      right: 12px;
-      width: 360px;
-      padding: 16px;
-      max-height: 520px;
-    }
-
-    .notification-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .notification {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 14px;
-      line-height: 1.35;
-    }
-
-    .notification small {
-      display: block;
-      opacity: .7;
-      margin-top: 6px;
     }
 
     .window {
       position: absolute;
       min-width: 360px;
       min-height: 240px;
-      width: 860px;
-      height: 560px;
-      top: 72px;
-      left: 160px;
+      width: 780px;
+      height: 520px;
+      top: 74px;
+      left: 140px;
       background: var(--win-bg);
       color: var(--text);
       border-radius: 18px;
       overflow: hidden;
       border: 1px solid var(--win-border);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(22px) saturate(150%);
-      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      backdrop-filter: blur(20px) saturate(145%);
+      -webkit-backdrop-filter: blur(20px) saturate(145%);
       display: flex;
       flex-direction: column;
       z-index: 20;
-      animation: openWin .18s ease-out;
+      animation: openWin .16s ease-out;
     }
 
     .window.minimized {
@@ -597,24 +416,19 @@
     }
 
     @keyframes openWin {
-      from { transform: scale(.96); opacity: 0; }
+      from { transform: scale(.97); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
 
     .window-header {
       height: 46px;
-      background: rgba(255,255,255,0.62);
+      background: rgba(255,255,255,0.68);
       display: flex;
       align-items: center;
       padding: 0 10px 0 12px;
-      border-bottom: 1px solid rgba(16, 24, 40, 0.08);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
       flex-shrink: 0;
       cursor: move;
-      position: relative;
-    }
-
-    .window.focused .window-header {
-      background: rgba(255,255,255,0.8);
     }
 
     .window-title {
@@ -634,13 +448,12 @@
       place-items: center;
       color: white;
       font-size: 12px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
     }
 
     .window-title span {
       font-size: 14px;
       font-weight: 700;
-      color: #243243;
+      color: #1e293b;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -666,7 +479,7 @@
     }
 
     .win-btn:hover {
-      background: rgba(16, 24, 40, 0.08);
+      background: rgba(16,24,40,0.08);
     }
 
     .win-btn.close:hover {
@@ -676,14 +489,12 @@
 
     .window-body {
       flex: 1;
-      background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(245,248,255,0.9));
+      background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(247,250,255,0.92));
       overflow: auto;
-      position: relative;
     }
 
     .window-content {
       height: 100%;
-      color: #0f172a;
     }
 
     .resize-handle {
@@ -702,8 +513,8 @@
       position: fixed;
       inset: 12px;
       border-radius: 20px;
-      background: rgba(125, 206, 255, 0.13);
-      border: 2px solid rgba(125, 206, 255, 0.32);
+      background: rgba(125, 206, 255, 0.12);
+      border: 2px solid rgba(125, 206, 255, 0.26);
       display: none;
       pointer-events: none;
       z-index: 1800;
@@ -713,50 +524,10 @@
       display: block;
     }
 
-    .context-menu {
-      position: fixed;
-      width: 240px;
-      background: rgba(28, 34, 44, 0.84);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 8px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(20px);
-      z-index: 2200;
-      display: none;
-    }
-
-    .context-menu.open {
-      display: block;
-    }
-
-    .context-item {
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .context-item:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .context-sep {
-      height: 1px;
-      background: rgba(255,255,255,0.08);
-      margin: 6px 0;
-    }
-
     .overlay-dim {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.0);
+      background: rgba(0,0,0,0);
       z-index: 1500;
       display: none;
     }
@@ -765,122 +536,9 @@
       display: block;
     }
 
-    .badge {
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(76,194,255,0.14);
-      color: #1172b8;
-      border: 1px solid rgba(76,194,255,0.18);
-    }
-
-    .app-shell {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .toolbar {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 14px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-      background: rgba(255,255,255,0.58);
-      flex-shrink: 0;
-    }
-
-    .tool-btn {
-      height: 34px;
-      min-width: 34px;
-      padding: 0 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(15,23,42,0.08);
-      background: rgba(255,255,255,0.78);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: background var(--transition);
-      font-weight: 700;
-      color: #334155;
-    }
-
-    .tool-btn:hover {
-      background: rgba(255,255,255,0.96);
-    }
-
-    .address-bar {
-      flex: 1;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-radius: 12px;
-      background: white;
-      border: 1px solid rgba(15,23,42,0.08);
-      color: #475569;
-      min-width: 0;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .app-main {
-      flex: 1;
-      min-height: 0;
-    }
-
-    .split {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      height: 100%;
-    }
-
-    .sidebar {
-      border-left: 1px solid rgba(15,23,42,0.08);
-      background: rgba(248,250,252,.82);
-      padding: 14px;
-      overflow: auto;
-    }
-
-    .sidebar h4 {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 10px;
-    }
-
-    .side-item {
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      color: #1e293b;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background var(--transition);
-      margin-bottom: 6px;
-    }
-
-    .side-item:hover,
-    .side-item.active {
-      background: rgba(76,194,255,0.12);
-    }
-
-    .content-area {
-      padding: 18px;
-      overflow: auto;
-      background: linear-gradient(180deg, #ffffff, #f7faff);
-    }
-
     .hero {
-      background: linear-gradient(135deg, rgba(76,194,255,0.16), rgba(108,99,255,0.10));
-      border: 1px solid rgba(76,194,255,0.18);
+      background: linear-gradient(135deg, rgba(56,189,248,0.14), rgba(99,102,241,0.08));
+      border: 1px solid rgba(56,189,248,0.14);
       border-radius: 18px;
       padding: 18px;
       margin-bottom: 16px;
@@ -896,7 +554,14 @@
     .hero p {
       color: #475569;
       line-height: 1.5;
-      max-width: 760px;
+      max-width: 720px;
+    }
+
+    .content-area {
+      padding: 18px;
+      overflow: auto;
+      height: 100%;
+      background: linear-gradient(180deg, #ffffff, #f7faff);
     }
 
     .grid-cards {
@@ -925,53 +590,6 @@
       font-size: 14px;
     }
 
-    .explorer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px;
-    }
-
-    .folder-card {
-      background: white;
-      border: 1px solid rgba(15,23,42,0.08);
-      border-radius: 16px;
-      padding: 18px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .folder-icon {
-      width: 54px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, #ffd666, #f5b301);
-      position: relative;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
-    }
-
-    .folder-icon::before {
-      content: "";
-      position: absolute;
-      top: -8px;
-      right: 8px;
-      width: 24px;
-      height: 12px;
-      border-radius: 8px 8px 0 0;
-      background: #ffdb7a;
-    }
-
-    .folder-name {
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    .folder-meta {
-      font-size: 13px;
-      color: #64748b;
-    }
-
     .notes-wrap {
       display: flex;
       flex-direction: column;
@@ -988,6 +606,21 @@
       background: rgba(255,255,255,.66);
     }
 
+    .tool-btn {
+      height: 34px;
+      min-width: 34px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.78);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 700;
+      color: #334155;
+    }
+
     .notes-area {
       flex: 1;
       width: 100%;
@@ -1002,410 +635,100 @@
       color: #0f172a;
     }
 
-    .calc {
+    .welcome-wrap {
       height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      background: linear-gradient(180deg, #f6f9ff, #eef4ff);
-    }
-
-    .calc-display {
-      padding: 20px 18px 10px;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      justify-content: flex-end;
-      min-height: 140px;
+    }
+
+    .welcome-topbar {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
       border-bottom: 1px solid rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.68);
     }
 
-    .calc-history {
-      color: #64748b;
-      min-height: 22px;
-      font-size: 14px;
+    .welcome-main {
+      padding: 22px;
+      overflow: auto;
+      flex: 1;
+      background: linear-gradient(180deg, #ffffff, #f7faff);
     }
 
-    .calc-result {
-      font-size: 46px;
-      font-weight: 800;
-      color: #0f172a;
-      margin-top: 8px;
-    }
-
-    .calc-grid {
+    .welcome-list {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      padding: 14px;
+      gap: 12px;
+      margin-top: 14px;
     }
 
-    .calc-btn {
-      border: none;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.95);
-      box-shadow: var(--shadow-soft);
-      cursor: pointer;
-      font: 700 20px 'Assistant', sans-serif;
-      color: #0f172a;
-      transition: transform var(--transition), background var(--transition);
-      min-height: 62px;
-    }
-
-    .calc-btn:hover {
-      transform: translateY(-1px);
-      background: white;
-    }
-
-    .calc-btn.op {
-      background: rgba(76,194,255,0.18);
-      color: #0c4a6e;
-    }
-
-    .settings-grid {
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-
-    .setting-card {
+    .welcome-item {
       background: white;
       border: 1px solid rgba(15,23,42,0.08);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 14px 16px;
       box-shadow: var(--shadow-soft);
-    }
-
-    .toggle-row {
-      margin-top: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
 
-    .switch {
-      width: 50px;
-      height: 30px;
-      background: #cbd5e1;
-      border-radius: 999px;
-      position: relative;
-      cursor: pointer;
-      transition: background var(--transition);
-      flex-shrink: 0;
-    }
-
-    .switch::after {
-      content: "";
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: white;
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      transition: transform var(--transition);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
-    }
-
-    .switch.active {
-      background: #38bdf8;
-    }
-
-    .switch.active::after {
-      transform: translateX(-20px);
-    }
-
-    .code-shell {
-      height: 100%;
-      display: grid;
-      grid-template-rows: 48px 1fr;
-    }
-
-    .code-tabs {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 12px;
-      border-bottom: 1px solid rgba(15,23,42,0.08);
-      background: rgba(255,255,255,0.62);
-    }
-
-    .code-tab {
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 10px 10px 0 0;
-      display: flex;
-      align-items: center;
-      background: rgba(255,255,255,0.6);
-      color: #334155;
-      font-weight: 700;
-    }
-
-    .code-tab.active {
-      background: white;
+    .welcome-item strong {
       color: #0f172a;
     }
 
-    .editor-area {
-      display: grid;
-      grid-template-columns: 54px 1fr;
-      min-height: 0;
-      background: #0d1117;
-      color: #c9d1d9;
-      font-family: Consolas, monospace;
-      font-size: 14px;
-    }
-
-    .line-numbers {
-      background: #111827;
-      color: #6b7280;
-      padding: 16px 10px;
-      text-align: left;
-      line-height: 1.9;
-      border-left: 1px solid rgba(255,255,255,0.04);
-      overflow: hidden;
-    }
-
-    .code-content {
-      padding: 16px 18px;
-      white-space: pre;
-      overflow: auto;
-      line-height: 1.9;
-    }
-
-    .kw { color: #79c0ff; }
-    .type { color: #ffa657; }
-    .str { color: #a5d6ff; }
-    .com { color: #8b949e; }
-    .fn { color: #d2a8ff; }
-    .num { color: #79c0ff; }
-
-    .about-wrap {
-      padding: 22px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .about-top {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .big-logo {
-      width: 78px;
-      height: 78px;
-      border-radius: 24px;
-      background: linear-gradient(135deg, #38bdf8, #2563eb 48%, #6d28d9);
-      box-shadow: var(--shadow-soft);
-      position: relative;
-    }
-
-    .big-logo::before,
-    .big-logo::after {
-      content: "";
-      position: absolute;
-      background: rgba(255,255,255,0.95);
-      border-radius: 4px;
-    }
-
-    .big-logo::before {
-      width: 24px;
-      height: 52px;
-      top: 13px;
-      right: 17px;
-      box-shadow: 19px 0 0 rgba(255,255,255,0.95);
-    }
-
-    .big-logo::after {
-      width: 52px;
-      height: 24px;
-      top: 13px;
-      right: 13px;
-      box-shadow: 0 19px 0 rgba(255,255,255,0.95);
-      opacity: .08;
-    }
-
-    .muted {
+    .welcome-item small {
       color: #64748b;
-    }
-
-    .empty-state {
-      height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      color: #475569;
-      text-align: center;
     }
 
     @media (max-width: 900px) {
       .start-menu {
         width: calc(100% - 24px);
-        height: 78vh;
-      }
-
-      .start-lower {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-
-      .window {
-        min-width: 280px;
       }
     }
   </style>
 </head>
 <body>
   <div id="desktop"></div>
-  <div class="desktop-selection" id="desktopSelection"></div>
   <div class="snap-indicator" id="snapIndicator"></div>
   <div class="overlay-dim" id="overlayDim"></div>
 
   <div class="panel start-menu" id="startMenu">
-    <div class="start-top">
-      <div class="search-box">
-        <span>🔎</span>
-        <input id="startSearch" type="text" placeholder="חפש אפליקציות, קבצים והגדרות" />
-      </div>
+    <div class="search-box">
+      <span>🔎</span>
+      <input id="startSearch" type="text" placeholder="חפש אפליקציה או קיצור דרך" />
     </div>
 
-    <div class="section-title">מוצמד</div>
+    <div class="section-title">יישומים וקיצורים</div>
     <div class="pinned-grid" id="pinnedGrid"></div>
 
-    <div class="start-lower">
-      <div class="card">
-        <div class="section-title" style="margin-top:0">מומלץ</div>
-        <div class="recent-list" id="recentList">
-          <div class="recent-item">
-            <div>
-              <strong>lesson_plan.bot</strong><br>
-              <small>עודכן לפני 8 דקות</small>
-            </div>
-            <span>📄</span>
-          </div>
-          <div class="recent-item">
-            <div>
-              <strong>students_grades.xlsx</strong><br>
-              <small>עודכן היום</small>
-            </div>
-            <span>📊</span>
-          </div>
-          <div class="recent-item">
-            <div>
-              <strong>project_botli</strong><br>
-              <small>פתוח לאחרונה</small>
-            </div>
-            <span>📁</span>
-          </div>
-          <div class="recent-item">
-            <div>
-              <strong>cs_exam_notes.txt</strong><br>
-              <small>עודכן אתמול</small>
-            </div>
-            <span>📝</span>
-          </div>
+    <div class="start-footer">
+      <div class="user-box">
+        <div class="avatar">א</div>
+        <div>
+          <div style="font-weight:800;">Itay</div>
+          <div style="font-size:13px; opacity:.75;">BotLi Workspace</div>
         </div>
       </div>
-
-      <div class="card" style="display:flex; flex-direction:column;">
-        <div class="section-title" style="margin-top:0">BotLi</div>
-        <div class="mini-card" style="background:rgba(255,255,255,0.06); color:white; border-color:rgba(255,255,255,0.08); box-shadow:none;">
-          <h3 style="color:white;">BotLi OS</h3>
-          <p style="color:rgba(255,255,255,0.78);">
-            סביבת שולחן עבודה דמויית Windows, עם חלונות, תפריטים, משימות וחוויית מערכת עשירה.
-          </p>
-        </div>
-
-        <div class="user-box">
-          <div class="avatar">א</div>
-          <div>
-            <div style="font-weight:800;">Itay</div>
-            <div style="font-size:13px; opacity:.75;">Teacher Mode</div>
-          </div>
-        </div>
-
-        <div class="start-footer">
-          <div class="muted" style="color:rgba(255,255,255,.72);">BotLi Desktop Experience</div>
-          <div class="power-btn" title="כיבוי">
-            ⏻
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel quick-panel" id="quickPanel">
-    <div class="section-title" style="margin-top:0;">הגדרות מהירות</div>
-    <div class="quick-grid" id="quickGrid"></div>
-
-    <div class="slider-box">
-      <label>
-        <span>בהירות</span>
-        <span id="brightnessValue">88%</span>
-      </label>
-      <input id="brightnessRange" type="range" min="40" max="100" value="88">
-    </div>
-
-    <div class="slider-box">
-      <label>
-        <span>עוצמת קול</span>
-        <span id="volumeValue">42%</span>
-      </label>
-      <input id="volumeRange" type="range" min="0" max="100" value="42">
-    </div>
-  </div>
-
-  <div class="panel notification-center" id="notificationCenter">
-    <div style="display:flex; align-items:center; justify-content:space-between;">
-      <div class="section-title" style="margin:0;">מרכז ההתראות</div>
-      <div class="badge">4 חדשות</div>
-    </div>
-
-    <div class="notification-list">
-      <div class="notification">
-        <strong>BotLi IDE</strong><br>
-        פרויקט חדש נפתח בהצלחה.
-        <small>כרגע</small>
-      </div>
-      <div class="notification">
-        <strong>מערכת</strong><br>
-        מצב שולחן העבודה פעיל והכול נטען תקין.
-        <small>לפני 2 דקות</small>
-      </div>
-      <div class="notification">
-        <strong>הערה</strong><br>
-        ניתן לגרור חלון לראש המסך למקסום, או לצדדים ל-Snap.
-        <small>לפני 5 דקות</small>
-      </div>
-      <div class="notification">
-        <strong>Tips</strong><br>
-        קליק ימני על הדסקטופ יפתח תפריט מערכת.
-        <small>היום</small>
-      </div>
+      <div style="font-size:13px; opacity:.72;">סביבת עבודה אחידה לתלמידים</div>
     </div>
   </div>
 
   <div class="taskbar">
-    <div class="taskbar-center" id="taskbarCenter">
+    <div class="taskbar-center">
       <div class="start-btn" id="startBtn" title="Start">
         <div class="start-logo">
           <div></div><div></div><div></div><div></div>
         </div>
       </div>
-
-      <div class="search-btn" id="searchBtn" title="Search">🔎</div>
       <div id="taskbarApps" style="display:flex; align-items:center; gap:6px;"></div>
     </div>
 
     <div class="taskbar-right">
-      <div class="taskbar-pill" id="quickSettingsBtn">
-        <span>📶</span>
-        <span>🔊</span>
-        <span>🔋</span>
-      </div>
-
-      <div class="taskbar-pill" id="notificationBtn">
+      <div class="clock-pill" id="clockBtn">
         <div class="clock-block">
           <div class="clock-time" id="clockTime">12:00</div>
           <div class="clock-date" id="clockDate">01/01/2026</div>
@@ -1414,59 +737,79 @@
     </div>
   </div>
 
-  <div class="context-menu" id="desktopContextMenu">
-    <div class="context-item" data-action="refresh"><span>רענון</span><span>⟳</span></div>
-    <div class="context-item" data-action="new-note"><span>פתיחת Notes</span><span>📝</span></div>
-    <div class="context-item" data-action="new-folder"><span>פתיחת Explorer</span><span>📁</span></div>
-    <div class="context-sep"></div>
-    <div class="context-item" data-action="settings"><span>הגדרות תצוגה</span><span>⚙️</span></div>
-    <div class="context-item" data-action="about"><span>אודות BotLi OS</span><span>💠</span></div>
-  </div>
-
   <script>
     const desktop = document.getElementById('desktop');
     const taskbarApps = document.getElementById('taskbarApps');
     const startMenu = document.getElementById('startMenu');
-    const quickPanel = document.getElementById('quickPanel');
-    const notificationCenter = document.getElementById('notificationCenter');
     const startBtn = document.getElementById('startBtn');
-    const searchBtn = document.getElementById('searchBtn');
-    const quickSettingsBtn = document.getElementById('quickSettingsBtn');
-    const notificationBtn = document.getElementById('notificationBtn');
     const overlayDim = document.getElementById('overlayDim');
-    const contextMenu = document.getElementById('desktopContextMenu');
     const snapIndicator = document.getElementById('snapIndicator');
-    const desktopSelection = document.getElementById('desktopSelection');
 
     let topZ = 50;
     let windowCount = 0;
 
-    const openWindows = {};
-    const quickToggles = [
-      { id: 'wifi', label: 'Wi-Fi', icon: '📶', active: true },
-      { id: 'bt', label: 'Bluetooth', icon: '🟦', active: true },
-      { id: 'night', label: 'Night Light', icon: '🌙', active: false },
-      { id: 'focus', label: 'Focus', icon: '🎯', active: false },
-      { id: 'air', label: 'Airplane', icon: '✈️', active: false },
-      { id: 'proj', label: 'Project', icon: '🖥️', active: true }
+    const externalApps = [
+      {
+        id: 'drive',
+        name: 'סייר הקבצים',
+        icon: '📁',
+        color: 'linear-gradient(135deg,#f6c453,#f59e0b)',
+        url: 'https://drive.google.com'
+      },
+      {
+        id: 'gmail',
+        name: 'Gmail',
+        icon: '✉️',
+        color: 'linear-gradient(135deg,#ea4335,#c5221f)',
+        url: 'https://mail.google.com'
+      },
+      {
+        id: 'gemini',
+        name: 'Gemini',
+        icon: '✦',
+        color: 'linear-gradient(135deg,#4f46e5,#06b6d4)',
+        url: 'https://gemini.google.com'
+      },
+      {
+        id: 'chatgpt',
+        name: 'ChatGPT',
+        icon: '◎',
+        color: 'linear-gradient(135deg,#10a37f,#0f766e)',
+        url: 'https://chatgpt.com'
+      },
+      {
+        id: 'botlimudim',
+        name: 'Botlimudim',
+        icon: '🖥️',
+        color: 'linear-gradient(135deg,#0ea5e9,#2563eb)',
+        url: 'https://botlimudim.co.il'
+      }
     ];
 
-    const apps = [
-      { id: 'ide', name: 'BotLi IDE', icon: '💻', color: 'linear-gradient(135deg,#0ea5e9,#2563eb)' },
-      { id: 'explorer', name: 'Explorer', icon: '📁', color: 'linear-gradient(135deg,#f6c453,#f59e0b)' },
-      { id: 'notes', name: 'Notes', icon: '📝', color: 'linear-gradient(135deg,#34d399,#10b981)' },
-      { id: 'settings', name: 'Settings', icon: '⚙️', color: 'linear-gradient(135deg,#94a3b8,#475569)' },
-      { id: 'calculator', name: 'Calculator', icon: '🧮', color: 'linear-gradient(135deg,#c084fc,#7c3aed)' },
-      { id: 'about', name: 'About BotLi', icon: '💠', color: 'linear-gradient(135deg,#38bdf8,#6d28d9)' }
+    const internalApps = [
+      {
+        id: 'home',
+        name: 'דף הבית',
+        icon: '🏠',
+        color: 'linear-gradient(135deg,#38bdf8,#2563eb)'
+      },
+      {
+        id: 'notes',
+        name: 'Notes',
+        icon: '📝',
+        color: 'linear-gradient(135deg,#34d399,#10b981)'
+      }
     ];
+
+    const allApps = [...externalApps, ...internalApps];
 
     function appById(id) {
-      return apps.find(a => a.id === id);
+      return allApps.find(a => a.id === id);
     }
 
     function initDesktop() {
       desktop.innerHTML = '';
-      apps.forEach(app => {
+      allApps.forEach(app => {
         const shortcut = document.createElement('div');
         shortcut.className = 'shortcut';
         shortcut.dataset.app = app.id;
@@ -1492,45 +835,34 @@
       });
 
       renderPinnedApps();
-      renderQuickToggles();
     }
 
     function renderPinnedApps(filter = '') {
       const grid = document.getElementById('pinnedGrid');
       const q = filter.trim().toLowerCase();
-      const filtered = apps.filter(a => a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q));
+      const filtered = allApps.filter(a =>
+        a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q)
+      );
 
       grid.innerHTML = filtered.map(app => `
         <div class="pinned-app" onclick="launchApp('${app.id}')">
           <div class="pinned-app-icon" style="background:${app.color}">${app.icon}</div>
           <span>${app.name}</span>
         </div>
-      `).join('') || `
-        <div class="empty-state" style="grid-column:1 / -1; color:rgba(255,255,255,.8);">
-          לא נמצאו אפליקציות
-        </div>
-      `;
-    }
-
-    function renderQuickToggles() {
-      const grid = document.getElementById('quickGrid');
-      grid.innerHTML = quickToggles.map(t => `
-        <div class="quick-toggle ${t.active ? 'active' : ''}" onclick="toggleQuick('${t.id}')">
-          <div style="font-size:22px;">${t.icon}</div>
-          <div style="font-weight:800;">${t.label}</div>
-        </div>
       `).join('');
     }
 
-    function toggleQuick(id) {
-      const item = quickToggles.find(t => t.id === id);
-      if (!item) return;
-      item.active = !item.active;
-      renderQuickToggles();
-    }
-
     function launchApp(id) {
-      closePanels();
+      closeStartMenu();
+
+      const app = appById(id);
+      if (!app) return;
+
+      if (app.url) {
+        window.open(app.url, '_blank');
+        return;
+      }
+
       const existing = document.getElementById(`win-${id}`);
       if (existing) {
         if (existing.classList.contains('minimized')) {
@@ -1540,30 +872,30 @@
         return;
       }
 
-      const app = appById(id);
-      if (!app) return;
+      createInternalWindow(app);
+    }
 
+    function createInternalWindow(app) {
       const win = document.createElement('div');
       const offset = windowCount * 26;
       windowCount++;
 
-      win.className = 'window focused';
-      win.id = `win-${id}`;
-      win.dataset.app = id;
-      win.dataset.maximized = 'false';
+      win.className = 'window';
+      win.id = `win-${app.id}`;
+      win.dataset.app = app.id;
       win.dataset.prev = '';
-      win.style.top = `${72 + (offset % 160)}px`;
-      win.style.left = `${120 + (offset % 220)}px`;
+      win.style.top = `${74 + (offset % 120)}px`;
+      win.style.left = `${120 + (offset % 180)}px`;
       win.style.zIndex = ++topZ;
 
-      if (id === 'calculator') {
-        win.style.width = '420px';
-        win.style.height = '620px';
+      if (app.id === 'notes') {
+        win.style.width = '760px';
+        win.style.height = '520px';
       }
 
-      if (id === 'about') {
-        win.style.width = '700px';
-        win.style.height = '500px';
+      if (app.id === 'home') {
+        win.style.width = '820px';
+        win.style.height = '540px';
       }
 
       win.innerHTML = `
@@ -1574,26 +906,23 @@
           </div>
 
           <div class="window-controls">
-            <div class="win-btn" data-action="minimize" title="מזער">─</div>
-            <div class="win-btn" data-action="maximize" title="מקסם">▢</div>
-            <div class="win-btn close" data-action="close" title="סגור">✕</div>
+            <div class="win-btn" data-action="minimize">─</div>
+            <div class="win-btn" data-action="maximize">▢</div>
+            <div class="win-btn close" data-action="close">✕</div>
           </div>
         </div>
 
         <div class="window-body">
-          <div class="window-content">${getAppContent(id)}</div>
+          <div class="window-content">${getAppContent(app.id)}</div>
         </div>
 
         <div class="resize-handle"></div>
       `;
 
       document.body.appendChild(win);
-      openWindows[id] = { minimized: false };
-
       bindWindowEvents(win);
       addTaskbarIcon(app);
-      focusWindow(id);
-      initAppSpecificLogic(id, win);
+      focusWindow(app.id);
     }
 
     function addTaskbarIcon(app) {
@@ -1605,9 +934,14 @@
       icon.title = app.name;
       icon.innerHTML = `
         <div style="
-          width:30px;height:30px;border-radius:10px;display:grid;place-items:center;
-          background:${app.color};box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
-          color:white;font-size:15px;
+          width:30px;
+          height:30px;
+          border-radius:10px;
+          display:grid;
+          place-items:center;
+          background:${app.color};
+          color:white;
+          font-size:15px;
         ">${app.icon}</div>
       `;
 
@@ -1625,7 +959,7 @@
       if (win.classList.contains('minimized')) {
         win.classList.remove('minimized');
         focusWindow(id);
-      } else if (isFocused(win)) {
+      } else if (win.classList.contains('focused')) {
         minimizeWindow(id);
       } else {
         focusWindow(id);
@@ -1635,10 +969,9 @@
     function bindWindowEvents(win) {
       const header = win.querySelector('.window-header');
       const resizeHandle = win.querySelector('.resize-handle');
-      const controlBtns = win.querySelectorAll('.win-btn');
       const id = win.dataset.app;
 
-      controlBtns.forEach(btn => {
+      win.querySelectorAll('.win-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
@@ -1662,8 +995,8 @@
     }
 
     function focusWindow(id) {
-      const all = document.querySelectorAll('.window');
-      all.forEach(w => w.classList.remove('focused'));
+      document.querySelectorAll('.window').forEach(w => w.classList.remove('focused'));
+      document.querySelectorAll('.taskbar-icon').forEach(i => i.classList.remove('active'));
 
       const win = document.getElementById(`win-${id}`);
       if (!win) return;
@@ -1671,19 +1004,15 @@
       win.classList.add('focused');
       win.style.zIndex = ++topZ;
 
-      document.querySelectorAll('.taskbar-icon').forEach(i => i.classList.remove('active'));
       const task = document.getElementById(`task-${id}`);
       if (task) task.classList.add('active');
-    }
-
-    function isFocused(win) {
-      return win.classList.contains('focused');
     }
 
     function minimizeWindow(id) {
       const win = document.getElementById(`win-${id}`);
       if (!win) return;
       win.classList.add('minimized');
+
       const task = document.getElementById(`task-${id}`);
       if (task) task.classList.remove('active');
     }
@@ -1693,7 +1022,6 @@
       const task = document.getElementById(`task-${id}`);
       if (win) win.remove();
       if (task) task.remove();
-      delete openWindows[id];
     }
 
     function toggleMaximize(id) {
@@ -1706,6 +1034,7 @@
         saveWindowRect(win);
         win.classList.add('maximized');
       }
+
       focusWindow(id);
     }
 
@@ -1768,14 +1097,14 @@
           snapMode = 'left';
           snapIndicator.classList.add('show');
           snapIndicator.style.top = '12px';
-          snapIndicator.style.bottom = `${varTaskbarGap()}px`;
+          snapIndicator.style.bottom = '66px';
           snapIndicator.style.left = '12px';
           snapIndicator.style.right = `${window.innerWidth / 2 + 6}px`;
         } else if (ev.clientX >= window.innerWidth - 16) {
           snapMode = 'right';
           snapIndicator.classList.add('show');
           snapIndicator.style.top = '12px';
-          snapIndicator.style.bottom = `${varTaskbarGap()}px`;
+          snapIndicator.style.bottom = '66px';
           snapIndicator.style.left = `${window.innerWidth / 2 + 6}px`;
           snapIndicator.style.right = '12px';
         }
@@ -1795,14 +1124,14 @@
           win.style.top = '0px';
           win.style.left = '0px';
           win.style.width = `${window.innerWidth / 2}px`;
-          win.style.height = `${window.innerHeight - varTaskbarGap() + 8}px`;
+          win.style.height = `${window.innerHeight - 50}px`;
         } else if (snapMode === 'right') {
           saveWindowRect(win);
           win.classList.remove('maximized');
           win.style.top = '0px';
           win.style.left = `${window.innerWidth / 2}px`;
           win.style.width = `${window.innerWidth / 2}px`;
-          win.style.height = `${window.innerHeight - varTaskbarGap() + 8}px`;
+          win.style.height = `${window.innerHeight - 50}px`;
         }
       }
 
@@ -1836,57 +1165,39 @@
       document.addEventListener('mouseup', onUp);
     }
 
-    function varTaskbarGap() {
-      return 66;
+    function toggleStartMenu() {
+      const isOpen = startMenu.classList.contains('open');
+      closeStartMenu();
+
+      if (!isOpen) {
+        startMenu.classList.add('open');
+        overlayDim.classList.add('show');
+        startBtn.classList.add('active');
+        document.getElementById('startSearch').focus();
+      }
     }
 
-    function closePanels() {
+    function closeStartMenu() {
       startMenu.classList.remove('open');
-      quickPanel.classList.remove('open');
-      notificationCenter.classList.remove('open');
-      contextMenu.classList.remove('open');
       overlayDim.classList.remove('show');
       startBtn.classList.remove('active');
     }
 
-    function togglePanel(panel) {
-      const isOpen = panel.classList.contains('open');
-      closePanels();
-      if (!isOpen) {
-        panel.classList.add('open');
-        overlayDim.classList.add('show');
-        if (panel === startMenu) {
-          startBtn.classList.add('active');
-          document.getElementById('startSearch').focus();
-        }
-      }
-    }
-
     startBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      togglePanel(startMenu);
+      toggleStartMenu();
     });
 
-    searchBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePanel(startMenu);
-      setTimeout(() => document.getElementById('startSearch').focus(), 50);
+    overlayDim.addEventListener('click', closeStartMenu);
+
+    desktop.addEventListener('click', () => {
+      clearShortcutSelection();
+      closeStartMenu();
     });
 
-    quickSettingsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePanel(quickPanel);
-    });
-
-    notificationBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePanel(notificationCenter);
-    });
-
-    overlayDim.addEventListener('click', closePanels);
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closePanels();
-    });
+    function clearShortcutSelection() {
+      document.querySelectorAll('.shortcut.selected').forEach(el => el.classList.remove('selected'));
+    }
 
     document.getElementById('startSearch').addEventListener('input', (e) => {
       renderPinnedApps(e.target.value);
@@ -1903,498 +1214,87 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    document.getElementById('brightnessRange').addEventListener('input', (e) => {
-      const value = e.target.value;
-      document.getElementById('brightnessValue').textContent = `${value}%`;
-      document.body.style.filter = `brightness(${value}%)`;
-    });
-
-    document.getElementById('volumeRange').addEventListener('input', (e) => {
-      document.getElementById('volumeValue').textContent = `${e.target.value}%`;
-    });
-
-    desktop.addEventListener('click', () => {
-      clearShortcutSelection();
-      closePanels();
-    });
-
-    function clearShortcutSelection() {
-      document.querySelectorAll('.shortcut.selected').forEach(el => el.classList.remove('selected'));
-    }
-
-    desktop.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.window')) return;
-      e.preventDefault();
-      closePanels();
-      contextMenu.classList.add('open');
-      overlayDim.classList.add('show');
-
-      const menuWidth = 240;
-      const menuHeight = 210;
-      const x = Math.min(e.clientX, window.innerWidth - menuWidth - 10);
-      const y = Math.min(e.clientY, window.innerHeight - menuHeight - 10);
-
-      contextMenu.style.left = `${x}px`;
-      contextMenu.style.top = `${y}px`;
-    });
-
-    contextMenu.addEventListener('click', (e) => {
-      const item = e.target.closest('.context-item');
-      if (!item) return;
-
-      const action = item.dataset.action;
-      closePanels();
-
-      if (action === 'refresh') {
-        desktop.animate(
-          [{ opacity: 1 }, { opacity: .6 }, { opacity: 1 }],
-          { duration: 220 }
-        );
-      }
-      if (action === 'new-note') launchApp('notes');
-      if (action === 'new-folder') launchApp('explorer');
-      if (action === 'settings') launchApp('settings');
-      if (action === 'about') launchApp('about');
-    });
-
-    let selectionStart = null;
-    desktop.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
-      if (e.target.closest('.shortcut') || e.target.closest('.window')) return;
-
-      selectionStart = { x: e.clientX, y: e.clientY };
-      desktopSelection.style.display = 'block';
-      desktopSelection.style.left = `${e.clientX}px`;
-      desktopSelection.style.top = `${e.clientY}px`;
-      desktopSelection.style.width = '0px';
-      desktopSelection.style.height = '0px';
-
-      function onMove(ev) {
-        const x = Math.min(selectionStart.x, ev.clientX);
-        const y = Math.min(selectionStart.y, ev.clientY);
-        const w = Math.abs(ev.clientX - selectionStart.x);
-        const h = Math.abs(ev.clientY - selectionStart.y);
-        desktopSelection.style.left = `${x}px`;
-        desktopSelection.style.top = `${y}px`;
-        desktopSelection.style.width = `${w}px`;
-        desktopSelection.style.height = `${h}px`;
-      }
-
-      function onUp() {
-        desktopSelection.style.display = 'none';
-        selectionStart = null;
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      }
-
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-
     function getAppContent(id) {
-      const content = {
-        ide: `
-          <div class="code-shell">
-            <div class="code-tabs">
-              <div class="code-tab active">Main.java</div>
-              <div class="code-tab">App.css</div>
-              <div class="code-tab">botli.js</div>
-            </div>
-            <div class="editor-area">
-              <div class="line-numbers">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13</div>
-              <div class="code-content"><span class="com">// BotLi IDE - Windows inspired demo</span>
-<span class="kw">public class</span> <span class="type">Main</span> {
-    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="type">String</span>[] args) {
-        <span class="type">String</span> message = <span class="str">"Welcome to BotLi OS"</span>;
-        <span class="type">int</span> windows = <span class="num">6</span>;
-
-        System.out.println(message);
-        System.out.println(<span class="str">"Open windows: "</span> + windows);
-    }
-}</div>
-            </div>
-          </div>
-        `,
-
-        explorer: `
-          <div class="app-shell">
-            <div class="toolbar">
-              <div class="tool-btn">←</div>
-              <div class="tool-btn">→</div>
-              <div class="tool-btn">↑</div>
-              <div class="address-bar">📁 This PC / BotLi / Desktop</div>
-              <div class="tool-btn">⋯</div>
+      if (id === 'home') {
+        return `
+          <div class="welcome-wrap">
+            <div class="welcome-topbar">
+              <div style="font-weight:800; color:#0f172a;">BotLi Workspace</div>
+              <div style="font-size:13px; color:#64748b;">סביבת עבודה לתלמידים</div>
             </div>
 
-            <div class="app-main split">
-              <div class="sidebar">
-                <h4>גישה מהירה</h4>
-                <div class="side-item active">🏠 Home</div>
-                <div class="side-item">🖥️ Desktop</div>
-                <div class="side-item">📄 Documents</div>
-                <div class="side-item">📥 Downloads</div>
-                <div class="side-item">🖼️ Pictures</div>
-                <div class="side-item">🗑️ Recycle Bin</div>
-              </div>
-
-              <div class="content-area">
-                <div class="hero">
-                  <h2>Explorer</h2>
-                  <p>
-                    אזור קבצים בסגנון Windows, עם ניווט, קטגוריות וכרטיסיות תיקיות.
-                  </p>
-                </div>
-
-                <div class="explorer-grid">
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">Projects</div>
-                    <div class="folder-meta">12 items</div>
-                  </div>
-
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">Lessons</div>
-                    <div class="folder-meta">24 items</div>
-                  </div>
-
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">Grades</div>
-                    <div class="folder-meta">8 items</div>
-                  </div>
-
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">Media</div>
-                    <div class="folder-meta">31 items</div>
-                  </div>
-
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">BotLi</div>
-                    <div class="folder-meta">16 items</div>
-                  </div>
-
-                  <div class="folder-card">
-                    <div class="folder-icon"></div>
-                    <div class="folder-name">Archive</div>
-                    <div class="folder-meta">103 items</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `,
-
-        settings: `
-          <div class="app-shell">
-            <div class="toolbar">
-              <div class="address-bar">⚙️ System / Personalization / Desktop</div>
-            </div>
-            <div class="content-area">
+            <div class="welcome-main">
               <div class="hero">
-                <h2>Settings</h2>
+                <h2>ברוכים הבאים</h2>
                 <p>
-                  תצוגת הגדרות כללית עם עיצוב נקי, כרטיסיות וטוגלים בסגנון מערכת הפעלה מודרנית.
+                  זהו דסקטופ עבודה נקי ואחיד שנועד לתת לתלמידים גישה מהירה לכלים המרכזיים:
+                  Google Drive, Gmail, Gemini, ChatGPT ו-Botlimudim.
                 </p>
               </div>
 
-              <div class="settings-grid">
-                <div class="setting-card">
-                  <h3>Appearance</h3>
-                  <p class="muted">שליטה על מראה כללי, שקיפות ורכות חלונות.</p>
-                  <div class="toggle-row">
-                    <span>Transparency effects</span>
-                    <div class="switch active"></div>
-                  </div>
-                  <div class="toggle-row">
-                    <span>Animations</span>
-                    <div class="switch active"></div>
-                  </div>
-                  <div class="toggle-row">
-                    <span>Rounded corners</span>
-                    <div class="switch active"></div>
-                  </div>
+              <div class="grid-cards">
+                <div class="mini-card">
+                  <h3>גישה מהירה</h3>
+                  <p>כל השירותים החשובים נמצאים על שולחן העבודה ובתפריט ההתחל.</p>
                 </div>
 
-                <div class="setting-card">
-                  <h3>System</h3>
-                  <p class="muted">אפשרויות כלליות של המערכת.</p>
-                  <div class="toggle-row">
-                    <span>Notifications</span>
-                    <div class="switch active"></div>
-                  </div>
-                  <div class="toggle-row">
-                    <span>Focus assist</span>
-                    <div class="switch"></div>
-                  </div>
-                  <div class="toggle-row">
-                    <span>Night light</span>
-                    <div class="switch"></div>
-                  </div>
+                <div class="mini-card">
+                  <h3>חוויה אחידה</h3>
+                  <p>לא משנה מאיזה מחשב התלמיד נכנס, סביבת העבודה נשארת ברורה ומוכרת.</p>
                 </div>
 
-                <div class="setting-card">
-                  <h3>Taskbar</h3>
-                  <p class="muted">יישור, סמלים והתנהגות שורת המשימות.</p>
-                  <div class="toggle-row">
-                    <span>Center aligned icons</span>
-                    <div class="switch active"></div>
+                <div class="mini-card">
+                  <h3>פשוט ונקי</h3>
+                  <p>ללא עומס מיותר, רק הדברים שבאמת צריך.</p>
+                </div>
+              </div>
+
+              <div class="welcome-list">
+                <div class="welcome-item">
+                  <div>
+                    <strong>Google Drive</strong><br>
+                    <small>גישה לקבצים ותיקיות</small>
                   </div>
-                  <div class="toggle-row">
-                    <span>Show badges</span>
-                    <div class="switch active"></div>
-                  </div>
-                  <div class="toggle-row">
-                    <span>Compact mode</span>
-                    <div class="switch"></div>
-                  </div>
+                  <span>📁</span>
                 </div>
 
-                <div class="setting-card">
-                  <h3>Desktop</h3>
-                  <p class="muted">קיצורי דרך והתנהגות שולחן העבודה.</p>
-                  <div class="toggle-row">
-                    <span>Show desktop icons</span>
-                    <div class="switch active"></div>
+                <div class="welcome-item">
+                  <div>
+                    <strong>Gmail</strong><br>
+                    <small>דוא"ל תלמידים</small>
                   </div>
-                  <div class="toggle-row">
-                    <span>Align to grid</span>
-                    <div class="switch active"></div>
+                  <span>✉️</span>
+                </div>
+
+                <div class="welcome-item">
+                  <div>
+                    <strong>Botlimudim</strong><br>
+                    <small>האתר המרכזי ללמידה</small>
                   </div>
-                  <div class="toggle-row">
-                    <span>Use large icons</span>
-                    <div class="switch"></div>
-                  </div>
+                  <span>🖥️</span>
                 </div>
               </div>
             </div>
           </div>
-        `,
+        `;
+      }
 
-        notes: `
+      if (id === 'notes') {
+        return `
           <div class="notes-wrap">
             <div class="notes-toolbar">
               <div class="tool-btn">שמור</div>
-              <div class="tool-btn">שתף</div>
-              <div class="tool-btn">⋯</div>
             </div>
-            <textarea class="notes-area">רעיונות ל-BotLi OS:
-
-- להפוך את שולחן העבודה ליותר אינטראקטיבי
-- להוסיף חלונות עם תחושת Windows חזקה
-- Start Menu מעוצב
-- תפריט קליק ימני
-- מרכז התראות
-- Snap לחלונות
-- Quick Settings
-- אפליקציות דמויות מערכת
-
-זה כבר מרגיש הרבה יותר כמו מערכת הפעלה אמיתית.</textarea>
+            <textarea class="notes-area">הערות אישיות או טיוטות עבודה של התלמיד.</textarea>
           </div>
-        `,
-
-        calculator: `
-          <div class="calc">
-            <div class="calc-display">
-              <div class="calc-history" id="calcHistory"></div>
-              <div class="calc-result" id="calcResult">0</div>
-            </div>
-            <div class="calc-grid">
-              <button class="calc-btn op" data-calc="C">C</button>
-              <button class="calc-btn op" data-calc="±">±</button>
-              <button class="calc-btn op" data-calc="%">%</button>
-              <button class="calc-btn op" data-calc="/">÷</button>
-
-              <button class="calc-btn" data-calc="7">7</button>
-              <button class="calc-btn" data-calc="8">8</button>
-              <button class="calc-btn" data-calc="9">9</button>
-              <button class="calc-btn op" data-calc="*">×</button>
-
-              <button class="calc-btn" data-calc="4">4</button>
-              <button class="calc-btn" data-calc="5">5</button>
-              <button class="calc-btn" data-calc="6">6</button>
-              <button class="calc-btn op" data-calc="-">−</button>
-
-              <button class="calc-btn" data-calc="1">1</button>
-              <button class="calc-btn" data-calc="2">2</button>
-              <button class="calc-btn" data-calc="3">3</button>
-              <button class="calc-btn op" data-calc="+">+</button>
-
-              <button class="calc-btn" data-calc="0">0</button>
-              <button class="calc-btn" data-calc=".">.</button>
-              <button class="calc-btn op" data-calc="back">⌫</button>
-              <button class="calc-btn op" data-calc="=">=</button>
-            </div>
-          </div>
-        `,
-
-        about: `
-          <div class="about-wrap">
-            <div class="about-top">
-              <div class="big-logo"></div>
-              <div>
-                <h2 style="font-size:32px; margin-bottom:6px;">BotLi OS</h2>
-                <div class="muted">Windows-inspired desktop concept</div>
-              </div>
-            </div>
-
-            <div class="grid-cards">
-              <div class="mini-card">
-                <h3>Desktop Experience</h3>
-                <p>שולחן עבודה עם קיצורי דרך, שורת משימות, מרכז התראות ו-Quick Settings.</p>
-              </div>
-
-              <div class="mini-card">
-                <h3>Window System</h3>
-                <p>גרירה, שינוי גודל, מזעור, מקסום ו-Snap לצדדים כמו במערכת אמיתית.</p>
-              </div>
-
-              <div class="mini-card">
-                <h3>Single File</h3>
-                <p>כל המערכת יושבת בתוך קובץ HTML אחד בלבד.</p>
-              </div>
-            </div>
-
-            <div class="hero" style="margin-bottom:0;">
-              <h2 style="font-size:24px;">הכיוון הנכון</h2>
-              <p>
-                אם תרצה, השלב הבא יהיה להפוך את זה ליותר מטורף:
-                סייר קבצים אמיתי יותר, דפדפן פנימי, חלון התחברות, ווידג'טים, רקעים מתחלפים,
-                Recycle Bin, חלונות modal, וגם אפקטים של boot screen ו-lock screen.
-              </p>
-            </div>
-          </div>
-        `
-      };
-
-      return content[id] || `<div class="empty-state">אין תוכן זמין</div>`;
-    }
-
-    function initAppSpecificLogic(id, win) {
-      if (id === 'calculator') {
-        initCalculator(win);
+        `;
       }
 
-      if (id === 'settings') {
-        win.querySelectorAll('.switch').forEach(sw => {
-          sw.addEventListener('click', () => sw.classList.toggle('active'));
-        });
-      }
-    }
-
-    function initCalculator(win) {
-      const resultEl = win.querySelector('#calcResult');
-      const historyEl = win.querySelector('#calcHistory');
-      const buttons = win.querySelectorAll('[data-calc]');
-
-      let current = '0';
-      let expression = '';
-
-      function render() {
-        resultEl.textContent = current;
-        historyEl.textContent = expression;
-      }
-
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const val = btn.dataset.calc;
-
-          if (val === 'C') {
-            current = '0';
-            expression = '';
-            render();
-            return;
-          }
-
-          if (val === 'back') {
-            current = current.length > 1 ? current.slice(0, -1) : '0';
-            render();
-            return;
-          }
-
-          if (val === '±') {
-            if (current !== '0') {
-              current = current.startsWith('-') ? current.slice(1) : '-' + current;
-            }
-            render();
-            return;
-          }
-
-          if (val === '%') {
-            current = String((parseFloat(current) || 0) / 100);
-            render();
-            return;
-          }
-
-          if (val === '=') {
-            try {
-              const expr = (expression + current).replace(/×/g, '*').replace(/÷/g, '/');
-              const safe = expr.replace(/[^0-9+\-*/.() ]/g, '');
-              const result = eval(safe);
-              historyEl.textContent = expression + current + ' =';
-              current = String(result);
-              expression = '';
-            } catch {
-              current = 'Error';
-              expression = '';
-            }
-            render();
-            return;
-          }
-
-          if (['+', '-', '*', '/'].includes(val)) {
-            expression += current + ' ' + val + ' ';
-            current = '0';
-            render();
-            return;
-          }
-
-          if (val === '.') {
-            if (!current.includes('.')) current += '.';
-            render();
-            return;
-          }
-
-          if (current === '0' || current === 'Error') {
-            current = val;
-          } else {
-            current += val;
-          }
-          render();
-        });
-      });
-
-      render();
+      return '';
     }
 
     window.launchApp = launchApp;
-    window.toggleQuick = toggleQuick;
-
     initDesktop();
-
-    window.addEventListener('resize', () => {
-      document.querySelectorAll('.window').forEach(win => {
-        if (win.classList.contains('maximized')) {
-          win.style.width = '100vw';
-          win.style.height = `calc(100vh - var(--taskbar-height) + 8px)`;
-        }
-      });
-      closePanels();
-    });
   </script>
 </body>
 </html>
