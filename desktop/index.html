@@ -1,0 +1,64 @@
+const apps = [
+  { 
+    name: "Java IDE", 
+    icon: "fas fa-code", 
+    path: "editor.html", 
+    isExternal: false 
+  },
+  { 
+    name: "Gmail", 
+    icon: "custom-gmail-icon.png", // אפשר להשתמש בתמונה או ב-fas fa-envelope
+    path: "https://mail.google.com", 
+    isExternal: true,
+    color: "#ea4335"
+  },
+  { 
+    name: "My Repo", 
+    icon: "fab fa-github", 
+    path: "https://github.com/your-repo", 
+    isExternal: true 
+  },
+  { 
+    name: "Lessons", 
+    icon: "fas fa-book", 
+    path: "content/lessons.html", 
+    isExternal: false 
+  }
+];
+
+function renderDesktop() {
+  const grid = document.getElementById('icon-grid');
+  
+  apps.forEach(app => {
+    const iconWrapper = document.createElement('a');
+    iconWrapper.className = 'desktop-icon';
+    
+    // טיפול בקישור: אם חיצוני, נפתח בטאב חדש. אם פנימי, נשאר באפליקציה.
+    iconWrapper.href = app.path;
+    if (app.isExternal) {
+      iconWrapper.target = "_blank";
+    }
+
+    // בחירת אייקון (פונט או תמונה)
+    const iconHtml = app.icon.startsWith('fas') || app.icon.startsWith('fab') 
+      ? `<i class="${app.icon}" style="color: ${app.color || 'white'}"></i>`
+      : `<img src="${app.icon}" width="40" height="40">`;
+
+    iconWrapper.innerHTML = `
+      ${iconHtml}
+      <span>${app.name}</span>
+    `;
+    
+    grid.appendChild(iconWrapper);
+  });
+}
+
+// עדכון שעון פשוט
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').innerText = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+}
+
+setInterval(updateClock, 1000);
+renderDesktop();
+updateClock();
