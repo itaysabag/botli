@@ -1909,8 +1909,11 @@
         </div>
     </div>
 
-    <div id="context-menu"><div class="ctx-item" id="ctx-rename"><i class="fa-solid fa-pen"></i> Rename</div><div class="ctx-item" id="ctx-delete"><i class="fa-solid fa-trash"></i> Delete</div></div>
-
+<div id="context-menu">
+    <div class="ctx-item" id="ctx-generate"><i class="fa-solid fa-wand-magic-sparkles"></i> חולל קוד (Generate)</div>
+    <div class="ctx-item" id="ctx-rename"><i class="fa-solid fa-pen"></i> שנה שם</div>
+    <div class="ctx-item" id="ctx-delete"><i class="fa-solid fa-trash" style="color:#ff4d4d;"></i> מחק</div>
+</div>
     <div id="rename-overlay"><div class="modal-box"><h3>Rename File</h3><input type="text" id="rename-filename" class="modal-input"><div class="modal-btns"><button id="rename-cancel" class="modal-btn-cancel">Cancel</button><button id="rename-confirm" class="modal-btn-ok">Rename</button></div></div></div>
 
     <div id="exercise-overlay">
@@ -2538,6 +2541,7 @@
                 document.getElementById('zoom-out-btn').onclick = () => changeFontSize(-1);
                 document.getElementById('ctx-rename').onclick = triggerRename;
                 document.getElementById('ctx-delete').onclick = triggerDelete;
+				document.getElementById('ctx-generate').onclick = generateBoilerplate;
                 document.getElementById('rename-cancel').onclick = closeRenameModal;
                 document.getElementById('rename-confirm').onclick = performRename;
                 document.getElementById('close-ex-modal').onclick = closeExerciseModal;
@@ -3006,7 +3010,87 @@
             function closeContextMenu() { document.getElementById('context-menu').style.display = 'none'; }
             async function triggerDelete() { if (!contextMenuTarget) return; if (await Sys.confirm(`Delete ${contextMenuTarget}?`)) { delete files[contextMenuTarget]; if (activeFileName === contextMenuTarget) { activeFileName = "Main.java"; editorInstance.setValue(files[activeFileName]); } renderTabs(); } }
             function triggerRename() { if (!contextMenuTarget) return; document.getElementById('rename-overlay').style.display = 'flex'; document.getElementById('rename-filename').value = contextMenuTarget; }
-            async function performRename() { let n = document.getElementById('rename-filename').value.trim(); if (!n.endsWith('.java')) n += '.java'; if (files[n]) { await Sys.alert('Exists!'); return; } files[n] = files[contextMenuTarget]; delete files[contextMenuTarget]; if (activeFileName === contextMenuTarget) activeFileName = n; document.getElementById('rename-overlay').style.display = 'none'; renderTabs(); }
+            // --- פיצ'ר מחולל קוד אוטומטי (Generate) ---
+
+// --- פיצ'ר מחולל קוד אוטומטי (Generate) ---
+            function generateBoilerplate() {
+                if (!contextMenuTarget) return;
+                
+                // שמירת המצב הנוכחי של העורך
+                if (editorInstance && activeFileName === contextMenuTarget) {
+                    files[activeFileName] = editorInstance.getValue();
+                }
+                
+                const code = files[contextMenuTarget];
+                
+                // 1. זיהוי שם המחלקה
+                const classMatch = code.match(/(?:public\s+)?class\s+(\w+)/);
+                if (!classMatch) { 
+                    Sys.alert("לא הצלחתי לזהות מחלקה תקינה בקובץ הזה."); 
+                    closeContextMenu();
+                    return; 
+                }
+                const className = classMatch[1];
+                
+                // 2. זיהוי משתני מחלקה/תכונות
+                const fieldRegex = /(?:public|private|protected)\s+(?!static\b|final\b)([\w<>\[\]]+)\s+(\w+)\s*(?:=|;)/g;
+                
+                const fields = [];
+                let match;
+                while ((match = fieldRegex.exec(code)) !== null) {
+                    fields.push({ type: match[1], name: match[2] });
+                }
+                
+                if (fields.length === 0) {
+                    Sys.alert("לא נמצאו תכונות (משתני מחלקה) שניתן ליצור עבורם בנאי.");
+                    closeContextMenu();
+                    return;
+                }
+                
+                // --- 3. יצירת הקוד עצמו ---
+                let newCodeBlock = `\n\n    // --- קוד שנוצר אוטומטית ---\n`;
+                
+                // יצירת בנאי (Constructor)
+                const params = fields.map(f => `${f.type} ${f.name}`).join(", ");
+                const assigns = fields.map(f => `        this.${f.name} = ${f.name};`).join("\n");
+                newCodeBlock += `    public ${className}(${params}) {\n${assigns}\n    }\n`;
+                
+                // יצירת פעולות גישה (Getters & Setters)
+                fields.forEach(f => {
+                    const capName = f.name.charAt(0).toUpperCase() + f.name.slice(1);
+                    newCodeBlock += `\n    public ${f.type} get${capName}() {\n        return this.${f.name};\n    }\n`;
+                    newCodeBlock += `\n    public void set${capName}(${f.type} ${f.name}) {\n        this.${f.name} = ${f.name};\n    }\n`;
+                });
+
+                // יצירת פעולת toString
+                const toStringParts = fields.map(f => `"${f.name}=" + this.${f.name}`).join(" + \", \" + ");
+                newCodeBlock += `\n    @Override\n    public String toString() {\n        return "${className} [" + ${toStringParts} + "]";\n    }\n`;
+                
+                // --- 4. הזרקה לקובץ ---
+                const lastBraceIndex = code.lastIndexOf('}');
+                if (lastBraceIndex !== -1) {
+                    const newFileContent = code.substring(0, lastBraceIndex) + newCodeBlock + "\n" + code.substring(lastBraceIndex);
+                    files[contextMenuTarget] = newFileContent;
+                    
+                    // רענון העורך ועיצוב מחדש (Format)
+                    if (activeFileName === contextMenuTarget) {
+                        editorInstance.setValue(newFileContent);
+                        setTimeout(() => {
+                            editorInstance.trigger('editor', 'editor.action.formatDocument');
+                        }, 200);
+                    }
+                    
+                    // הודעת הצלחה כולל toString
+                    const out = document.getElementById('output-container');
+                    if(out) {
+                        out.innerHTML = `<span class="success-msg">✔ נוצרו בנאי, פעולות גישה ו-toString עבור ${className}!</span><br>`;
+                    }
+                }
+                
+                closeContextMenu();
+            }
+
+			async function performRename() { let n = document.getElementById('rename-filename').value.trim(); if (!n.endsWith('.java')) n += '.java'; if (files[n]) { await Sys.alert('Exists!'); return; } files[n] = files[contextMenuTarget]; delete files[contextMenuTarget]; if (activeFileName === contextMenuTarget) activeFileName = n; document.getElementById('rename-overlay').style.display = 'none'; renderTabs(); }
             function closeRenameModal() { document.getElementById('rename-overlay').style.display = 'none'; }
 
             function openNewFileModal() {
@@ -5302,5 +5386,4 @@ pCanvas.onpointerup = () => {
 
 </body>
 </html>
-
 
