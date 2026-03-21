@@ -36,16 +36,79 @@
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             border-top: 4px solid var(--accent-red);
+            margin: 20px 0;
         }
 
         h1 {
             text-align: center;
             color: var(--accent-blue);
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             font-size: 2.5rem;
             letter-spacing: 1px;
         }
 
+        /* עיצוב אזור הזום */
+        .zoom-container {
+            margin-bottom: 40px;
+        }
+
+        button.zoom-toggle {
+            width: 100%;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            border: 1px solid var(--accent-blue);
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        button.zoom-toggle:hover {
+            background-color: var(--accent-blue);
+            color: var(--bg-main);
+        }
+
+        .zoom-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            background-color: var(--bg-main);
+            border-radius: 0 0 8px 8px;
+            padding: 0 20px;
+            margin-top: -5px;
+            border: 1px solid transparent;
+            border-top: none;
+        }
+
+        .zoom-dropdown.open {
+            max-height: 250px;
+            padding: 15px 20px;
+            border-color: var(--bg-button);
+        }
+
+        .zoom-dropdown p {
+            margin: 10px 0;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .zoom-dropdown a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .zoom-dropdown a:hover {
+            text-decoration: underline;
+        }
+
+        /* עיצוב השכבות והכפתורים הרגילים */
         .grade-section {
             margin-bottom: 30px;
         }
@@ -96,6 +159,18 @@
     <div class="container">
         <h1>פיזיקה זומר 2026</h1>
 
+        <div class="zoom-container">
+            <button class="zoom-toggle" onclick="toggleZoom()">
+                <span>📹 התחברות לשיעור זום</span>
+                <span id="zoom-arrow">▼</span>
+            </button>
+            <div class="zoom-dropdown" id="zoom-dropdown">
+                <p><strong>קישור לזום:</strong> <a href="https://edu-il.zoom.us/j/87597739762?pwd=3dVkEWjaauY2LIJesrj7D8wrESbBha.1" target="_blank">לחץ כאן לכניסה</a></p>
+                <p><strong>Meeting ID:</strong> 875 9773 9762</p>
+                <p><strong>Passcode:</strong> 715028</p>
+            </div>
+        </div>
+
         <div class="grade-section">
             <h2>י"א</h2>
             <div class="button-grid">
@@ -109,10 +184,23 @@
             <div class="button-grid">
                 <a href="https://docs.google.com/document/d/1azBis98LO6Rujk8AvP4VaSd-4R1Z6_LyXgWwhWh5JvY/edit?tab=t.0" target="_blank" class="link-button">חשמל</a>
                 <a href="#" target="_blank" class="link-button">מעבדת חקר (יעודכן)</a>
-
             </div>
         </div>
     </div>
 
+    <script>
+        function toggleZoom() {
+            const dropdown = document.getElementById("zoom-dropdown");
+            const arrow = document.getElementById("zoom-arrow");
+            
+            if (dropdown.classList.contains("open")) {
+                dropdown.classList.remove("open");
+                arrow.textContent = "▼";
+            } else {
+                dropdown.classList.add("open");
+                arrow.textContent = "▲";
+            }
+        }
+    </script>
 </body>
 </html>
