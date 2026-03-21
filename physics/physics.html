@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פיזיקה זומר 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #131314;
+            --bg-card: #1e1f20;
+            --bg-button: #2d2e30;
+            --text-main: #e3e3e3;
+            --text-muted: #c4c7c5;
+            --accent-blue: #a8c7fa;
+            --accent-red: #ff4d4d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Rubik', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border-top: 4px solid var(--accent-red);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-blue);
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        .grade-section {
+            margin-bottom: 30px;
+        }
+
+        .grade-section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            color: var(--text-main);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--bg-button);
+            padding-bottom: 10px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        a.link-button {
+            display: block;
+            background-color: var(--bg-button);
+            color: var(--accent-blue);
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        a.link-button:hover {
+            background-color: var(--accent-blue);
+            color: var(--bg-main);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(168, 199, 250, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>פיזיקה זומר 2026</h1>
+
+        <div class="grade-section">
+            <h2>שכבת י"א</h2>
+            <div class="button-grid">
+                <a href="#" target="_blank" class="link-button">קישור לנושא 1 (י"א)</a>
+                <a href="#" target="_blank" class="link-button">קישור לנושא 2 (י"א)</a>
+                <a href="#" target="_blank" class="link-button">חומרי עזר (י"א)</a>
+            </div>
+        </div>
+
+        <div class="grade-section">
+            <h2>שכבת י"ב</h2>
+            <div class="button-grid">
+                <a href="#" target="_blank" class="link-button">קישור לנושא 1 (י"ב)</a>
+                <a href="#" target="_blank" class="link-button">קישור לנושא 2 (י"ב)</a>
+                <a href="#" target="_blank" class="link-button">הכנה לבגרות (י"ב)</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
