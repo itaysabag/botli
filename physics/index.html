@@ -148,17 +148,16 @@
         .subj-info .name { color: var(--accent-blue); font-weight: bold; font-size: 1.05rem; }
         .subj-info .weight { color: var(--text-main); font-size: 0.95rem; font-weight: bold; margin-top: 2px; }
 
-        /* 2. אזור ההזנה (אמצע) - מיושר לימין (התחלת ה-RTL) */
+        /* 2. אזור ההזנה (אמצע) */
         .subj-inputs { 
             display: flex; flex-direction: column; gap: 8px; flex-grow: 1; 
-            margin: 0 15px; align-items: flex-start; /* מצמיד את כל השורות לימין של אזור האמצע */
+            margin: 0 15px; align-items: flex-start;
         }
         
         .input-line { 
             display: flex; align-items: center; justify-content: flex-start; gap: 12px; 
         }
         
-        /* הסרת החצים (Spinners) מתיבות הטקסט למראה נקי */
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
@@ -176,7 +175,7 @@
             text-align: right; flex-shrink: 0; 
         }
 
-        /* סוגריים למעבדה - בדיוק כמו בסקיצה */
+        /* סוגריים למעבדה */
         .lab-exam-container { 
             display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-top: 2px;
         }
@@ -206,7 +205,6 @@
         .final-result-container span { display: block; font-size: 1rem; color: var(--text-muted); }
         .final-result-container strong { display: block; font-size: 2.2rem; color: var(--success-green); margin-top: 4px; line-height: 1;}
 
-        /* התאמה למסכים צרים */
         @media (max-width: 500px) {
             .calc-row-compact { flex-direction: column; align-items: stretch; gap: 15px; padding: 15px; }
             .subj-info { flex-direction: row; justify-content: center; gap: 10px; text-align: center;}
@@ -331,7 +329,6 @@
                             </div>
                             
                             <div class="lab-bracket"></div>
-                            
                             <label class="lab-exam-label">ציון בחינה (70%)</label>
                         </div>
                     </div>
@@ -407,36 +404,38 @@
             // 1. מכניקה (30%)
             let mMag = getVal('mech-magen');
             let mEx = getVal('mech-exam');
-            let mFin = (mMag * 0.3) + (mEx * 0.7);
+            let mFinRaw = (mMag * 0.3) + (mEx * 0.7);
+            let mFin = Math.round(mFinRaw);
             let mRel = mFin * 0.30;
-            document.getElementById('mech-score').innerText = Math.round(mFin);
+            document.getElementById('mech-score').innerText = mFin;
             document.getElementById('mech-rel').innerText = formatRelative(mRel);
 
             // 2. חשמל (25%)
             let eMag = getVal('elec-magen');
             let eEx = getVal('elec-exam');
-            let eFin = (eMag * 0.3) + (eEx * 0.7);
+            let eFinRaw = (eMag * 0.3) + (eEx * 0.7);
+            let eFin = Math.round(eFinRaw);
             let eRel = eFin * 0.25;
-            document.getElementById('elec-score').innerText = Math.round(eFin);
+            document.getElementById('elec-score').innerText = eFin;
             document.getElementById('elec-rel').innerText = formatRelative(eRel);
 
             // 3. מעבדה (15%)
             let lMag = getVal('lab-magen');
             let lUns = getVal('lab-unseen');
             let lMan = getVal('lab-mandatory');
-            let lExCombo = (lUns * 0.8) + (lMan * 0.2); 
-            let lFin = (lMag * 0.3) + (lExCombo * 0.7); 
+            let lExCombo = Math.round((lUns * 0.8) + (lMan * 0.2));
+            let lFinRaw = (lMag * 0.3) + (lExCombo * 0.7); 
+            let lFin = Math.round(lFinRaw);
             let lRel = lFin * 0.15;
-            document.getElementById('lab-score').innerText = Math.round(lFin);
+            document.getElementById('lab-score').innerText = lFin;
             document.getElementById('lab-rel').innerText = formatRelative(lRel);
 
             // 4. הערכה חלופית (30%)
-            let aFin = getVal('alt-grade');
+            let aFin = Math.round(getVal('alt-grade'));
             let aRel = aFin * 0.30;
-            document.getElementById('alt-score').innerText = Math.round(aFin);
+            document.getElementById('alt-score').innerText = aFin;
             document.getElementById('alt-rel').innerText = formatRelative(aRel);
 
-            // סך הכל 
             let totalGrade = mRel + eRel + aRel + lRel;
             document.getElementById('calc-final-number').innerText = Math.round(totalGrade);
         }
