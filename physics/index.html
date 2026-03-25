@@ -87,15 +87,15 @@
             box-shadow: 0 4px 12px rgba(168, 199, 250, 0.2);
         }
 
-        .zoom-dropdown {
+        .-dropdown {
             max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
             background-color: var(--bg-main); border-radius: 0 0 8px 8px; padding: 0 20px;
             margin-top: -5px; border: 1px solid transparent; border-top: none;
         }
-        .zoom-dropdown.open { max-height: 250px; padding: 15px 20px; border-color: var(--bg-button); }
-        .zoom-dropdown p { margin: 10px 0; color: var(--text-muted); font-size: 1.1rem; }
-        .zoom-dropdown a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
-        .zoom-dropdown a:hover { text-decoration: underline; }
+        .-dropdown.open { max-height: 250px; padding: 15px 20px; border-color: var(--bg-button); }
+        .-dropdown p { margin: 10px 0; color: var(--text-muted); font-size: 1.1rem; }
+        .-dropdown a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
+        .-dropdown a:hover { text-decoration: underline; }
 
         /* כפתורי הקישורים */
         .grade-section { margin-top: 30px; }
@@ -221,15 +221,15 @@
     <div class="container">
         <h1>פיזיקה זומר 2026</h1>
 
-        <div class="zoom-container">
-            <button class="action-btn" onclick="toggleZoom()">
+        <div class="-container">
+            <button class="action-btn" onclick="toggle()">
                 <span>📹 התחברות לשיעור זום</span>
-                <span id="zoom-arrow">▼</span>
+                <span id="-arrow">▼</span>
             </button>
-            <div class="zoom-dropdown" id="zoom-dropdown">
-                <p><strong>קישור לזום:</strong> <a href="https://www.youtube.com/watch?v=CAyWN9ba9J8&t=146s" target="_blank">לחץ כאן לכניסה</a></p>
-                <p><strong>Meeting ID:</strong> 831 2395 7958</p>
-                <p><strong>Passcode:</strong> abc123</p>
+            <div class="-dropdown" id="zoom-dropdown">
+                <p><strong>קישור לזום:</strong> <a href="https://edu-il.zoom.us/j/89258406777?pwd=WAylScEGWo2ZDbEKG1PhdcMBie2gHa.1" target="_blank">לחץ כאן לכניסה</a></p>
+                <p><strong>Meeting ID:</strong> 892 5840 6777</p>
+                <p><strong>Passcode:</strong> 180530</p>
             </div>
         </div>
 
