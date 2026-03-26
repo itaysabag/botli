@@ -87,15 +87,16 @@
             box-shadow: 0 4px 12px rgba(168, 199, 250, 0.2);
         }
 
-        .-dropdown {
+        /* תוקן בחזרה ל-zoom-dropdown */
+        .zoom-dropdown {
             max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
             background-color: var(--bg-main); border-radius: 0 0 8px 8px; padding: 0 20px;
             margin-top: -5px; border: 1px solid transparent; border-top: none;
         }
-        .-dropdown.open { max-height: 250px; padding: 15px 20px; border-color: var(--bg-button); }
-        .-dropdown p { margin: 10px 0; color: var(--text-muted); font-size: 1.1rem; }
-        .-dropdown a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
-        .-dropdown a:hover { text-decoration: underline; }
+        .zoom-dropdown.open { max-height: 250px; padding: 15px 20px; border-color: var(--bg-button); }
+        .zoom-dropdown p { margin: 10px 0; color: var(--text-muted); font-size: 1.1rem; }
+        .zoom-dropdown a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
+        .zoom-dropdown a:hover { text-decoration: underline; }
 
         /* כפתורי הקישורים */
         .grade-section { margin-top: 30px; }
@@ -221,21 +222,16 @@
     <div class="container">
         <h1>פיזיקה זומר 2026</h1>
 
-
-
-
-
-
         <div class="zoom-container">
             <button class="action-btn" onclick="toggleZoom()">
                 <span>📹 התחברות לשיעור זום</span>
                 <span id="zoom-arrow">▼</span>
             </button>
-<div class="dropdown" id="zoom-dropdown">
-    <p><strong>קישור לזום:</strong> <a href="https://edu-il.zoom.us/j/81069447374?pwd=KltHUuJq8y8cUNPoCxdXZkLrwbCIOq.1" target="_blank">לחץ כאן לכניסה</a></p>
-    <p><strong>Meeting ID:</strong> 810 6944 7374</p>
-    <p><strong>Passcode:</strong> 015465</p>
-</div>
+            <div class="zoom-dropdown" id="zoom-dropdown">
+                <p><strong>קישור לזום:</strong> <a href="https://edu-il.zoom.us/j/81069447374?pwd=KltHUuJq8y8cUNPoCxdXZkLrwbCIOq.1" target="_blank">לחץ כאן לכניסה</a></p>
+                <p><strong>Meeting ID:</strong> 810 6944 7374</p>
+                <p><strong>Passcode:</strong> 015465</p>
+            </div>
         </div>
 
         <div class="calc-container">
@@ -248,7 +244,7 @@
             <div class="button-grid">
                <a href="https://docs.google.com/document/d/1suQJIix4YA8Cev0zSpoevGnb1gCkN6ArGQhiPlVRGwY/preview" target="_blank" class="link-button">הקלות (מעודכן ל 24.3.2026)</a>
             </div>
-       
+        
 
         <div class="grade-section">
             <h2>י"א</h2>
@@ -271,6 +267,7 @@
     <div id="calc-overlay" class="modal-overlay" onclick="closeCalcOnBg(event)">
         <div class="calc-modal">
             <button class="close-btn" onclick="closeCalc()">✖</button>
+            <h2 style="border:none; text-align:center; color:var(--accent-blue); margin-top:0; font-size: 1.4rem;">דשבורד ציון בגרות</h2>
 
             <div class="calc-subjects-grid">
                 
