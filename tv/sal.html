@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון שכר רופאים</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        h1 { color: #005ab9; font-size: 1.5rem; margin-bottom: 25px; }
+        .form-group { text-align: right; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #005ab9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #00448d; }
+        #result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e7f3ff;
+            border-radius: 10px;
+            display: none;
+            border: 1px solid #b3d7ff;
+        }
+        .salary-label { color: #555; font-size: 0.9rem; }
+        .salary-amount { font-size: 2.2rem; font-weight: bold; color: #005ab9; }
+        .loading { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>סימולטור שכר</h1>
+    <div id="status-msg" class="loading">טוען נתונים מהגיליון...</div>
+    
+    <div id="calculator-form" style="display: none;">
+        <div class="form-group">
+            <label>בחר דרגה:</label>
+            <select id="grade-sel"></select>
+        </div>
+
+        <div class="form-group">
+            <label>שנות ותק:</label>
+            <select id="seniority-sel"></select>
+        </div>
+
+        <button onclick="runCalculation()">חשב שכר ברוטו</button>
+
+        <div id="result-box">
+            <div class="salary-label">שכר משוער:</div>
+            <div id="display-salary" class="salary-amount"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // הקישור הישיר שלך
+    const ORIGINAL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWMfwh3eFSVq5l8Bfh0uv7UiECGm1x7i3c90raAIXu5BHADd9gxo32kk2CZe4EKhWsftV2L5gMdzLE/pub?output=csv';
+    
+    // שימוש במעקף (Proxy) כדי לאפשר הרצה מקומית מהמחשב ללא שרת
+    const FINAL_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(ORIGINAL_URL);
+    
+    let dataTable = [];
+
+    function init() {
+        Papa.parse(FINAL_URL, {
+            download: true,
+            header: true,
+           skipEmptyLines: true,
+            complete: function(results) {
+                dataTable = results.data;
+                if (dataTable.length > 0) {
+                    fillSelectors();
+                    document.getElementById('status-msg').style.display = 'none';
+                    document.getElementById('calculator-form').style.display = 'block';
+                } else {
+                    document.getElementById('status-msg').innerHTML = "הגיליון ריק או לא נגיש.";
+                }
+            },
+            error: function() {
+                document.getElementById('status-msg').innerHTML = "שגיאת חיבור. בדוק חיבור אינטרנט.";
+            }
+        });
+    }
+
+    function fillSelectors() {
+        const gSelect = document.getElementById('grade-sel');
+        const sSelect = document.getElementById('seniority-sel');
+
+        // חילוץ דרגות וותק ייחודיים ומיונם
+        const grades = [...new Set(dataTable.map(item => item.grade))].filter(x => x).sort((a,b) => a-b);
+        const seniorities = [...new Set(dataTable.map(item => item.seniority))].filter(x => x !== undefined).sort((a,b) => a-b);
+
+        grades.forEach(g => {
+            let o = document.createElement('option');
+            o.value = g; o.text = "דרגה " + g;
+            gSelect.appendChild(o);
+        });
+
+        seniorities.forEach(s => {
+            let o = document.createElement('option');
+            o.value = s; o.text = s + " שנים";
+            sSelect.appendChild(o);
+        });
+    }
+
+    function runCalculation() {
+        const selG = document.getElementById('grade-sel').value;
+        const selS = document.getElementById('seniority-sel').value;
+        
+        // חיפוש השורה המדויקת בטבלה
+        const match = dataTable.find(r => 
+            String(r.grade).trim() === String(selG).trim() && 
+            String(r.seniority).trim() === String(selS).trim()
+        );
+        
+        if (match && match.salary_value) {
+            // ניקוי תווים לא מספריים (כמו ₪ או פסיקים)
+            const num = parseFloat(match.salary_value.replace(/[^\d.]/g, ''));
+            document.getElementById('display-salary').innerText = "₪" + num.toLocaleString('he-IL');
+            document.getElementById('result-box').style.display = 'block';
+        } else {
+            alert("נתון לא נמצא בטבלה לשילוב זה.");
+        }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
