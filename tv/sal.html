@@ -88,19 +88,16 @@
 </div>
 
 <script>
-    // הקישור הישיר שלך
-    const ORIGINAL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWMfwh3eFSVq5l8Bfh0uv7UiECGm1x7i3c90raAIXu5BHADd9gxo32kk2CZe4EKhWsftV2L5gMdzLE/pub?output=csv';
-    
-    // שימוש במעקף (Proxy) כדי לאפשר הרצה מקומית מהמחשב ללא שרת
-    const FINAL_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(ORIGINAL_URL);
+    // שימוש ישיר בקישור המקורי - אין צורך בפרוקסי עוקף עבור גוגל שיטס שמפורסם כ-CSV
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWMfwh3eFSVq5l8Bfh0uv7UiECGm1x7i3c90raAIXu5BHADd9gxo32kk2CZe4EKhWsftV2L5gMdzLE/pub?output=csv';
     
     let dataTable = [];
 
     function init() {
-        Papa.parse(FINAL_URL, {
+        Papa.parse(CSV_URL, {
             download: true,
             header: true,
-           skipEmptyLines: true,
+            skipEmptyLines: true,
             complete: function(results) {
                 dataTable = results.data;
                 if (dataTable.length > 0) {
@@ -111,8 +108,9 @@
                     document.getElementById('status-msg').innerHTML = "הגיליון ריק או לא נגיש.";
                 }
             },
-            error: function() {
-                document.getElementById('status-msg').innerHTML = "שגיאת חיבור. בדוק חיבור אינטרנט.";
+            error: function(err) {
+                console.error("Error loading CSV:", err);
+                document.getElementById('status-msg').innerHTML = "שגיאת חיבור. לא ניתן לגשת לגיליון הנתונים.";
             }
         });
     }
