@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון בגרות מדעי המחשב</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f0f10;
+            --bg-card: #1c1c1e;
+            --bg-inner: #131314;
+            --accent-blue: #a8c7fa;
+            --success-green: #30d158;
+            --lion-orange: #ff9f0a;
+            --error-red: #ff453a;
+            --text-main: #e3e3e3;
+            --text-muted: #8e8e93;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0; padding: 20px;
+            font-family: 'Rubik', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex; justify-content: center;
+        }
+
+        .container {
+            width: 100%; max-width: 650px;
+            background: var(--bg-card);
+            padding: 25px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: block; font-size: 1rem; font-weight: 700;
+            margin-bottom: 12px; color: var(--accent-blue);
+        }
+
+        .area-group {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 15px; margin-bottom: 25px;
+        }
+
+        /* תיקון כיוונים באמצעות row-reverse */
+        .calc-row {
+            display: flex; 
+            flex-direction: row-reverse; /* הופך את הסדר כך שהתוצאה תהיה משמאל */
+            align-items: center; justify-content: flex-start;
+            background: var(--bg-inner); padding: 12px 18px;
+            border-radius: 12px; margin-bottom: 10px; gap: 20px;
+        }
+
+        /* מידע על השאלון - יופיע הכי ימינה */
+        .info-box { text-align: right; min-width: 110px; flex-shrink: 0; }
+        .info-box .title { font-weight: 700; font-size: 1.1rem; color: #fff; display: block; }
+        .info-box .sub { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* כפתור שאגת הארי */
+        .lion-btn {
+            background: transparent; border: 1px solid var(--lion-orange);
+            color: var(--lion-orange); border-radius: 20px; padding: 6px 12px;
+            font-size: 0.75rem; cursor: pointer; transition: 0.3s;
+            white-space: nowrap;
+        }
+        .lion-btn.active { background: var(--lion-orange); color: #000; font-weight: bold; }
+
+        /* אזור הקלטים - מרכז */
+        .inputs-wrap { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .input-item { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
+        
+        input {
+            background: #2c2c2e; border: 1px solid transparent; color: #fff;
+            padding: 6px; border-radius: 6px; width: 55px; text-align: center;
+            font-weight: 600; outline: none;
+        }
+        input:focus { border-color: var(--accent-blue); }
+        
+        label { font-size: 0.85rem; color: var(--text-muted); text-align: right; width: 120px; }
+
+        /* קוביית התוצאה - תופיע הכי שמאלה */
+        .res-box {
+            background: #000; border: 2px solid var(--success-green);
+            border-radius: 12px; width: 85px; height: 85px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .res-box .val { font-size: 2rem; font-weight: 700; color: var(--success-green); line-height: 1; }
+        .res-box .rel { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; }
+
+        /* הערה חוסמת */
+        .blocker-hint {
+            font-size: 0.8rem; padding: 8px; border-radius: 6px;
+            background: rgba(255,255,255,0.05); color: var(--text-muted);
+            text-align: center; margin-top: 5px; border: 1px solid transparent;
+        }
+        .blocker-hint.warn { color: var(--error-red); background: rgba(255, 69, 58, 0.1); border-color: var(--error-red); }
+
+        .summary-label { color: var(--success-green); font-weight: bold; font-size: 0.95rem; margin-top: 10px; }
+
+        .final-display {
+            background: linear-gradient(145deg, #1c1c1e, #0a0a0a);
+            border: 1px solid var(--accent-blue); border-radius: 20px;
+            padding: 25px; text-align: center; margin-top: 10px;
+        }
+        .final-display span { color: var(--text-muted); font-size: 1.1rem; }
+        .final-display strong { display: block; font-size: 4rem; color: var(--success-green); margin-top: 10px; }
+
+        @media (max-width: 600px) {
+            .calc-row { flex-direction: column; text-align: center; }
+            .info-box { text-align: center; }
+            .input-item { justify-content: center; }
+            .res-box { width: 100%; height: auto; padding: 10px; flex-direction: row; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="text-align: center; color: var(--text-main);">מחשבון ציון בגרות</h1>
+
+    <span class="section-header">3 יח"ל (60% מהציון)</span>
+    <div class="area-group">
+        <div class="calc-row">
+            <div class="info-box">
+                <span class="title">עיוני (371)</span>
+                <span class="sub">36% מהסופי</span>
+            </div>
+            <button id="371-lion" class="lion-btn" onclick="toggleLion('371')">🦁 שאגת הארי</button>
+            <div class="inputs-wrap">
+                <div class="input-item">
+                    <label id="371-label-magen">ציון הגשה (30%)</label>
+                    <input type="number" id="371-magen" placeholder="0" oninput="calculate()">
+                </div>
+                <div class="input-item">
+                    <label id="371-label-exam">בחינת בגרות (70%)</label>
+                    <input type="number" id="371-exam" placeholder="0" oninput="calculate()">
+                </div>
+            </div>
+            <div class="res-box">
+                <span id="371-score" class="val">0</span>
+                <span class="rel">יחסי: <span id="371-rel">0.0</span></span>
+            </div>
+        </div>
+
+        <div class="calc-row">
+            <div class="info-box">
+                <span class="title">פרויקט (373)</span>
+                <span class="sub">24% מהסופי</span>
+            </div>
+            <div style="width: 90px;"></div>
+            <div class="inputs-wrap">
+                <div class="input-item">
+                    <label>ציון סופי פרויקט</label>
+                    <input type="number" id="373-grade" placeholder="0" oninput="calculate()">
+                </div>
+            </div>
+            <div class="res-box">
+                <span id="373-score" class="val">0</span>
+                <span class="rel">יחסי: <span id="373-rel">0.0</span></span>
+            </div>
+        </div>
+        <div class="summary-label">ציון 3 יח"ל: <span id="area-1-total">0</span></div>
+    </div>
+
+    <span class="section-header" style="color: var(--lion-orange);">השלמה ל-5 (40% מהציון)</span>
+    <div class="area-group">
+        <div class="calc-row" style="margin-bottom: 5px;">
+            <div class="info-box">
+                <span class="title">השלמה (271)</span>
+                <span class="sub">40% מהסופי</span>
+            </div>
+            <button id="271-lion" class="lion-btn" onclick="toggleLion('271')">🦁 שאגת הארי</button>
+            <div class="inputs-wrap">
+                <div class="input-item">
+                    <label id="271-label-magen">ציון בית ספרי (40%)</label>
+                    <input type="number" id="271-magen" placeholder="0" oninput="calculate()">
+                </div>
+                <div class="input-item">
+                    <label id="271-label-exam">בחינה חיצונית (60%)</label>
+                    <input type="number" id="271-exam" placeholder="0" oninput="calculate()">
+                </div>
+            </div>
+            <div class="res-box">
+                <span id="271-score" class="val">0</span>
+                <span class="rel">יחסי: <span id="271-rel">0.0</span></span>
+            </div>
+        </div>
+        <div id="271-block-hint" class="blocker-hint">שאלון חוסם: נדרש ציון 55 ומעלה בבחינה</div>
+        <div class="summary-label">ציון השלמה: <span id="area-2-total">0</span></div>
+    </div>
+
+    <div class="final-display">
+        <span>ציון סופי משוקלל</span>
+        <strong id="final-score">0</strong>
+    </div>
+</div>
+
+<script>
+    const lionState = { '371': false, '271': false };
+
+    function toggleLion(id) {
+        lionState[id] = !lionState[id];
+        document.getElementById(id + '-lion').classList.toggle('active');
+        
+        if (id === '371') {
+            document.getElementById('371-label-magen').innerText = lionState[id] ? "ציון הגשה (40%)" : "ציון הגשה (30%)";
+            document.getElementById('371-label-exam').innerText = lionState[id] ? "בחינת בגרות (60%)" : "בחינת בגרות (70%)";
+        } else {
+            document.getElementById('271-label-magen').innerText = lionState[id] ? "ציון בית ספרי (50%)" : "ציון בית ספרי (40%)";
+            document.getElementById('271-label-exam').innerText = lionState[id] ? "בחינה חיצונית (50%)" : "בחינה חיצונית (60%)";
+        }
+        calculate();
+    }
+
+    function getV(id) {
+        let v = parseFloat(document.getElementById(id).value);
+        return isNaN(v) ? 0 : v;
+    }
+
+    function calculate() {
+        // 371
+        let rM371 = lionState['371'] ? 0.4 : 0.3;
+        let rE371 = lionState['371'] ? 0.6 : 0.7;
+        let s371 = Math.round((getV('371-magen') * rM371) + (getV('371-exam') * rE371));
+        let rel371 = s371 * 0.36;
+        document.getElementById('371-score').innerText = s371;
+        document.getElementById('371-rel').innerText = rel371.toFixed(1);
+
+        // 373
+        let s373 = getV('373-grade');
+        let rel373 = s373 * 0.24;
+        document.getElementById('373-score').innerText = s373;
+        document.getElementById('373-rel').innerText = rel373.toFixed(1);
+        document.getElementById('area-1-total').innerText = Math.round((rel371 + rel373) / 0.6);
+
+        // 271 + Blocker
+        let exam271 = getV('271-exam');
+        let threshold = lionState['271'] ? 45 : 55;
+        let blockHint = document.getElementById('271-block-hint');
+        let isBlocked = exam271 > 0 && exam271 < threshold;
+
+        blockHint.innerText = `שאלון חוסם (${threshold}): ${isBlocked ? 'הציון מתחת לרף!' : 'נדרש ציון עובר בבחינה'}`;
+        blockHint.className = isBlocked ? 'blocker-hint warn' : 'blocker-hint';
+
+        let rel271 = 0;
+        let s271 = 0;
+
+        if (isBlocked) {
+            document.getElementById('271-score').innerText = "❌";
+            document.getElementById('271-rel').innerText = "0";
+            document.getElementById('area-2-total').innerText = "נכשל";
+            document.getElementById('final-score').innerText = "!!";
+            document.getElementById('final-score').style.color = "var(--error-red)";
+        } else {
+            let rM271 = lionState['271'] ? 0.5 : 0.4;
+            let rE271 = lionState['271'] ? 0.5 : 0.6;
+            s271 = Math.round((getV('271-magen') * rM271) + (exam271 * rE271));
+            rel271 = s271 * 0.4;
+            document.getElementById('271-score').innerText = s271;
+            document.getElementById('271-rel').innerText = rel271.toFixed(1);
+            document.getElementById('area-2-total').innerText = s271;
+            
+            let final = Math.round(rel371 + rel373 + rel271);
+            document.getElementById('final-score').innerText = final;
+            document.getElementById('final-score').style.color = "var(--success-green)";
+        }
+    }
+</script>
+
+</body>
+</html>
