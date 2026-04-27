@@ -3,204 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מרכז סינמה אישי</title>
+    <title>Cinema Hub | מרכז סינמה</title>
     <style>
-        /* הגדרות בסיס נקיות */
         :root {
-            --bg-color: #0f0f0f;
-            --panel-bg: #1f1f1f;
-            --accent: #e50914;
-            --text-color: #ffffff;
+            --bg: #0a0a0a;
+            --accent: #ff0000;
+            --panel: #1a1a1a;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             overflow: hidden;
         }
 
-        /* ממשק המשתמש (לובי הסינמה) */
+        /* מסך הפתיחה - הלובי */
         #lobby {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: radial-gradient(circle, #2a2a2a 0%, #000000 100%);
+            transition: opacity 0.5s;
         }
 
-        .control-panel {
-            background-color: var(--panel-bg);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        .card {
+            background: var(--panel);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        h1 {
-            margin-top: 0;
-            font-size: 24px;
-            letter-spacing: 1px;
+            width: 400px;
         }
 
         input {
-            width: 90%;
-            padding: 15px;
+            width: 100%;
+            padding: 12px;
             margin: 20px 0;
-            border: none;
-            border-radius: 6px;
-            background-color: #333;
-            color: white;
-            font-size: 16px;
-            text-align: left;
-            direction: ltr;
-        }
-
-        input:focus {
-            outline: 2px solid var(--accent);
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+            text-align: left; direction: ltr;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
+            background: var(--accent);
             color: white;
-            background-color: var(--accent);
             border: none;
-            border-radius: 6px;
+            padding: 12px 30px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s;
         }
 
-        button:hover {
-            background-color: #f40612;
-        }
+        button:hover { transform: scale(1.05); }
 
-        /* מסך הקולנוע (מוסתר כברירת מחדל) */
-        #cinema-screen {
+        /* מסך הנגן - הסינמה */
+        #cinema-layer {
             display: none;
-            width: 100vw;
-            height: 100vh;
-            background-color: black;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: black;
+            z-index: 9999;
         }
 
         iframe {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             border: none;
         }
 
-        /* כפתור יציאה שמופיע רק בריחוף כדי לא להפריע */
-        #exit-btn {
+        /* כפתור יציאה חבוי - מופיע רק בריחוף עליון */
+        #exit-bar {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: 1px solid white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
+            top: 0; left: 0; width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             opacity: 0;
             transition: opacity 0.3s;
-            z-index: 1000;
+            z-index: 10000;
         }
 
-        #cinema-screen:hover #exit-btn {
-            opacity: 1;
+        #exit-bar:hover { opacity: 1; }
+
+        .exit-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid white;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
     <div id="lobby">
-        <div class="control-panel">
-            <h1>מרכז סינמה 🎬</h1>
-            <p>הדבק קישור מיוטיוב לחווית צפייה נקייה לגמרי</p>
-            <input type="text" id="youtube-link" placeholder="https://www.youtube.com/watch?v=...">
-            <br>
-            <button onclick="startCinemaMode()">הפעל מסך מלא</button>
+        <div class="card">
+            <h1 style="margin:0">CINEMA HUB</h1>
+            <p style="color:#888; font-size:14px">הזן קישור לצפייה נקייה ללא הפרעות</p>
+            <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=...">
+            <button onclick="playVideo()">הפעל סרטון</button>
         </div>
     </div>
 
-    <div id="cinema-screen">
-        <button id="exit-btn" onclick="exitCinemaMode()">סגור סרטון (או לחץ ESC)</button>
-        <iframe id="video-player" allow="autoplay; fullscreen"></iframe>
+    <div id="cinema-layer">
+        <div id="exit-bar">
+            <button class="exit-btn" onclick="closeCinema()">יציאה מהסינמה (או לחץ ESC)</button>
+        </div>
+        <div id="player-target" style="width:100%; height:100%;"></div>
     </div>
 
     <script>
-        // פונקציית עזר לחילוץ מזהה הסרטון מתוך מגוון סוגי קישורים של יוטיוב
-        function extractVideoID(url) {
+        function extractID(url) {
             const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+            return (match && match[2].length == 11) ? match[2] : null;
         }
 
-        // הפעלת מצב סינמה
-        function startCinemaMode() {
-            const urlInput = document.getElementById('youtube-link').value;
-            const videoId = extractVideoID(urlInput);
+        function playVideo() {
+            const url = document.getElementById('urlInput').value;
+            const id = extractID(url);
 
-            if (!videoId) {
-                alert("הקישור אינו תקין. אנא ודא שזהו קישור תקין של יוטיוב.");
+            if (!id) {
+                alert("הקישור לא תקין. נסה שוב.");
                 return;
             }
 
-            const lobby = document.getElementById('lobby');
-            const cinemaScreen = document.getElementById('cinema-screen');
-            const player = document.getElementById('video-player');
+            const container = document.getElementById('cinema-layer');
+            const target = document.getElementById('player-target');
+            
+            // יצירת ה-Iframe באופן דינמי
+            target.innerHTML = `<iframe 
+                src="https://www.youtube.com/embed/${id}?autoplay=1&controls=1&rel=0&modestbranding=1&iv_load_policy=3" 
+                allow="autoplay; encrypted-media; fullscreen" 
+                allowfullscreen></iframe>`;
 
-            // בניית כתובת ההטמעה עם פרמטרים לניקוי הממשק
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+            container.style.display = 'block';
 
-            // הסתרת הלובי והצגת מסך הקולנוע
-            lobby.style.display = 'none';
-            cinemaScreen.style.display = 'block';
-            player.src = embedUrl;
-
-            // בקשה מהדפדפן לעבור למסך מלא אמיתי (מסתיר את שורת הכתובות וסרגלי הכלים)
-            if (cinemaScreen.requestFullscreen) {
-                cinemaScreen.requestFullscreen();
-            } else if (cinemaScreen.webkitRequestFullscreen) { /* Safari */
-                cinemaScreen.webkitRequestFullscreen();
-            } else if (cinemaScreen.msRequestFullscreen) { /* IE11 */
-                cinemaScreen.msRequestFullscreen();
+            // מעבר למסך מלא אמיתי (מסתיר את כל ממשק הדפדפן)
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
             }
         }
 
-        // יציאה ממצב סינמה
-        function exitCinemaMode() {
-            const lobby = document.getElementById('lobby');
-            const cinemaScreen = document.getElementById('cinema-screen');
-            const player = document.getElementById('video-player');
-
-            // עצירת הסרטון על ידי איפוס ה-src
-            player.src = "";
-
-            // חזרה לתצוגת הלובי
-            cinemaScreen.style.display = 'none';
-            lobby.style.display = 'flex';
-
-            // יציאה ממסך מלא ברמת הדפדפן
+        function closeCinema() {
+            document.getElementById('cinema-layer').style.display = 'none';
+            document.getElementById('player-target').innerHTML = ''; // ניקוי הנגן
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             }
         }
 
-        // האזנה לאירוע יציאה ממסך מלא (כדי לטפל במצב שבו המשתמש לחץ ESC)
-        document.addEventListener('fullscreenchange', (event) => {
+        // האזנה ליציאה ממסך מלא (ESC)
+        document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                exitCinemaMode();
+                closeCinema();
             }
         });
     </script>
-
 </body>
 </html>
