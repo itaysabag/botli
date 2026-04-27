@@ -2,179 +2,84 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinema Hub | מרכז סינמה</title>
+    <title>Cinema Hub - Window Mode</title>
     <style>
-        :root {
-            --bg: #0a0a0a;
-            --accent: #ff0000;
-            --panel: #1a1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg);
+        body {
+            background-color: #0f0f0f;
             color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            overflow: hidden;
-        }
-
-        /* מסך הפתיחה - הלובי */
-        #lobby {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
-            transition: opacity 0.5s;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        .card {
-            background: var(--panel);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .box {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             text-align: center;
-            width: 400px;
         }
-
         input {
-            width: 100%;
+            width: 350px;
             padding: 12px;
-            margin: 20px 0;
             border: 1px solid #333;
-            border-radius: 8px;
+            border-radius: 6px;
             background: #000;
             color: #fff;
-            box-sizing: border-box;
             font-size: 14px;
-            text-align: left; direction: ltr;
+            margin-bottom: 15px;
+            text-align: left;
+            direction: ltr;
         }
-
         button {
-            background: var(--accent);
+            padding: 12px 25px;
+            background-color: #ff0000;
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
-            transition: transform 0.2s;
+            transition: 0.2s;
         }
-
-        button:hover { transform: scale(1.05); }
-
-        /* מסך הנגן - הסינמה */
-        #cinema-layer {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: black;
-            z-index: 9999;
-        }
-
-        iframe {
-            width: 100%; height: 100%;
-            border: none;
-        }
-
-        /* כפתור יציאה חבוי - מופיע רק בריחוף עליון */
-        #exit-bar {
-            position: absolute;
-            top: 0; left: 0; width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 10000;
-        }
-
-        #exit-bar:hover { opacity: 1; }
-
-        .exit-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid white;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
+        button:hover {
+            background-color: #cc0000;
         }
     </style>
 </head>
 <body>
 
-    <div id="lobby">
-        <div class="card">
-            <h1 style="margin:0">CINEMA HUB</h1>
-            <p style="color:#888; font-size:14px">הזן קישור לצפייה נקייה ללא הפרעות</p>
-            <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=...">
-            <button onclick="playVideo()">הפעל סרטון</button>
-        </div>
-    </div>
-
-    <div id="cinema-layer">
-        <div id="exit-bar">
-            <button class="exit-btn" onclick="closeCinema()">יציאה מהסינמה (או לחץ ESC)</button>
-        </div>
-        <div id="player-target" style="width:100%; height:100%;"></div>
+    <div class="box">
+        <h2 style="margin-top:0">Cinema Hub 🎬</h2>
+        <input type="text" id="ytUrl" placeholder="הדבק לינק מיוטיוב...">
+        <br>
+        <button onclick="openCinemaPopup()">פתח בחלון נקי</button>
     </div>
 
     <script>
-        function extractID(url) {
-            const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length == 11) ? match[2] : null;
-        }
-
-        function playVideo() {
-            const url = document.getElementById('urlInput').value;
-            const id = extractID(url);
-
-            if (!id) {
-                alert("הקישור לא תקין. נסה שוב.");
-                return;
-            }
-
-            const container = document.getElementById('cinema-layer');
-            const target = document.getElementById('player-target');
+        function openCinemaPopup() {
+            const urlValue = document.getElementById('ytUrl').value.trim();
             
-            // יצירת ה-Iframe באופן דינמי
-            target.innerHTML = `<iframe 
-                src="https://www.youtube.com/embed/${id}?autoplay=1&controls=1&rel=0&modestbranding=1&iv_load_policy=3" 
-                allow="autoplay; encrypted-media; fullscreen" 
-                allowfullscreen></iframe>`;
+            // חילוץ ה-ID של הסרטון
+            const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = urlValue.match(regExp);
+            const videoId = (match && match[2].length == 11) ? match[2] : null;
 
-            container.style.display = 'block';
-
-            // מעבר למסך מלא אמיתי (מסתיר את כל ממשק הדפדפן)
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container.webkitRequestFullscreen) {
-                container.webkitRequestFullscreen();
+            if (videoId) {
+                // שימוש בכתובת watch_popup כדי לעקוף חסימות הטמעה (Error 153)
+                const popupUrl = `https://www.youtube.com/watch_popup?v=${videoId}`;
+                
+                // הגדרות החלון בדיוק לפי הדוגמה ששלחת
+                const features = "width=1280,height=720,toolbar=no,menubar=no,location=no,status=no,scrollbars=no,resizable=yes";
+                
+                window.open(popupUrl, "_blank", features);
+            } else {
+                alert("אנא הזן לינק תקין של יוטיוב");
             }
         }
-
-        function closeCinema() {
-            document.getElementById('cinema-layer').style.display = 'none';
-            document.getElementById('player-target').innerHTML = ''; // ניקוי הנגן
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-        }
-
-        // האזנה ליציאה ממסך מלא (ESC)
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                closeCinema();
-            }
-        });
     </script>
+
 </body>
 </html>
