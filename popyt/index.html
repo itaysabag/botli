@@ -2,73 +2,204 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Fullscreen Bypass</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מרכז סינמה אישי</title>
     <style>
-        body {
-            background-color: #1a1a1a;
-            color: white;
+        /* הגדרות בסיס נקיות */
+        :root {
+            --bg-color: #0f0f0f;
+            --panel-bg: #1f1f1f;
+            --accent: #e50914;
+            --text-color: #ffffff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* ממשק המשתמש (לובי הסינמה) */
+        #lobby {
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
-            margin: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle, #2a2a2a 0%, #000000 100%);
         }
-        .container {
+
+        .control-panel {
+            background-color: var(--panel-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             text-align: center;
-            background: #333;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 500px;
         }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
         input {
-            padding: 12px;
-            width: 350px;
+            width: 90%;
+            padding: 15px;
+            margin: 20px 0;
             border: none;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        button {
-            padding: 12px 25px;
-            background-color: #ff0000;
+            border-radius: 6px;
+            background-color: #333;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
             font-size: 16px;
+            text-align: left;
+            direction: ltr;
+        }
+
+        input:focus {
+            outline: 2px solid var(--accent);
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--accent);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #f40612;
+        }
+
+        /* מסך הקולנוע (מוסתר כברירת מחדל) */
+        #cinema-screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* כפתור יציאה שמופיע רק בריחוף כדי לא להפריע */
+        #exit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        #cinema-screen:hover #exit-btn {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>הדבק לינק (גם לסרטונים חסומים)</h2>
-        <input type="text" id="videoUrl" placeholder="הדבק כאן את הלינק...">
-        <br>
-        <button onclick="launchVideo()">פתח במצב נקי</button>
+    <div id="lobby">
+        <div class="control-panel">
+            <h1>מרכז סינמה 🎬</h1>
+            <p>הדבק קישור מיוטיוב לחווית צפייה נקייה לגמרי</p>
+            <input type="text" id="youtube-link" placeholder="https://www.youtube.com/watch?v=...">
+            <br>
+            <button onclick="startCinemaMode()">הפעל מסך מלא</button>
+        </div>
+    </div>
+
+    <div id="cinema-screen">
+        <button id="exit-btn" onclick="exitCinemaMode()">סגור סרטון (או לחץ ESC)</button>
+        <iframe id="video-player" allow="autoplay; fullscreen"></iframe>
     </div>
 
     <script>
-        function launchVideo() {
-            const urlValue = document.getElementById('videoUrl').value;
+        // פונקציית עזר לחילוץ מזהה הסרטון מתוך מגוון סוגי קישורים של יוטיוב
+        function extractVideoID(url) {
             const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = urlValue.match(regExp);
-            const videoId = (match && match[2].length == 11) ? match[2] : null;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
 
-            if (videoId) {
-                // במקום EMBED, אנחנו משתמשים בכתובת של גרסת ה-TV או ה-Watch
-                // זה עוקף את חסימת ההטמעה כי זה נחשב "צפייה ישירה" ביוטיוב
-                const cleanUrl = `https://www.youtube.com/watch_popup?v=${videoId}`;
-                
-                // פתיחת חלון חדש ללא שוליים
-                window.open(cleanUrl, "_blank", "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=yes,width=" + screen.width + ",height=" + screen.height);
-            } else {
-                alert("אנא הזן לינק תקין");
+        // הפעלת מצב סינמה
+        function startCinemaMode() {
+            const urlInput = document.getElementById('youtube-link').value;
+            const videoId = extractVideoID(urlInput);
+
+            if (!videoId) {
+                alert("הקישור אינו תקין. אנא ודא שזהו קישור תקין של יוטיוב.");
+                return;
+            }
+
+            const lobby = document.getElementById('lobby');
+            const cinemaScreen = document.getElementById('cinema-screen');
+            const player = document.getElementById('video-player');
+
+            // בניית כתובת ההטמעה עם פרמטרים לניקוי הממשק
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+
+            // הסתרת הלובי והצגת מסך הקולנוע
+            lobby.style.display = 'none';
+            cinemaScreen.style.display = 'block';
+            player.src = embedUrl;
+
+            // בקשה מהדפדפן לעבור למסך מלא אמיתי (מסתיר את שורת הכתובות וסרגלי הכלים)
+            if (cinemaScreen.requestFullscreen) {
+                cinemaScreen.requestFullscreen();
+            } else if (cinemaScreen.webkitRequestFullscreen) { /* Safari */
+                cinemaScreen.webkitRequestFullscreen();
+            } else if (cinemaScreen.msRequestFullscreen) { /* IE11 */
+                cinemaScreen.msRequestFullscreen();
             }
         }
+
+        // יציאה ממצב סינמה
+        function exitCinemaMode() {
+            const lobby = document.getElementById('lobby');
+            const cinemaScreen = document.getElementById('cinema-screen');
+            const player = document.getElementById('video-player');
+
+            // עצירת הסרטון על ידי איפוס ה-src
+            player.src = "";
+
+            // חזרה לתצוגת הלובי
+            cinemaScreen.style.display = 'none';
+            lobby.style.display = 'flex';
+
+            // יציאה ממסך מלא ברמת הדפדפן
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        }
+
+        // האזנה לאירוע יציאה ממסך מלא (כדי לטפל במצב שבו המשתמש לחץ ESC)
+        document.addEventListener('fullscreenchange', (event) => {
+            if (!document.fullscreenElement) {
+                exitCinemaMode();
+            }
+        });
     </script>
 
 </body>
