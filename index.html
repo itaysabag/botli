@@ -2679,7 +2679,7 @@
                         startGlobalWatchdog();
                         if (lockInterval) clearInterval(lockInterval);
                         checkRemoteLock();
-                        lockInterval = setInterval(checkRemoteLock, 5000);
+                        lockInterval = setInterval(checkRemoteLock, 20000);
                     } else {
                         msg.innerText = data.msg || "שגיאה בפרטי ההתחברות";
                         btn.disabled = false; btn.innerHTML = 'התחבר';
@@ -3952,7 +3952,7 @@
                         } else {
                             fetchTeacherChat();
                         }
-                    }, 5000);
+                    }, 15000);
                 }, 2000);
                 // ---------------------------------------------
             }
@@ -4060,7 +4060,7 @@
                             } else {
                                 fetchTeacherChat();
                             }
-                        }, 5000);
+                        }, 15000);
                     }, 2500);
 
                 } catch (e) {
@@ -4074,7 +4074,7 @@
 
             // בדיקה ראשונית + הפעלה מחזורית כל 15 שניות
             setTimeout(backgroundChatCheck, 3000);
-            setInterval(backgroundChatCheck, 15000);
+            setInterval(backgroundChatCheck, 45000);
 
             async function backgroundChatCheck() {
                 // אם החלון פתוח - לא עושים כלום
@@ -4385,7 +4385,7 @@
                             renderComments(updated.comments);
                         }
                     } catch (e) { }
-                }, 15000);
+                }, 30000);
             };
 
             window.submitComment = async function (row) {
