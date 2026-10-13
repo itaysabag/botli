@@ -1506,6 +1506,10 @@
             background-color: #a8c7fa !important;
             color: #131314 !important;
         }
+		
+		#ai-chat-popup, #ai-popup-window, #ai-popup-window * {
+            user-select: text !important;
+        }
 
     </style>
 </head>
@@ -1720,7 +1724,8 @@
     </div>
 
     <!-- אזור ההודעות -->
-    <div id="ai-popup-window" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #131314;">
+<!-- אזור ההודעות עם אפשרות סימון טקסט חופשית -->
+<div id="ai-popup-window" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #131314; user-select: text; cursor: text;">
         <div class="chat-msg msg-ai" id="ai-welcome-box">
             שלום! 👋<br>
             שאל שאלות על הקוד.
@@ -2977,6 +2982,12 @@ function updateAiWelcomeMsg() {
 
 // פתיחה/סגירה של חלונית הבוט
 function toggleAiPopup() {
+	const aiPopup = document.getElementById('ai-chat-popup');
+	if (aiPopup) {
+		aiPopup.addEventListener('contextmenu', (e) => {
+			e.stopPropagation(); // מונע מחסימת ה-F12/קליק-ימני של האתר לפעול בתוך הצ'אט
+		});
+	}
     if (isExamMode) return;
     const popup = document.getElementById('ai-chat-popup');
     if (popup.style.display === 'flex') {
@@ -3061,7 +3072,7 @@ ${currentCode}
         // 4. הצגת התשובה של הבוט
         const aiMsg = document.createElement('div');
         aiMsg.className = 'chat-msg msg-ai';
-        aiMsg.innerHTML = aiText.replace(/\n/g, '<br>');
+        aiMsg.innerHTML = formatAiResponse(aiText);
         win.appendChild(aiMsg);
         win.scrollTop = win.scrollHeight;
 
@@ -3114,6 +3125,40 @@ window.sendToAI = sendToAI;
         }
     });
 })();
+
+// פונקציה לעימוד תשובת ה-AI: הופכת Markdown ל-HTML ומבודדת קוד ל-LTR
+function formatAiResponse(text) {
+    if (!text) return "";
+    
+    // 1. טיפול בבלוקי קוד (```java ... ```)
+    const codeBlocks = [];
+    text = text.replace(/```(?:java)?\s*([\s\S]*?)```/g, (match, code) => {
+        const cleanCode = code.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        codeBlocks.push(cleanCode);
+        return `___CODE_BLOCK_${codeBlocks.length - 1}___`;
+    });
+
+    // 2. טיפול בקוד מוטבע (inline code: `...`)
+    text = text.replace(/`([^`\n]+)`/g, '<code style="direction: ltr; unicode-bidi: isolate; background: #2d2e30; color: #a8c7fa; padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
+
+    // 3. טיפול בהדגשות (**טקסט**)
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 4. ירידות שורה
+    text = text.replace(/\n/g, '<br>');
+
+    // 5. החזרת בלוקי הקוד בתוך תיבה מעוצבת ב-LTR עם כפתור העתקה
+    text = text.replace(/___CODE_BLOCK_(\d+)___/g, (match, index) => {
+        return `
+            <div class="code-block" style="position: relative; direction: ltr !important; text-align: left !important; background: #252627; border: 1px solid #444; border-radius: 8px; padding: 12px; padding-top: 32px; margin: 8px 0; font-family: 'Consolas', monospace; font-size: 13px; color: #a8c7fa; white-space: pre-wrap; unicode-bidi: isolate;">
+                <button class="copy-btn" onclick="copyCode(this)" style="position: absolute; top: 6px; right: 6px; background: #333; border: 1px solid #555; color: #ccc; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer;">Copy</button>
+                ${codeBlocks[index]}
+            </div>
+        `;
+    });
+
+    return text;
+}
 
 
             function addMessage(text, sender) {
