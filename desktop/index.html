@@ -1699,32 +1699,46 @@
     </div>
 
 <!-- חלונית צ'אט צפה של בוטלי -->
-<div id="ai-chat-popup" style="display: none; position: fixed; bottom: 65px; right: 25px; width: 380px; height: 500px; background: #1e1f20; border: 1px solid #444746; border-radius: 12px; z-index: 25000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); flex-direction: column; overflow: hidden; direction: rtl;">
+<!-- חלונית צ'אט צפה ודינמית של בוטלי -->
+<div id="ai-chat-popup" style="display: none; position: fixed; bottom: 65px; right: 25px; width: 380px; height: 500px; min-width: 280px; min-height: 320px; max-width: 80vw; max-height: 85vh; background: #1e1f20; border: 1px solid #444746; border-radius: 12px; z-index: 25000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); flex-direction: column; overflow: hidden; direction: rtl;">
+    
+    <!-- ידית שינוי גודל דינמי (פינה עליונה-שמאלית) -->
+    <div id="ai-resize-handle" title="גרור לשינוי גודל החלון" style="position: absolute; top: 0; left: 0; width: 22px; height: 22px; cursor: nwse-resize; display: flex; align-items: center; justify-content: center; z-index: 30; color: #777;">
+        <i class="fa-solid fa-up-right-and-down-left-from-center" style="font-size: 10px; transform: rotate(90deg);"></i>
+    </div>
+
+    <!-- כותרת החלון -->
     <div style="background: #131314; padding: 10px 15px; border-bottom: 1px solid #2d2e30; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-robot" style="color: #ff4d4d; font-size: 18px;"></i>
             <span style="font-weight: bold; color: #a8c7fa; font-size: 15px;">בּוֹט·לִי</span>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="clearChat()" title="נקה שיחה" style="color: #888; background: none; border: none; cursor: pointer; padding: 4px;"><i class="fa-solid fa-trash"></i></button>
+        <div style="display: flex; gap: 12px; align-items: center; margin-left: 15px;">
+            <button onclick="clearChat()" title="נקה שיחה" style="color: #888; background: none; border: none; cursor: pointer; padding: 2px;"><i class="fa-solid fa-trash"></i></button>
             <i class="fa-solid fa-xmark" onclick="toggleAiPopup()" style="cursor: pointer; color: #888; font-size: 18px;" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#888'"></i>
         </div>
     </div>
 
-    <div id="chat-window" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #131314;">
-        <div class="chat-msg msg-ai">
-            שלום! אני בּוֹט·לִי. 👋<br>
-            אני רואה את הקוד שלך בעורך. שאל אותי כל שאלה ואעזור לך להבין!
+    <!-- אזור ההודעות -->
+    <div id="ai-popup-window" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #131314;">
+        <div class="chat-msg msg-ai" id="ai-welcome-box">
+            שלום! 👋<br>
+            שאל שאלות על הקוד.
         </div>
     </div>
 
-    <div class="typing-indicator" id="ai-loading" style="display: none; padding: 8px 15px; background: #131314; color: #a8c7fa; font-size: 12px; gap: 8px; align-items: center; border-top: 1px solid #2d2e30;">
+    <!-- חיווי טעינה -->
+    <div class="typing-indicator" id="ai-popup-loading" style="display: none; padding: 8px 15px; background: #131314; color: #a8c7fa; font-size: 12px; gap: 8px; align-items: center; border-top: 1px solid #2d2e30;">
         <i class="fa-solid fa-circle-notch fa-spin"></i> בוטלי חושב...
     </div>
 
+    <!-- שורת קלט וכפתור שליחה -->
     <div style="padding: 10px 12px; background: #1e1f20; border-top: 1px solid #2d2e30; display: flex; gap: 8px; align-items: center;">
-        <input type="text" id="ai-input" placeholder="שאל שאלה על הקוד..." style="flex: 1; background: #131314; border: 1px solid #444746; color: #e3e3e3; padding: 10px 14px; border-radius: 20px; outline: none; text-align: right; direction: rtl; font-size: 13px;">
-        <button id="send-ai-btn" onclick="sendToAI()" style="width: 36px; height: 36px; border-radius: 50%; background: #a8c7fa; color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; padding: 0;">
+        <input type="text" id="ai-popup-input" placeholder="שאל שאלה על הקוד... (Enter לשליחה)" 
+               onkeydown="if(event.key==='Enter') sendToAI();"
+               style="flex: 1; background: #131314; border: 1px solid #444746; color: #e3e3e3; padding: 10px 14px; border-radius: 20px; outline: none; text-align: right; direction: rtl; font-size: 13px;">
+        <button id="ai-popup-send-btn" onclick="sendToAI()" 
+                style="width: 36px; height: 36px; border-radius: 50%; background: #a8c7fa; color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; padding: 0;">
             <i class="fa-solid fa-paper-plane" style="font-size: 13px; margin-right: 2px;"></i>
         </button>
     </div>
@@ -2676,6 +2690,7 @@
 
                     if (data.result === "APPROVE") {
                         globalStudentName = data.name;
+						updateAiWelcomeMsg();
 
                         if (data.docUrl && data.docUrl.trim() !== "") {
                             currentUserDocLink = data.docUrl;
@@ -2951,6 +2966,16 @@
 
 
 // פתיחה/סגירה של חלונית הצ'אט הצפה
+// עדכון הודעת הפתיחה (שלום ושם המשתמש)
+function updateAiWelcomeMsg() {
+    const box = document.getElementById('ai-welcome-box');
+    if (!box) return;
+    const name = (typeof globalStudentName !== 'undefined' && globalStudentName) ? getFirstName(globalStudentName) : "";
+    const greeting = name ? `שלום ${name}! 👋` : `שלום! 👋`;
+    box.innerHTML = `${greeting}<br>שאל שאלות על הקוד.`;
+}
+
+// פתיחה/סגירה של חלונית הבוט
 function toggleAiPopup() {
     if (isExamMode) return;
     const popup = document.getElementById('ai-chat-popup');
@@ -2958,41 +2983,60 @@ function toggleAiPopup() {
         popup.style.display = 'none';
     } else {
         popup.style.display = 'flex';
-        setTimeout(() => document.getElementById('ai-input').focus(), 100);
+        updateAiWelcomeMsg();
+        setTimeout(() => {
+            const input = document.getElementById('ai-popup-input');
+            if (input) input.focus();
+        }, 100);
     }
 }
 window.toggleAiPopup = toggleAiPopup;
 
-// שליחה לבוטלי עם הקפדה על עברית תקנית ומקצועית
+// איפוס שיחה
+function clearChat() {
+    const win = document.getElementById('ai-popup-window');
+    if (!win) return;
+    const name = (typeof globalStudentName !== 'undefined' && globalStudentName) ? getFirstName(globalStudentName) : "";
+    const greeting = name ? `שלום ${name}! 👋` : `שלום! 👋`;
+    win.innerHTML = `<div class="chat-msg msg-ai" id="ai-welcome-box">${greeting}<br>שאל שאלות על הקוד.</div>`;
+}
+window.clearChat = clearChat;
+
+// שליחת הודעה לבינה המלאכותית (פתרון בעיה 1)
 async function sendToAI() {
     if (isExamMode) return;
-    const inputField = document.getElementById('ai-input');
+    const inputField = document.getElementById('ai-popup-input');
+    if (!inputField) return;
     const userText = inputField.value.trim();
     if (!userText) return;
 
-    const loading = document.getElementById('ai-loading');
+    const win = document.getElementById('ai-popup-window');
+    const loading = document.getElementById('ai-popup-loading');
+
+    // 1. הוספת שאלת התלמיד למסך ואיפוס השדה
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg msg-user';
+    userMsg.innerText = userText;
+    win.appendChild(userMsg);
+    inputField.value = '';
+    win.scrollTop = win.scrollHeight;
+
+    loading.style.display = 'flex';
 
     try {
-        addMessage(userText, 'user');
-        inputField.value = '';
-        loading.style.display = 'flex';
-
-        // משיכת הקוד העדכני ביותר ישירות מ-Monaco
+        // 2. שליפת הקוד העדכני מעורך Monaco
         if (editorInstance) files[activeFileName] = editorInstance.getValue();
         let currentCode = "";
         Object.keys(files).forEach(f => { currentCode += `\n// קובץ: ${f}\n${files[f]}`; });
 
-        // הנחיות קפדניות לעברית נכונה ולשפה מקצועית
+        // 3. הנחיות קפדניות לשפה עברית טבעית
         const systemPrompt = `אתה בוטלי (BotLi) – מורה פרטי ועוזר הוראה מנוסה למדעי המחשב בתיכון בישראל (שפת Java).
-
 הנחיות שפה קריטיות:
-1. הקפד על עברית תקנית, עשירה, טבעית ורהוטה לחלוטין! הימנע מתרגום מכונה קלוקל או תרגום מילולי מאנגלית.
-2. הקפד על זכר/נקבה ומונחים מדויקים:
-   - אמור: "הקוד קורא לפונקציה" (בזכר! לעולם לא "קוראת"), "התוכנית מבצעת", "ההבדל היחיד" (לעולם לא "ההפרש היחיד"), "קריאה רקורסיבית", "תנאי עצירה", "סדר עולה", "ערך מוחזר".
-3. הסבר תמיד בגובה העיניים של תלמיד תיכון: ברור, קצר, תמציתי ומדויק (עד 3-4 משפטים).
-4. אם התלמיד מבקש קוד, תן דוגמה נקייה ותקנית שלמדעי המחשב בישראל (ללא ספריות מיותרות).`;
+1. ענה בעברית רהוטה, טבעית ותקנית בלבד. אל תתרגם מילולית מאנגלית.
+2. דקדוק נכון: "הקוד קורא לפונקציה" (בזכר!), "התוכנית מבצעת", "ההבדל היחיד" (לא ההפרש), "קריאה רקורסיבית", "תנאי עצירה".
+3. תשובות קצרות, מדויקות וברורות (עד 3 משפטים).`;
 
-        const userPrompt = `הקוד שמופיע אצלי בעורך כרגע:
+        const userPrompt = `הקוד שבעורך שלי כרגע:
 \`\`\`java
 ${currentCode}
 \`\`\`
@@ -3014,15 +3058,62 @@ ${currentCode}
         let aiText = await response.text();
         aiText = aiText.replace(/🌸 \*\*Ad\*\* 🌸/g, "").trim();
 
-        addMessage(aiText, 'ai');
+        // 4. הצגת התשובה של הבוט
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-msg msg-ai';
+        aiMsg.innerHTML = aiText.replace(/\n/g, '<br>');
+        win.appendChild(aiMsg);
+        win.scrollTop = win.scrollHeight;
+
     } catch (error) {
         console.error(error);
-        addMessage("⚠️ שגיאת תקשורת קלה, נסה לשאול שוב.", 'ai');
+        const errMsg = document.createElement('div');
+        errMsg.className = 'chat-msg msg-ai';
+        errMsg.innerText = "⚠️ שגיאת תקשורת, נסה לשאול שוב.";
+        win.appendChild(errMsg);
     } finally {
         loading.style.display = 'none';
     }
 }
+window.sendToAI = sendToAI;
 
+// --- מנגנון שינוי גודל דינמי (פתרון בעיה 3) ---
+(function initAiResize() {
+    window.addEventListener('DOMContentLoaded', () => {
+        const popup = document.getElementById('ai-chat-popup');
+        const handle = document.getElementById('ai-resize-handle');
+        if (!popup || !handle) return;
+
+        let isResizing = false;
+        let startX, startY, startW, startH;
+
+        handle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startW = popup.offsetWidth;
+            startH = popup.offsetHeight;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isResizing) return;
+            // החלון מעוגן לימין ולמטה, ולכן משיכה שמאלה מגדילה רוחב, ומשיכה למעלה מגדילה גובה
+            const newW = Math.min(Math.max(280, startW + (startX - e.clientX)), window.innerWidth * 0.85);
+            const newH = Math.min(Math.max(300, startH + (startY - e.clientY)), window.innerHeight * 0.85);
+            popup.style.width = newW + 'px';
+            popup.style.height = newH + 'px';
+        }
+
+        function onMouseUp() {
+            isResizing = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    });
+})();
 
 
             function addMessage(text, sender) {
@@ -3368,6 +3459,15 @@ ${currentCode}
                     Sys.alert("לא ניתן לעבור לשיעורים בזמן מבחן");
                     return;
                 }
+				
+				// סגירת חלונית ה-AI בכל מעבר בין עורך לשיעורים
+			const aiPopup = document.getElementById('ai-chat-popup');
+			if (aiPopup) aiPopup.style.display = 'none';
+
+			if (isExamMode && mode === 'lesson') {
+				Sys.alert("לא ניתן לעבור לשיעורים בזמן מבחן");
+				return;
+			}
 
                 // עדכון משתנה המצב הגלובלי
                 isLearningMode = (mode === 'lesson');
